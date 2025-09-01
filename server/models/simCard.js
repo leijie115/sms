@@ -1,0 +1,76 @@
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
+
+const SimCard = sequelize.define('SimCard', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  deviceId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: '关联的设备ID',
+    references: {
+      model: 'Devices',
+      key: 'id'
+    }
+  },
+  slot: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: '卡槽位置（1或2）'
+  },
+  msIsdn: {
+    type: DataTypes.STRING(20),
+    unique: true,
+    comment: '手机号码MSISDN'
+  },
+  imsi: {
+    type: DataTypes.STRING(50),
+    unique: true,
+    comment: 'IMSI号'
+  },
+  iccId: {
+    type: DataTypes.STRING(50),
+    unique: true,
+    comment: 'ICC ID'
+  },
+  scName: {
+    type: DataTypes.STRING(100),
+    defaultValue: '',
+    comment: 'SIM卡名称/备注'
+  },
+  status: {
+    type: DataTypes.ENUM('202', '203', '204', '205', '209'),
+    defaultValue: '204',
+    comment: 'SIM卡状态：202基站注册中，203ID已读取，204已就绪，205已弹出，209卡异常'
+  },
+  lastActiveTime: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    comment: '最后活跃时间'
+  }
+}, {
+  timestamps: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['deviceId', 'slot']
+    },
+    {
+      fields: ['msIsdn']
+    },
+    {
+      fields: ['imsi']
+    },
+    {
+      fields: ['iccId']
+    },
+    {
+      fields: ['status']
+    }
+  ]
+});
+
+module.exports = SimCard;

@@ -1,7 +1,9 @@
+// server/models/index.js
 const { sequelize } = require('../config/db');
 const Device = require('./device');
 const SimCard = require('./simCard');
 const SmsMessage = require('./smsMessage');
+const ForwardSetting = require('./forwardSetting');
 
 // 定义模型关联关系
 
@@ -42,5 +44,6 @@ module.exports = {
   sequelize,
   Device,
   SimCard,
-  SmsMessage
+  SmsMessage,
+  ForwardSetting
 };

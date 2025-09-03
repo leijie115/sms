@@ -1,3 +1,4 @@
+// client/src/components/Layout/AdminLayout.js
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown, Grid } from 'antd';
 import {
@@ -8,7 +9,9 @@ import {
   LogoutOutlined,
   MobileOutlined,
   CreditCardOutlined,
-  MessageOutlined
+  MessageOutlined,
+  ApiOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -73,6 +76,16 @@ function AdminLayout({ children, onLogout }) {
       key: '/sms-messages',
       icon: <MessageOutlined />,
       label: '短信管理',
+    },
+    {
+      key: '/forward-settings',
+      icon: <ApiOutlined />,
+      label: '转发设置',
+    },
+    {
+      key: '/logs',
+      icon: <FileTextOutlined />,
+      label: '日志管理',
     }
   ];
 
@@ -125,7 +138,6 @@ function AdminLayout({ children, onLogout }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          // color: '#000',
           fontWeight: 'bold',
           fontSize: collapsed ? '20px' : '16px',
           transition: 'all 0.2s',
@@ -133,7 +145,6 @@ function AdminLayout({ children, onLogout }) {
           {collapsed ? 'A' : 'Admin System'}
         </div>
         <Menu
-          // theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}

@@ -341,8 +341,8 @@ function SmsMessageManagement() {
         />
       </div>
 
-      {/* 详情弹窗 */}
-      <Modal
+     {/* 详情弹窗 */}
+     <Modal
         title="短信详情"
         open={detailModalVisible}
         onCancel={() => {
@@ -376,25 +376,37 @@ function SmsMessageManagement() {
               {dayjs(selectedMessage.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </Descriptions.Item>
             <Descriptions.Item label="短信内容">
-              <TextArea 
-                value={selectedMessage.smsBd} 
-                readOnly 
-                autoSize={{ minRows: 3, maxRows: 10 }}
-                style={{ resize: 'none' }}
-              />
+              <div style={{ 
+                maxHeight: 200, 
+                overflow: 'auto',
+                wordBreak: 'break-all'
+              }}>
+                <TextArea 
+                  value={selectedMessage.smsBd} 
+                  readOnly 
+                  autoSize={{ minRows: 3, maxRows: 8 }}
+                  style={{ resize: 'none', border: 'none', padding: 0 }}
+                />
+              </div>
             </Descriptions.Item>
             {selectedMessage.rawData && (
               <Descriptions.Item label="原始数据">
-                <pre style={{ 
-                  background: '#f5f5f5', 
-                  padding: 10, 
-                  borderRadius: 4,
-                  fontSize: 12,
+                <div style={{ 
                   maxHeight: 300,
                   overflow: 'auto'
                 }}>
-                  {JSON.stringify(selectedMessage.rawData, null, 2)}
-                </pre>
+                  <pre style={{ 
+                    background: '#f5f5f5', 
+                    padding: 10, 
+                    borderRadius: 4,
+                    fontSize: 12,
+                    margin: 0,
+                    wordBreak: 'break-all',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {JSON.stringify(selectedMessage.rawData, null, 2)}
+                  </pre>
+                </div>
               </Descriptions.Item>
             )}
           </Descriptions>

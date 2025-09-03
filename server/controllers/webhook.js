@@ -2,6 +2,8 @@
 const Device = require('../models/device');
 const SimCard = require('../models/simCard');
 const SmsMessage = require('../models/smsMessage');
+const ForwardService = require('../services/forwardService');
+const { logger } = require('../utils/logger');
 
 /**
  * 接收外部请求的 webhook 接口
@@ -18,6 +20,17 @@ const receiveWebhook = async (ctx) => {
     timestamp: new Date().toISOString(),
     query: ctx.request.query,
   };
+
+  // 记录webhook请求到日志
+  logger.logWebhook({
+    ip: requestInfo.ip,
+    url: requestInfo.url,
+    body: requestInfo.body,
+    headers: {
+      'content-type': requestInfo.headers['content-type'],
+      'user-agent': requestInfo.headers['user-agent']
+    }
+  });
 
   // 立即返回 200 状态码
   ctx.status = 200;
@@ -159,6 +172,9 @@ const processSmsMessage = async (data) => {
     // 处理业务逻辑
     await handleSmsBusinessLogic(smsMessage, simCard, device);
     
+    // 转发短信到配置的平台
+    await ForwardService.forwardMessage(smsMessage.toJSON(), device.toJSON(), simCard.toJSON());
+    
   } catch (error) {
     await t.rollback();
     console.error('❌ 保存短信失败:', error);
@@ -247,6 +263,92 @@ const getWebhookLogs = async (ctx) => {
       message: '获取日志失败',
       error: error.message
     };
+  }
+};
+
+/**
+ * 处理SIM卡状态更新
+ * @param {Object} data - 状态数据
+ */
+const processSimCardStatus = async (data) => {
+  const t = await SimCard.sequelize.transaction();
+  
+  try {
+    // 状态映射
+    const statusMap = {
+      202: '202', // 基站注册中
+      203: '203', // ID已读取
+      204: '204', // 已就绪
+      205: '205', // 已弹出
+      209: '209'  // 卡异常
+    };
+    
+    const statusText = {
+      202: '基站注册中',
+      203: 'ID已读取', 
+      204: '已就绪',
+      205: '已弹出',
+      209: '卡异常'
+    };
+    
+    // 1. 查找设备
+    const device = await Device.findOne({
+      where: { devId: data.devId },
+      transaction: t
+    });
+    
+    if (!device) {
+      console.log('⚠️ 设备不存在:', data.devId);
+      await t.rollback();
+      return;
+    }
+    
+    // 更新设备最后活跃时间
+    await device.update({
+      lastActiveTime: new Date()
+    }, { transaction: t });
+    
+    // 2. 查找或创建SIM卡
+    let simCard = await SimCard.findOne({
+      where: {
+        deviceId: device.id,
+        slot: data.slot
+      },
+      transaction: t
+    });
+    
+    if (!simCard) {
+      console.log('🆕 创建新SIM卡记录（状态更新）');
+      
+      simCard = await SimCard.create({
+        deviceId: device.id,
+        slot: data.slot,
+        scName: `卡槽${data.slot}`,
+        status: statusMap[data.type],
+        lastActiveTime: new Date()
+      }, { transaction: t });
+      
+      console.log(`✅ SIM卡创建成功，状态: ${statusText[data.type]}`);
+    } else {
+      // 更新SIM卡状态
+      const oldStatus = simCard.status;
+      await simCard.update({
+        status: statusMap[data.type],
+        lastActiveTime: new Date()
+      }, { transaction: t });
+      
+      console.log(`✅ SIM卡状态更新成功！`);
+      console.log(`   设备: ${device.name} (${device.devId})`);
+      console.log(`   卡槽: ${data.slot}`);
+      console.log(`   状态: ${statusText[oldStatus]} -> ${statusText[data.type]}`);
+    }
+    
+    await t.commit();
+    
+  } catch (error) {
+    await t.rollback();
+    console.error('❌ 更新SIM卡状态失败:', error);
+    throw error;
   }
 };
 

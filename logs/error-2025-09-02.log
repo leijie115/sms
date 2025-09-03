@@ -1,0 +1,87 @@
+[2025-09-02 12:35:21.964] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-02 12:35:21.964",
+  "type": "UncaughtException",
+  "message": "Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js",
+  "stack": "Error: Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1405:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1061:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1066:22)\n    at Module._load (node:internal/modules/cjs/loader:1215:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/app.js:11:17)\n    at Module._compile (node:internal/modules/cjs/loader:1734:14)"
+}
+[2025-09-02 12:35:22.326] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-02 12:35:22.326",
+  "type": "UncaughtException",
+  "message": "Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js",
+  "stack": "Error: Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1405:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1061:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1066:22)\n    at Module._load (node:internal/modules/cjs/loader:1215:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/app.js:11:17)\n    at Module._compile (node:internal/modules/cjs/loader:1734:14)"
+}
+[2025-09-02 12:50:34.101] [STARTUPERROR] {
+  "timestamp": "2025-09-02 12:50:34.101",
+  "type": "StartupError",
+  "message": "服务器启动失败",
+  "stack": "Error\n    at Query.run (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/dialects/mysql/query.js:52:25)\n    at /Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async SimCard.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/model.js:984:11)\n    at async Sequelize.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:377:9)\n    at async start (/Users/leos/Project/sms/server/app.js:244:5)"
+}
+[2025-09-02 12:50:34.102] [ERROR] ❌ 服务器启动失败: {
+  "name": "SequelizeDatabaseError",
+  "parent": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `imsi` `imsi` VARCHAR(50) UNIQUE COMMENT 'IMSI号';"
+  },
+  "original": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `imsi` `imsi` VARCHAR(50) UNIQUE COMMENT 'IMSI号';"
+  },
+  "sql": "ALTER TABLE `SimCards` CHANGE `imsi` `imsi` VARCHAR(50) UNIQUE COMMENT 'IMSI号';",
+  "parameters": {}
+}
+[2025-09-02 12:50:38.336] [STARTUPERROR] {
+  "timestamp": "2025-09-02 12:50:38.336",
+  "type": "StartupError",
+  "message": "服务器启动失败",
+  "stack": "Error\n    at Query.run (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/dialects/mysql/query.js:52:25)\n    at /Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async SimCard.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/model.js:984:11)\n    at async Sequelize.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:377:9)\n    at async start (/Users/leos/Project/sms/server/app.js:244:5)"
+}
+[2025-09-02 12:50:38.337] [ERROR] ❌ 服务器启动失败: {
+  "name": "SequelizeDatabaseError",
+  "parent": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "original": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';",
+  "parameters": {}
+}
+[2025-09-02 12:51:35.702] [STARTUPERROR] {
+  "timestamp": "2025-09-02 12:51:35.702",
+  "type": "StartupError",
+  "message": "服务器启动失败",
+  "stack": "Error\n    at Query.run (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/dialects/mysql/query.js:52:25)\n    at /Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async SimCard.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/model.js:984:11)\n    at async Sequelize.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:377:9)\n    at async start (/Users/leos/Project/sms/server/app.js:244:5)"
+}
+[2025-09-02 12:51:35.702] [ERROR] ❌ 服务器启动失败: {
+  "name": "SequelizeDatabaseError",
+  "parent": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "original": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';",
+  "parameters": {}
+}

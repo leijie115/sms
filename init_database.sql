@@ -1,0 +1,116 @@
+-- 1. 创建数据库（如果不存在）
+CREATE DATABASE IF NOT EXISTS admin_starter DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 2. 使用数据库
+USE admin_starter;
+
+-- 3. 删除旧表（如果存在）
+DROP TABLE IF EXISTS `SmsMessages`;
+DROP TABLE IF EXISTS `SimCards`;
+DROP TABLE IF EXISTS `Devices`;
+DROP TABLE IF EXISTS `ForwardSettings`;
+
+-- 4. 创建设备表
+CREATE TABLE `Devices` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `devId` varchar(50) NOT NULL COMMENT '设备ID',
+  `name` varchar(100) DEFAULT '' COMMENT '设备名称',
+  `status` enum('active','inactive','offline') DEFAULT 'active' COMMENT '设备状态',
+  `description` text COMMENT '设备描述',
+  `lastActiveTime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '最后活跃时间',
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `devId` (`devId`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. 创建SIM卡表
+CREATE TABLE `SimCards` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `deviceId` int NOT NULL COMMENT '关联的设备ID',
+  `slot` int NOT NULL COMMENT '卡槽位置（1或2）',
+  `msIsdn` varchar(20) DEFAULT NULL COMMENT '手机号码MSISDN',
+  `imsi` varchar(50) DEFAULT NULL COMMENT 'IMSI号',
+  `iccId` varchar(50) DEFAULT NULL COMMENT 'ICC ID',
+  `scName` varchar(100) DEFAULT '' COMMENT 'SIM卡名称/备注',
+  `status` enum('202','203','204','205','209') DEFAULT '204' COMMENT 'SIM卡状态：202基站注册中，203ID已读取，204已就绪，205已弹出，209卡异常',
+  `lastActiveTime` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '最后活跃时间',
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `SimCards_deviceId_slot` (`deviceId`,`slot`),
+  KEY `deviceId` (`deviceId`),
+  CONSTRAINT `SimCards_ibfk_1` FOREIGN KEY (`deviceId`) REFERENCES `Devices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. 创建短信消息表
+CREATE TABLE `SmsMessages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `simCardId` int NOT NULL COMMENT '关联的SIM卡ID',
+  `deviceId` int NOT NULL COMMENT '关联的设备ID',
+  `netCh` int DEFAULT NULL COMMENT '网络通道号（0=wifi，1=卡槽一）',
+  `msgTs` bigint DEFAULT NULL COMMENT '消息时间戳',
+  `phNum` varchar(20) DEFAULT NULL COMMENT '发送方手机号',
+  `smsBd` text COMMENT '短信内容',
+  `smsTs` bigint DEFAULT NULL COMMENT '短信时间戳',
+  `rawData` json DEFAULT NULL COMMENT '原始数据',
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `simCardId` (`simCardId`),
+  KEY `deviceId` (`deviceId`),
+  KEY `phNum` (`phNum`),
+  KEY `createdAt` (`createdAt`),
+  CONSTRAINT `SmsMessages_ibfk_1` FOREIGN KEY (`simCardId`) REFERENCES `SimCards` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `SmsMessages_ibfk_2` FOREIGN KEY (`deviceId`) REFERENCES `Devices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. 创建转发设置表
+CREATE TABLE `ForwardSettings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `platform` enum('telegram','bark','webhook') NOT NULL COMMENT '转发平台',
+  `enabled` tinyint(1) DEFAULT '0' COMMENT '是否启用',
+  `config` json DEFAULT NULL COMMENT '平台配置信息',
+  `filterRules` json DEFAULT NULL COMMENT '过滤规则',
+  `messageTemplate` text COMMENT '消息模板',
+  `lastForwardTime` datetime DEFAULT NULL COMMENT '最后转发时间',
+  `forwardCount` int DEFAULT '0' COMMENT '转发计数',
+  `failCount` int DEFAULT '0' COMMENT '失败计数',
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `platform` (`platform`),
+  KEY `enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. 插入您提供的设备数据
+INSERT INTO `Devices` (`devId`, `name`, `status`, `description`) 
+VALUES ('1091a8443428', '第一个设备', 'active', '开发版第一个机器');
+
+-- 9. 插入您提供的SIM卡数据
+INSERT INTO `SimCards` (`deviceId`, `slot`, `msIsdn`, `imsi`, `iccId`, `scName`, `status`) 
+VALUES
+(1, 1, '+8617602816612', '460012810115581', '89860118802476524938', '联通保号卡', '204'),
+(1, 2, '+85269760349', '454003063040863', '8985200014630408634F', '香港clubsim卡', '204');
+
+-- 更新 ForwardSettings 表的 platform 枚举类型
+ALTER TABLE `ForwardSettings` 
+MODIFY COLUMN `platform` enum('telegram','bark','webhook','wxpusher') NOT NULL COMMENT '转发平台';
+
+-- 插入 WxPusher 默认配置（如果不存在）
+INSERT IGNORE INTO `ForwardSettings` (`platform`, `enabled`, `config`, `filterRules`, `messageTemplate`)
+VALUES
+('wxpusher', 0,
+  '{"appToken":"","uids":[],"topicIds":[],"url":""}',
+  '{"keywords":[],"senders":[],"devices":[],"simCards":[]}',
+  '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}');
+
+-- 10. 查看插入的数据
+SELECT '设备数据:' as '数据类型';
+SELECT * FROM Devices;
+
+SELECT 'SIM卡数据:' as '数据类型';
+SELECT s.*, d.name as device_name 
+FROM SimCards s 
+LEFT JOIN Devices d ON s.deviceId = d.id;

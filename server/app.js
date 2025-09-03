@@ -1,3 +1,4 @@
+// server/app.js
 require('dotenv').config();
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
@@ -6,13 +7,39 @@ const path = require('path');
 const fs = require('fs');
 
 const routes = require('./routes');
-const { sequelize, Device, SimCard, SmsMessage, Article } = require('./models');
+const { sequelize, Device, SimCard, SmsMessage, ForwardSetting } = require('./models');
+const { logger, loggerMiddleware, errorHandler } = require('./utils/logger');
 
 const app = new Koa();
 const port = process.env.PORT || 3000;
 
-// 中间件
-app.use(bodyParser());
+// 错误处理中间件 - 必须放在最前面
+app.use(errorHandler);
+
+// 日志中间件
+app.use(loggerMiddleware);
+
+// Body解析中间件 - 添加错误处理
+app.use(async (ctx, next) => {
+  try {
+    await bodyParser()(ctx, next);
+  } catch (err) {
+    if (err.status === 400) {
+      logger.logError('BodyParserError', err, {
+        url: ctx.url,
+        method: ctx.method,
+        body: ctx.request.body
+      });
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '请求体解析错误，请检查JSON格式'
+      };
+    } else {
+      throw err;
+    }
+  }
+});
 
 // 静态文件服务
 if (process.env.NODE_ENV === 'production') {
@@ -188,10 +215,24 @@ app.use(async (ctx) => {
   }
 });
 
-// 错误处理
+// 全局错误处理
 app.on('error', (err, ctx) => {
-  console.error('Server error:', err);
+  // 这里的错误已经被中间件处理并记录
+  // 这里只是作为最后的保障
+  if (!ctx) {
+    logger.logError('AppError', err, {
+      message: '应用级错误（无上下文）'
+    });
+  }
 });
+
+// 每天凌晨2点清理30天前的日志
+setInterval(() => {
+  const now = new Date();
+  if (now.getHours() === 2 && now.getMinutes() === 0) {
+    logger.cleanOldLogs(30);
+  }
+}, 60000); // 每分钟检查一次
 
 // 数据库连接和服务器启动
 async function start() {
@@ -205,10 +246,16 @@ async function start() {
     
     // 输出模型信息
     console.log('📊 已加载的数据模型:');
-    console.log('   - Article (文章)');
     console.log('   - Device (设备)');
     console.log('   - SimCard (SIM卡)');
     console.log('   - SmsMessage (短信消息)');
+    console.log('   - ForwardSetting (转发设置)');
+    console.log('📁 日志文件:');
+    console.log('   - logs/app-YYYY-MM-DD.log (应用日志)');
+    console.log('   - logs/error-YYYY-MM-DD.log (错误日志)');
+    console.log('   - logs/request-YYYY-MM-DD.log (请求日志)');
+    console.log('   - logs/webhook-YYYY-MM-DD.log (Webhook日志)');
+    console.log('   - logs/forward-YYYY-MM-DD.log (转发日志)');
     
     app.listen(port, () => {
       console.log(`\n🚀 服务器运行在 http://localhost:${port}`);
@@ -217,9 +264,17 @@ async function start() {
       console.log(`🔑 默认密码: admin123\n`);
     });
   } catch (error) {
-    console.error('❌ 无法连接到数据库:', error);
+    logger.logError('StartupError', error, {
+      message: '服务器启动失败'
+    });
+    console.error('❌ 服务器启动失败:', error);
     process.exit(1);
   }
 }
 
-start();
+// 处理启动错误
+start().catch(error => {
+  logger.logError('FatalStartupError', error);
+  console.error('❌ 致命错误:', error);
+  process.exit(1);
+});

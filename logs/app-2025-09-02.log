@@ -1,0 +1,287 @@
+[2025-09-02 12:35:21.964] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-02 12:35:21.964",
+  "type": "UncaughtException",
+  "message": "Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js",
+  "stack": "Error: Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1405:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1061:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1066:22)\n    at Module._load (node:internal/modules/cjs/loader:1215:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/app.js:11:17)\n    at Module._compile (node:internal/modules/cjs/loader:1734:14)"
+}
+[2025-09-02 12:35:21.967] [LOG] ✅ 创建默认转发配置文件
+[2025-09-02 12:35:22.326] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-02 12:35:22.326",
+  "type": "UncaughtException",
+  "message": "Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js",
+  "stack": "Error: Cannot find module './models/article'\nRequire stack:\n- /Users/leos/Project/sms/server/app.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1405:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1061:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1066:22)\n    at Module._load (node:internal/modules/cjs/loader:1215:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/app.js:11:17)\n    at Module._compile (node:internal/modules/cjs/loader:1734:14)"
+}
+[2025-09-02 12:36:19.517] [LOG] ✅ 数据库连接成功
+[2025-09-02 12:36:19.917] [LOG] ✅ 数据库模型同步成功
+[2025-09-02 12:36:19.918] [LOG] 📊 已加载的数据模型:
+[2025-09-02 12:36:19.918] [LOG]    - Article (文章)
+[2025-09-02 12:36:19.918] [LOG]    - Device (设备)
+[2025-09-02 12:36:19.918] [LOG]    - SimCard (SIM卡)
+[2025-09-02 12:36:19.918] [LOG]    - SmsMessage (短信消息)
+[2025-09-02 12:36:19.918] [LOG]    - ForwardSetting (转发设置)
+[2025-09-02 12:36:19.918] [LOG] 📁 日志文件:
+[2025-09-02 12:36:19.918] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-02 12:36:19.918] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-02 12:36:19.918] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-02 12:36:19.918] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-02 12:36:19.918] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-02 12:36:19.919] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-02 12:36:19.919] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-02 12:36:19.919] [LOG] 🔐 默认账号: admin
+[2025-09-02 12:36:19.919] [LOG] 🔑 默认密码: admin123
+
+[2025-09-02 12:36:30.169] [LOG] [33mGET /api/check-auth 401[0m - 3ms - ::1
+[2025-09-02 12:36:35.676] [LOG] [32mPOST /api/login 200[0m - 15ms - ::1
+[2025-09-02 12:36:35.736] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 13ms - ::1
+[2025-09-02 12:36:35.738] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 21ms - ::1
+[2025-09-02 12:36:35.740] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 16ms - ::1
+[2025-09-02 12:36:35.744] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:37:05.759] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-02 12:37:05.760] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 20ms - ::1
+[2025-09-02 12:37:05.762] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 14ms - ::1
+[2025-09-02 12:37:05.767] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 15ms - ::1
+[2025-09-02 12:37:35.751] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:37:35.753] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-02 12:37:35.757] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 14ms - ::1
+[2025-09-02 12:37:35.761] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 11ms - ::1
+[2025-09-02 12:38:05.753] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:38:05.754] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 14ms - ::1
+[2025-09-02 12:38:05.755] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 10ms - ::1
+[2025-09-02 12:38:05.758] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 12ms - ::1
+[2025-09-02 12:38:35.746] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:38:35.747] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:38:35.747] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 9ms - ::1
+[2025-09-02 12:38:35.750] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 11ms - ::1
+[2025-09-02 12:39:05.753] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 15ms - ::1
+[2025-09-02 12:39:05.753] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 16ms - ::1
+[2025-09-02 12:39:05.754] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 6ms - ::1
+[2025-09-02 12:39:05.757] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 9ms - ::1
+[2025-09-02 12:39:35.750] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 20ms - ::1
+[2025-09-02 12:39:35.752] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 21ms - ::1
+[2025-09-02 12:39:35.753] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 12ms - ::1
+[2025-09-02 12:39:35.757] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 15ms - ::1
+[2025-09-02 12:40:05.749] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 20ms - ::1
+[2025-09-02 12:40:05.750] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 11ms - ::1
+[2025-09-02 12:40:05.751] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 23ms - ::1
+[2025-09-02 12:40:05.755] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 15ms - ::1
+[2025-09-02 12:40:35.748] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 18ms - ::1
+[2025-09-02 12:40:35.749] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 13ms - ::1
+[2025-09-02 12:40:35.750] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 14ms - ::1
+[2025-09-02 12:40:35.756] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 10ms - ::1
+[2025-09-02 12:41:05.748] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 18ms - ::1
+[2025-09-02 12:41:05.750] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 19ms - ::1
+[2025-09-02 12:41:05.752] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 11ms - ::1
+[2025-09-02 12:41:05.755] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:41:35.756] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-02 12:41:35.757] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 21ms - ::1
+[2025-09-02 12:41:35.758] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 15ms - ::1
+[2025-09-02 12:41:35.760] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:42:05.753] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-02 12:42:05.755] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 7ms - ::1
+[2025-09-02 12:42:05.756] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 16ms - ::1
+[2025-09-02 12:42:05.758] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 10ms - ::1
+[2025-09-02 12:42:35.749] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 22ms - ::1
+[2025-09-02 12:42:35.751] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 10ms - ::1
+[2025-09-02 12:42:35.752] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 26ms - ::1
+[2025-09-02 12:42:35.755] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 14ms - ::1
+[2025-09-02 12:43:05.756] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 14ms - ::1
+[2025-09-02 12:43:05.757] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:43:05.757] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 8ms - ::1
+[2025-09-02 12:43:05.762] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:43:35.754] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 8ms - ::1
+[2025-09-02 12:43:35.755] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 9ms - ::1
+[2025-09-02 12:43:35.756] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 18ms - ::1
+[2025-09-02 12:43:35.760] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:44:05.741] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 13ms - ::1
+[2025-09-02 12:44:05.743] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 13ms - ::1
+[2025-09-02 12:44:05.745] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 12ms - ::1
+[2025-09-02 12:44:05.752] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:44:35.753] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 16ms - ::1
+[2025-09-02 12:44:35.755] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 14ms - ::1
+[2025-09-02 12:44:35.755] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 14ms - ::1
+[2025-09-02 12:44:35.758] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:45:05.747] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 11ms - ::1
+[2025-09-02 12:45:05.748] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 12ms - ::1
+[2025-09-02 12:45:05.749] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 22ms - ::1
+[2025-09-02 12:45:05.752] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 12ms - ::1
+[2025-09-02 12:45:35.748] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 15ms - ::1
+[2025-09-02 12:45:35.750] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:45:35.750] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 8ms - ::1
+[2025-09-02 12:45:35.754] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 10ms - ::1
+[2025-09-02 12:45:54.652] [LOG] [32mGET /api/check-auth 200[0m - 2ms - ::1
+[2025-09-02 12:45:54.733] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 10ms - ::1
+[2025-09-02 12:45:54.734] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 6ms - ::1
+[2025-09-02 12:45:54.734] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 7ms - ::1
+[2025-09-02 12:45:54.737] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 6ms - ::1
+[2025-09-02 12:46:24.760] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 16ms - ::1
+[2025-09-02 12:46:24.761] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 18ms - ::1
+[2025-09-02 12:46:24.761] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 10ms - ::1
+[2025-09-02 12:46:24.765] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 14ms - ::1
+[2025-09-02 12:46:54.754] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:46:54.755] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-02 12:46:54.756] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 8ms - ::1
+[2025-09-02 12:46:54.760] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 11ms - ::1
+[2025-09-02 12:47:24.751] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 7ms - ::1
+[2025-09-02 12:47:24.752] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 15ms - ::1
+[2025-09-02 12:47:24.754] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:47:24.757] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 13ms - ::1
+[2025-09-02 12:47:54.760] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:47:54.761] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-02 12:47:54.763] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 7ms - ::1
+[2025-09-02 12:47:54.767] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 11ms - ::1
+[2025-09-02 12:48:24.757] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 10ms - ::1
+[2025-09-02 12:48:24.758] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 14ms - ::1
+[2025-09-02 12:48:24.759] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 11ms - ::1
+[2025-09-02 12:48:24.763] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 9ms - ::1
+[2025-09-02 12:48:54.764] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 19ms - ::1
+[2025-09-02 12:48:54.765] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 21ms - ::1
+[2025-09-02 12:48:54.765] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 5ms - ::1
+[2025-09-02 12:48:54.768] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 8ms - ::1
+[2025-09-02 12:49:25.191] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 18ms - ::1
+[2025-09-02 12:49:25.193] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 15ms - ::1
+[2025-09-02 12:49:25.194] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 13ms - ::1
+[2025-09-02 12:49:25.197] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 15ms - ::1
+[2025-09-02 12:49:38.824] [LOG] ✅ 数据库连接成功
+[2025-09-02 12:49:39.310] [LOG] ✅ 数据库模型同步成功
+[2025-09-02 12:49:39.310] [LOG] 📊 已加载的数据模型:
+[2025-09-02 12:49:39.311] [LOG]    - Article (文章)
+[2025-09-02 12:49:39.311] [LOG]    - Device (设备)
+[2025-09-02 12:49:39.311] [LOG]    - SimCard (SIM卡)
+[2025-09-02 12:49:39.311] [LOG]    - SmsMessage (短信消息)
+[2025-09-02 12:49:39.311] [LOG]    - ForwardSetting (转发设置)
+[2025-09-02 12:49:39.312] [LOG] 📁 日志文件:
+[2025-09-02 12:49:39.313] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-02 12:49:39.313] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-02 12:49:39.313] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-02 12:49:39.313] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-02 12:49:39.313] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-02 12:49:39.317] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-02 12:49:39.318] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-02 12:49:39.318] [LOG] 🔐 默认账号: admin
+[2025-09-02 12:49:39.318] [LOG] 🔑 默认密码: admin123
+
+[2025-09-02 12:49:46.609] [LOG] 
+收到 SIGINT 信号，正在优雅关闭...
+[2025-09-02 12:49:48.154] [LOG] ✅ 数据库连接成功
+[2025-09-02 12:49:48.582] [LOG] ✅ 数据库模型同步成功
+[2025-09-02 12:49:48.582] [LOG] 📊 已加载的数据模型:
+[2025-09-02 12:49:48.582] [LOG]    - Article (文章)
+[2025-09-02 12:49:48.582] [LOG]    - Device (设备)
+[2025-09-02 12:49:48.582] [LOG]    - SimCard (SIM卡)
+[2025-09-02 12:49:48.582] [LOG]    - SmsMessage (短信消息)
+[2025-09-02 12:49:48.582] [LOG]    - ForwardSetting (转发设置)
+[2025-09-02 12:49:48.583] [LOG] 📁 日志文件:
+[2025-09-02 12:49:48.583] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-02 12:49:48.583] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-02 12:49:48.583] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-02 12:49:48.583] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-02 12:49:48.583] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-02 12:49:48.584] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-02 12:49:48.584] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-02 12:49:48.584] [LOG] 🔐 默认账号: admin
+[2025-09-02 12:49:48.584] [LOG] 🔑 默认密码: admin123
+
+[2025-09-02 12:49:54.543] [LOG] [32mGET /api/check-auth 200[0m - 3ms - ::1
+[2025-09-02 12:49:54.612] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 13ms - ::1
+[2025-09-02 12:49:54.614] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 10ms - ::1
+[2025-09-02 12:49:54.615] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 11ms - ::1
+[2025-09-02 12:49:54.623] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 8ms - ::1
+[2025-09-02 12:49:55.592] [LOG] [32mGET /api/check-auth 200[0m - 0ms - ::1
+[2025-09-02 12:49:55.642] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 4ms - ::1
+[2025-09-02 12:49:55.643] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 3ms - ::1
+[2025-09-02 12:49:55.647] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 3ms - ::1
+[2025-09-02 12:49:55.651] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 5ms - ::1
+[2025-09-02 12:50:02.016] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 6ms - ::1
+[2025-09-02 12:50:02.023] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 9ms - ::1
+[2025-09-02 12:50:02.024] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 7ms - ::1
+[2025-09-02 12:50:02.025] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 10ms - ::1
+[2025-09-02 12:50:04.042] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 6ms - ::1
+[2025-09-02 12:50:04.044] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 8ms - ::1
+[2025-09-02 12:50:05.178] [LOG] [32mGET /api/devices?page=1&pageSize=10&search=&status= 200[0m - 5ms - ::1
+[2025-09-02 12:50:05.738] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 10ms - ::1
+[2025-09-02 12:50:05.740] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 7ms - ::1
+[2025-09-02 12:50:05.748] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 5ms - ::1
+[2025-09-02 12:50:05.752] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 9ms - ::1
+[2025-09-02 12:50:29.523] [LOG] 
+收到 SIGINT 信号，正在优雅关闭...
+[2025-09-02 12:50:33.926] [LOG] ✅ 数据库连接成功
+[2025-09-02 12:50:34.101] [STARTUPERROR] {
+  "timestamp": "2025-09-02 12:50:34.101",
+  "type": "StartupError",
+  "message": "服务器启动失败",
+  "stack": "Error\n    at Query.run (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/dialects/mysql/query.js:52:25)\n    at /Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async SimCard.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/model.js:984:11)\n    at async Sequelize.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:377:9)\n    at async start (/Users/leos/Project/sms/server/app.js:244:5)"
+}
+[2025-09-02 12:50:34.102] [ERROR] ❌ 服务器启动失败: {
+  "name": "SequelizeDatabaseError",
+  "parent": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `imsi` `imsi` VARCHAR(50) UNIQUE COMMENT 'IMSI号';"
+  },
+  "original": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `imsi` `imsi` VARCHAR(50) UNIQUE COMMENT 'IMSI号';"
+  },
+  "sql": "ALTER TABLE `SimCards` CHANGE `imsi` `imsi` VARCHAR(50) UNIQUE COMMENT 'IMSI号';",
+  "parameters": {}
+}
+[2025-09-02 12:50:38.197] [LOG] ✅ 数据库连接成功
+[2025-09-02 12:50:38.336] [STARTUPERROR] {
+  "timestamp": "2025-09-02 12:50:38.336",
+  "type": "StartupError",
+  "message": "服务器启动失败",
+  "stack": "Error\n    at Query.run (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/dialects/mysql/query.js:52:25)\n    at /Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async SimCard.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/model.js:984:11)\n    at async Sequelize.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:377:9)\n    at async start (/Users/leos/Project/sms/server/app.js:244:5)"
+}
+[2025-09-02 12:50:38.337] [ERROR] ❌ 服务器启动失败: {
+  "name": "SequelizeDatabaseError",
+  "parent": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "original": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';",
+  "parameters": {}
+}
+[2025-09-02 12:51:35.546] [LOG] ✅ 数据库连接成功
+[2025-09-02 12:51:35.702] [STARTUPERROR] {
+  "timestamp": "2025-09-02 12:51:35.702",
+  "type": "StartupError",
+  "message": "服务器启动失败",
+  "stack": "Error\n    at Query.run (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/dialects/mysql/query.js:52:25)\n    at /Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async SimCard.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/model.js:984:11)\n    at async Sequelize.sync (/Users/leos/Project/sms/node_modules/_sequelize@6.37.7@sequelize/lib/sequelize.js:377:9)\n    at async start (/Users/leos/Project/sms/server/app.js:244:5)"
+}
+[2025-09-02 12:51:35.702] [ERROR] ❌ 服务器启动失败: {
+  "name": "SequelizeDatabaseError",
+  "parent": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "original": {
+    "code": "ER_TOO_MANY_KEYS",
+    "errno": 1069,
+    "sqlState": "42000",
+    "sqlMessage": "Too many keys specified; max 64 keys allowed",
+    "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';"
+  },
+  "sql": "ALTER TABLE `SimCards` CHANGE `msIsdn` `msIsdn` VARCHAR(20) UNIQUE COMMENT '手机号码MSISDN';",
+  "parameters": {}
+}

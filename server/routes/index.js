@@ -1,3 +1,4 @@
+// server/routes/index.js
 const Router = require('koa-router');
 const authMiddleware = require('../middleware/auth');
 const authController = require('../controllers/auth');
@@ -5,6 +6,8 @@ const webhookController = require('../controllers/webhook');
 const deviceController = require('../controllers/device');
 const simCardController = require('../controllers/simCard');
 const smsMessageController = require('../controllers/smsMessage');
+const forwardSettingController = require('../controllers/forwardSetting');
+const logController = require('../controllers/log');
 
 const router = new Router({ prefix: '/api' });
 
@@ -43,5 +46,20 @@ router.delete('/sms-messages/:id', authMiddleware, smsMessageController.deleteSm
 
 // Webhook 日志查看
 router.get('/webhook-logs', authMiddleware, webhookController.getWebhookLogs);
+
+// 转发设置路由
+router.get('/forward-settings', authMiddleware, forwardSettingController.getForwardSettings);
+router.get('/forward-settings/statistics', authMiddleware, forwardSettingController.getForwardStatistics);
+router.get('/forward-settings/filters', authMiddleware, forwardSettingController.getAvailableFilters);
+router.get('/forward-settings/:platform', authMiddleware, forwardSettingController.getForwardSetting);
+router.put('/forward-settings/:platform', authMiddleware, forwardSettingController.updateForwardSetting);
+router.post('/forward-settings/:platform/test', authMiddleware, forwardSettingController.testForwardSetting);
+
+// 日志管理路由
+router.get('/logs', authMiddleware, logController.getLogFiles);
+router.get('/logs/tail', authMiddleware, logController.tailLog);
+router.get('/logs/:filename', authMiddleware, logController.readLogFile);
+router.get('/logs/:filename/download', authMiddleware, logController.downloadLogFile);
+router.post('/logs/clean', authMiddleware, logController.cleanOldLogs);
 
 module.exports = router;

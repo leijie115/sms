@@ -1,0 +1,62 @@
+{
+  "telegram": {
+    "enabled": false,
+    "config": {
+      "botToken": "",
+      "chatId": "",
+      "parseMode": "HTML",
+      "silentMode": false,
+      "proxy": {
+        "enabled": false,
+        "host": "",
+        "port": "",
+        "auth": {
+          "username": "",
+          "password": ""
+        }
+      }
+    },
+    "filterRules": {
+      "keywords": [],
+      "senders": [],
+      "devices": [],
+      "simCards": []
+    },
+    "messageTemplate": "📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}"
+  },
+  "bark": {
+    "enabled": false,
+    "config": {
+      "serverUrl": "https://api.day.app",
+      "deviceKey": "",
+      "group": "短信接收",
+      "sound": "default",
+      "level": "active",
+      "autoCopy": true,
+      "icon": "https://day.app/assets/images/avatar.jpg"
+    },
+    "filterRules": {
+      "keywords": [],
+      "senders": [],
+      "devices": [],
+      "simCards": []
+    },
+    "messageTemplate": "📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}"
+  },
+  "webhook": {
+    "enabled": false,
+    "config": {
+      "url": "",
+      "method": "POST",
+      "headers": {},
+      "timeout": 10000
+    },
+    "filterRules": {
+      "keywords": [],
+      "senders": [],
+      "devices": [],
+      "simCards": []
+    },
+    "messageTemplate": "📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}"
+  }
+}

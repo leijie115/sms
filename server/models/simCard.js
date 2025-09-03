@@ -23,17 +23,14 @@ const SimCard = sequelize.define('SimCard', {
   },
   msIsdn: {
     type: DataTypes.STRING(20),
-    unique: true,
     comment: '手机号码MSISDN'
   },
   imsi: {
     type: DataTypes.STRING(50),
-    unique: true,
     comment: 'IMSI号'
   },
   iccId: {
     type: DataTypes.STRING(50),
-    unique: true,
     comment: 'ICC ID'
   },
   scName: {
@@ -57,18 +54,6 @@ const SimCard = sequelize.define('SimCard', {
     {
       unique: true,
       fields: ['deviceId', 'slot']
-    },
-    {
-      fields: ['msIsdn']
-    },
-    {
-      fields: ['imsi']
-    },
-    {
-      fields: ['iccId']
-    },
-    {
-      fields: ['status']
     }
   ]
 });

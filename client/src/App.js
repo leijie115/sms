@@ -1,3 +1,4 @@
+// client/src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login/Login';
@@ -6,6 +7,8 @@ import Dashboard from './pages/Dashboard';
 import DeviceManagement from './pages/DeviceManagement';
 import SimCardManagement from './pages/SimCardManagement';
 import SmsMessageManagement from './pages/SmsMessageManagement';
+import ForwardSetting from './pages/ForwardSetting';
+import LogViewer from './pages/LogViewer';
 import { checkAuth } from './services/api';
 
 function App() {
@@ -82,6 +85,8 @@ function App() {
                 <Route path="/devices" element={<DeviceManagement />} />
                 <Route path="/simcards" element={<SimCardManagement />} />
                 <Route path="/sms-messages" element={<SmsMessageManagement />} />
+                <Route path="/forward-settings" element={<ForwardSetting />} />
+                <Route path="/logs" element={<LogViewer />} />
               </Routes>
             </AdminLayout> : 
             <Navigate to="/login" replace />

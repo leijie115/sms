@@ -1,0 +1,664 @@
+[2025-09-03 23:46:11.120] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:46:11.120",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:51:02.510] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:51:02.510",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:51:05.294] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:51:05.294",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:51:21.093] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:51:21.093",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:53:47.327] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:53:47.327",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:54:32.283] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:54:32.283",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:55:25.995] [LOG] ✅ 数据库连接成功
+[2025-09-03 23:55:26.479] [LOG] ✅ 数据库模型同步成功
+[2025-09-03 23:55:26.482] [LOG] 📊 已加载的数据模型:
+[2025-09-03 23:55:26.483] [LOG]    - Device (设备)
+[2025-09-03 23:55:26.483] [LOG]    - SimCard (SIM卡)
+[2025-09-03 23:55:26.483] [LOG]    - SmsMessage (短信消息)
+[2025-09-03 23:55:26.484] [LOG]    - ForwardSetting (转发设置)
+[2025-09-03 23:55:26.484] [LOG] 📁 日志文件:
+[2025-09-03 23:55:26.484] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-03 23:55:26.484] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-03 23:55:26.485] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-03 23:55:26.485] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-03 23:55:26.486] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-03 23:55:26.489] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-03 23:55:26.489] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-03 23:55:26.490] [LOG] 🔐 默认账号: admin
+[2025-09-03 23:55:26.490] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 04:49:07.096] [LOG] ✅ 数据库连接成功
+[2025-09-04 04:49:07.590] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 04:49:07.590] [LOG] 📊 已加载的数据模型:
+[2025-09-04 04:49:07.590] [LOG]    - Device (设备)
+[2025-09-04 04:49:07.591] [LOG]    - SimCard (SIM卡)
+[2025-09-04 04:49:07.591] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 04:49:07.591] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 04:49:07.591] [LOG] 📁 日志文件:
+[2025-09-04 04:49:07.591] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 04:49:07.591] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 04:49:07.592] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 04:49:07.592] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 04:49:07.592] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 04:49:07.595] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 04:49:07.595] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 04:49:07.595] [LOG] 🔐 默认账号: admin
+[2025-09-04 04:49:07.596] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 04:49:21.424] [LOG] ✅ 数据库连接成功
+[2025-09-04 04:49:21.919] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 04:49:21.919] [LOG] 📊 已加载的数据模型:
+[2025-09-04 04:49:21.920] [LOG]    - Device (设备)
+[2025-09-04 04:49:21.920] [LOG]    - SimCard (SIM卡)
+[2025-09-04 04:49:21.920] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 04:49:21.920] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 04:49:21.921] [LOG] 📁 日志文件:
+[2025-09-04 04:49:21.921] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 04:49:21.921] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 04:49:21.922] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 04:49:21.922] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 04:49:21.922] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 04:49:21.925] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 04:49:21.926] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 04:49:21.926] [LOG] 🔐 默认账号: admin
+[2025-09-04 04:49:21.927] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 04:49:27.169] [LOG] 
+收到 SIGINT 信号，正在优雅关闭...
+[2025-09-04 04:49:29.129] [LOG] ✅ 数据库连接成功
+[2025-09-04 04:49:29.558] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 04:49:29.558] [LOG] 📊 已加载的数据模型:
+[2025-09-04 04:49:29.558] [LOG]    - Device (设备)
+[2025-09-04 04:49:29.559] [LOG]    - SimCard (SIM卡)
+[2025-09-04 04:49:29.559] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 04:49:29.559] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 04:49:29.559] [LOG] 📁 日志文件:
+[2025-09-04 04:49:29.559] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 04:49:29.560] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 04:49:29.560] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 04:49:29.560] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 04:49:29.560] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 04:49:29.561] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 04:49:29.561] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 04:49:29.561] [LOG] 🔐 默认账号: admin
+[2025-09-04 04:49:29.561] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 04:49:34.611] [LOG] [32mGET /api/check-auth 200[0m - 4ms - ::1
+[2025-09-04 04:50:12.086] [LOG] [32mGET /api/check-auth 200[0m - 5ms - ::1
+[2025-09-04 04:51:41.858] [LOG] [32mGET /api/check-auth 200[0m - 3ms - ::1
+[2025-09-04 04:51:41.987] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 17ms - ::1
+[2025-09-04 04:51:41.988] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 19ms - ::1
+[2025-09-04 04:51:41.989] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 19ms - ::1
+[2025-09-04 04:51:41.992] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 35ms - ::1
+[2025-09-04 04:51:52.042] [LOG] ✅ 数据库连接成功
+[2025-09-04 04:51:52.532] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 04:51:52.533] [LOG] 📊 已加载的数据模型:
+[2025-09-04 04:51:52.534] [LOG]    - Device (设备)
+[2025-09-04 04:51:52.535] [LOG]    - SimCard (SIM卡)
+[2025-09-04 04:51:52.536] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 04:51:52.536] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 04:51:52.537] [LOG] 📁 日志文件:
+[2025-09-04 04:51:52.537] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 04:51:52.537] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 04:51:52.537] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 04:51:52.538] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 04:51:52.538] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 04:51:52.543] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 04:51:52.543] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 04:51:52.544] [LOG] 🔐 默认账号: admin
+[2025-09-04 04:51:52.544] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 04:52:01.116] [LOG] [32mPOST /api/login 200[0m - 22ms - ::1
+[2025-09-04 04:52:01.175] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 14ms - ::1
+[2025-09-04 04:52:01.176] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 14ms - ::1
+[2025-09-04 04:52:01.189] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 25ms - ::1
+[2025-09-04 04:52:01.194] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 24ms - ::1
+[2025-09-04 04:52:04.622] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 9ms - ::1
+[2025-09-04 04:52:04.633] [LOG] [32mGET /api/forward-settings/filters 200[0m - 13ms - ::1
+[2025-09-04 04:52:04.634] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 11ms - ::1
+[2025-09-04 04:52:11.460] [LOG] [32mGET /api/forward-settings/bark 200[0m - 11ms - ::1
+[2025-09-04 04:52:11.462] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 14ms - ::1
+[2025-09-04 04:52:11.464] [LOG] [32mGET /api/forward-settings/filters 200[0m - 17ms - ::1
+[2025-09-04 04:52:13.157] [LOG] [32mGET /api/forward-settings/webhook 200[0m - 10ms - ::1
+[2025-09-04 04:52:13.161] [LOG] [32mGET /api/forward-settings/filters 200[0m - 13ms - ::1
+[2025-09-04 04:52:13.162] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 14ms - ::1
+[2025-09-04 04:52:13.681] [LOG] [32mGET /api/forward-settings/wxpusher 200[0m - 10ms - ::1
+[2025-09-04 04:52:13.682] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 11ms - ::1
+[2025-09-04 04:52:13.682] [LOG] [32mGET /api/forward-settings/filters 200[0m - 12ms - ::1
+[2025-09-04 04:52:14.431] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 9ms - ::1
+[2025-09-04 04:52:14.434] [LOG] [32mGET /api/forward-settings/filters 200[0m - 12ms - ::1
+[2025-09-04 04:52:14.435] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 13ms - ::1
+[2025-09-04 04:52:18.155] [LOG] [32mGET /api/logs 200[0m - 4ms - ::1
+[2025-09-04 04:52:26.942] [LOG] [32mGET /api/logs/error-2025-09-04.log?lines=100 200[0m - 5ms - ::1
+[2025-09-04 04:52:37.785] [LOG] [32mGET /api/logs/error-2025-09-04.log?lines=100 200[0m - 4ms - ::1
+[2025-09-04 05:50:31.916] [LOG] [32mGET /api/check-auth 200[0m - 4ms - ::1
+[2025-09-04 05:50:32.020] [LOG] [32mGET /api/logs 200[0m - 2ms - ::1
+[2025-09-04 05:50:37.530] [LOG] [32mGET /api/logs/error-2025-09-04.log?lines=100 200[0m - 2ms - ::1
+[2025-09-04 05:51:13.319] [LOG] [32mGET /api/logs/error-2025-09-04.log?lines=100 200[0m - 4ms - ::1
+[2025-09-04 05:53:41.386] [LOG] 
+收到 SIGINT 信号，正在优雅关闭...
+[2025-09-04 13:54:22.444] [LOG] ✅ 数据库连接成功
+[2025-09-04 13:54:22.857] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 13:54:22.857] [LOG] 📊 已加载的数据模型:
+[2025-09-04 13:54:22.857] [LOG]    - Device (设备)
+[2025-09-04 13:54:22.857] [LOG]    - SimCard (SIM卡)
+[2025-09-04 13:54:22.857] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 13:54:22.862] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 13:54:22.862] [LOG] 📁 日志文件:
+[2025-09-04 13:54:22.862] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 13:54:22.862] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 13:54:22.863] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 13:54:22.863] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 13:54:22.863] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 13:54:22.864] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 13:54:22.864] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 13:54:22.864] [LOG] 🔐 默认账号: admin
+[2025-09-04 13:54:22.864] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 13:54:39.940] [LOG] [32mGET /api/check-auth 200[0m - 4ms - ::1
+[2025-09-04 13:54:40.044] [LOG] [32mGET /api/logs 200[0m - 5ms - ::1
+[2025-09-04 13:54:43.042] [LOG] [32mGET /api/logs/request-2025-09-04.log?lines=100 200[0m - 4ms - ::1
+[2025-09-04 13:54:58.007] [LOG] [32mGET /api/logs/request-2025-09-04.log?lines=100 200[0m - 7ms - ::1
+[2025-09-04 13:56:20.348] [WEBHOOK] {"timestamp":"2025-09-04 13:56:20.348","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","type":100,"netCh":0,"msgTs":1756965377,"hwVer":"X31v115","ip":"192.168.0.72","dbm":96,"ssid":"smarthome2.4","charset":"utf8","pingIntvl":110,"slotInfo":{"slot2_sta":"POWON","sim2_dbm":"0","sim2_plmn":"0","sim2_iccId":"8985200014630408634F","sim2_imsi":"454003063040863","sim2_msIsdn":"+85269760349","sim2_scName":"香港clubsim卡","sim2_sta":"NS","slot1_sta":"POWON","sim1_dbm":"0","sim1_sta":"NS"}},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 13:56:20.349] [LOG] [32mPOST /api/webhook 200[0m - 22ms - ::1
+[2025-09-04 13:56:20.351] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 13:56:20.351] [LOG] 时间: 2025-09-04T05:56:20.348Z
+[2025-09-04 13:56:20.351] [LOG] 来源IP: ::1
+[2025-09-04 13:56:20.351] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "type": 100,
+  "netCh": 0,
+  "msgTs": 1756965377,
+  "hwVer": "X31v115",
+  "ip": "192.168.0.72",
+  "dbm": 96,
+  "ssid": "smarthome2.4",
+  "charset": "utf8",
+  "pingIntvl": 110,
+  "slotInfo": {
+    "slot2_sta": "POWON",
+    "sim2_dbm": "0",
+    "sim2_plmn": "0",
+    "sim2_iccId": "8985200014630408634F",
+    "sim2_imsi": "454003063040863",
+    "sim2_msIsdn": "+85269760349",
+    "sim2_scName": "香港clubsim卡",
+    "sim2_sta": "NS",
+    "slot1_sta": "POWON",
+    "sim1_dbm": "0",
+    "sim1_sta": "NS"
+  }
+}
+[2025-09-04 13:56:20.351] [LOG] ℹ️ 非短信类型，type: 100
+[2025-09-04 13:56:20.352] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 13:56:20.762] [WEBHOOK] {"timestamp":"2025-09-04 13:56:20.762","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":2,"type":203,"netCh":0,"msgTs":1756965375,"imsi":"454003063040863","iccId":"8985200014630408634F","msIsdn":"+85269760349","scName":"香港clubsim卡","plmn":"0"},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 13:56:20.763] [LOG] [32mPOST /api/webhook 200[0m - 2ms - ::1
+[2025-09-04 13:56:20.764] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 13:56:20.765] [LOG] 时间: 2025-09-04T05:56:20.762Z
+[2025-09-04 13:56:20.765] [LOG] 来源IP: ::1
+[2025-09-04 13:56:20.766] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 2,
+  "type": 203,
+  "netCh": 0,
+  "msgTs": 1756965375,
+  "imsi": "454003063040863",
+  "iccId": "8985200014630408634F",
+  "msIsdn": "+85269760349",
+  "scName": "香港clubsim卡",
+  "plmn": "0"
+}
+[2025-09-04 13:56:20.767] [LOG] ℹ️ 非短信类型，type: 203
+[2025-09-04 13:56:20.767] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 13:56:21.212] [WEBHOOK] {"timestamp":"2025-09-04 13:56:21.212","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":2,"type":202,"netCh":0,"msgTs":20,"plmn":"0"},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 13:56:21.215] [LOG] [32mPOST /api/webhook 200[0m - 3ms - ::1
+[2025-09-04 13:56:21.217] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 13:56:21.218] [LOG] 时间: 2025-09-04T05:56:21.212Z
+[2025-09-04 13:56:21.218] [LOG] 来源IP: ::1
+[2025-09-04 13:56:21.219] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 2,
+  "type": 202,
+  "netCh": 0,
+  "msgTs": 20,
+  "plmn": "0"
+}
+[2025-09-04 13:56:21.219] [LOG] ℹ️ 非短信类型，type: 202
+[2025-09-04 13:56:21.222] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 13:56:21.701] [WEBHOOK] {"timestamp":"2025-09-04 13:56:21.701","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":1,"type":202,"netCh":0,"msgTs":20,"plmn":"0"},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 13:56:21.704] [LOG] [32mPOST /api/webhook 200[0m - 5ms - ::1
+[2025-09-04 13:56:21.706] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 13:56:21.706] [LOG] 时间: 2025-09-04T05:56:21.701Z
+[2025-09-04 13:56:21.706] [LOG] 来源IP: ::1
+[2025-09-04 13:56:21.707] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 1,
+  "type": 202,
+  "netCh": 0,
+  "msgTs": 20,
+  "plmn": "0"
+}
+[2025-09-04 13:56:21.707] [LOG] ℹ️ 非短信类型，type: 202
+[2025-09-04 13:56:21.707] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 13:56:23.828] [WEBHOOK] {"timestamp":"2025-09-04 13:56:23.828","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":2,"type":204,"netCh":0,"msgTs":1756965380,"imsi":"454003063040863","iccId":"8985200014630408634F","msIsdn":"+85269760349","scName":"香港clubsim卡","dbm":99,"plmn":"46001"},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 13:56:23.830] [LOG] [32mPOST /api/webhook 200[0m - 3ms - ::1
+[2025-09-04 13:56:23.832] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 13:56:23.832] [LOG] 时间: 2025-09-04T05:56:23.828Z
+[2025-09-04 13:56:23.833] [LOG] 来源IP: ::1
+[2025-09-04 13:56:23.833] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 2,
+  "type": 204,
+  "netCh": 0,
+  "msgTs": 1756965380,
+  "imsi": "454003063040863",
+  "iccId": "8985200014630408634F",
+  "msIsdn": "+85269760349",
+  "scName": "香港clubsim卡",
+  "dbm": 99,
+  "plmn": "46001"
+}
+[2025-09-04 13:56:23.833] [LOG] ℹ️ 非短信类型，type: 204
+[2025-09-04 13:56:23.834] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 13:56:30.732] [WEBHOOK] {"timestamp":"2025-09-04 13:56:30.732","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":1,"type":203,"netCh":0,"msgTs":1756965387,"imsi":"460012810115581","iccId":"89860118802476524938","msIsdn":"+8617602816612","scName":"联通保号卡","dbm":95,"plmn":"0"},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 13:56:30.735] [LOG] [32mPOST /api/webhook 200[0m - 3ms - ::1
+[2025-09-04 13:56:30.736] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 13:56:30.736] [LOG] 时间: 2025-09-04T05:56:30.732Z
+[2025-09-04 13:56:30.736] [LOG] 来源IP: ::1
+[2025-09-04 13:56:30.737] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 1,
+  "type": 203,
+  "netCh": 0,
+  "msgTs": 1756965387,
+  "imsi": "460012810115581",
+  "iccId": "89860118802476524938",
+  "msIsdn": "+8617602816612",
+  "scName": "联通保号卡",
+  "dbm": 95,
+  "plmn": "0"
+}
+[2025-09-04 13:56:30.737] [LOG] ℹ️ 非短信类型，type: 203
+[2025-09-04 13:56:30.737] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 13:56:37.546] [WEBHOOK] {"timestamp":"2025-09-04 13:56:37.546","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":1,"type":204,"netCh":0,"msgTs":1756965394,"imsi":"460012810115581","iccId":"89860118802476524938","msIsdn":"+8617602816612","scName":"联通保号卡","dbm":99,"plmn":"46001"},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 13:56:37.549] [LOG] [32mPOST /api/webhook 200[0m - 4ms - ::1
+[2025-09-04 13:56:37.550] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 13:56:37.551] [LOG] 时间: 2025-09-04T05:56:37.546Z
+[2025-09-04 13:56:37.551] [LOG] 来源IP: ::1
+[2025-09-04 13:56:37.551] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 1,
+  "type": 204,
+  "netCh": 0,
+  "msgTs": 1756965394,
+  "imsi": "460012810115581",
+  "iccId": "89860118802476524938",
+  "msIsdn": "+8617602816612",
+  "scName": "联通保号卡",
+  "dbm": 99,
+  "plmn": "46001"
+}
+[2025-09-04 13:56:37.551] [LOG] ℹ️ 非短信类型，type: 204
+[2025-09-04 13:56:37.552] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 14:46:26.130] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 24ms - ::1
+[2025-09-04 14:46:26.133] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 26ms - ::1
+[2025-09-04 14:46:26.135] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 28ms - ::1
+[2025-09-04 14:46:26.138] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 32ms - ::1
+[2025-09-04 14:46:27.974] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 14ms - ::1
+[2025-09-04 14:46:27.976] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 14:46:39.417] [LOG] [32mGET /api/devices?page=1&pageSize=10&search=&status= 200[0m - 15ms - ::1
+[2025-09-04 14:46:43.124] [LOG] [32mGET /api/logs 200[0m - 3ms - ::1
+[2025-09-04 14:46:48.243] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 8ms - ::1
+[2025-09-04 14:46:48.248] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 13ms - ::1
+[2025-09-04 14:46:48.251] [LOG] [32mGET /api/forward-settings/filters 200[0m - 15ms - ::1
+[2025-09-04 14:46:50.520] [LOG] [32mGET /api/forward-settings/wxpusher 200[0m - 11ms - ::1
+[2025-09-04 14:46:50.521] [LOG] [32mGET /api/forward-settings/filters 200[0m - 13ms - ::1
+[2025-09-04 14:46:50.523] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 15ms - ::1
+[2025-09-04 15:40:30.868] [LOG] [31mPOST /api/forward-settings/wxpusher/test 500[0m - 24ms - ::1
+[2025-09-04 15:41:33.738] [LOG] [31mPOST /api/forward-settings/wxpusher/test 500[0m - 180ms - ::1
+[2025-09-04 15:42:12.687] [LOG] [32mPUT /api/forward-settings/wxpusher 200[0m - 18ms - ::1
+[2025-09-04 15:42:12.701] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 6ms - ::1
+[2025-09-04 15:45:29.351] [LOG] [32mPUT /api/forward-settings/wxpusher 200[0m - 13ms - ::1
+[2025-09-04 15:45:29.365] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 6ms - ::1
+[2025-09-04 15:45:30.898] [LOG] [31mPOST /api/forward-settings/wxpusher/test 500[0m - 146ms - ::1
+[2025-09-04 15:46:16.750] [LOG] ✅ 数据库连接成功
+[2025-09-04 15:46:17.260] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 15:46:17.260] [LOG] 📊 已加载的数据模型:
+[2025-09-04 15:46:17.260] [LOG]    - Device (设备)
+[2025-09-04 15:46:17.261] [LOG]    - SimCard (SIM卡)
+[2025-09-04 15:46:17.261] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 15:46:17.261] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 15:46:17.261] [LOG] 📁 日志文件:
+[2025-09-04 15:46:17.261] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 15:46:17.261] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 15:46:17.261] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 15:46:17.261] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 15:46:17.261] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 15:46:17.263] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 15:46:17.263] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 15:46:17.263] [LOG] 🔐 默认账号: admin
+[2025-09-04 15:46:17.263] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 15:46:22.878] [LOG] {
+  "appToken": "AT_jwTv9fru903fhzcVdttQw13B36CDvsfs",
+  "content": "🔔 测试消息\n平台: wxpusher\n时间: 2025/9/4 15:46:22\n\n这是一条测试消息，如果您收到了，说明配置正确！",
+  "summary": "新短信",
+  "contentType": 1,
+  "uids": "UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P",
+  "topicIds": []
+}
+[2025-09-04 15:46:23.032] [LOG] [31mPOST /api/forward-settings/wxpusher/test 500[0m - 182ms - ::1
+[2025-09-04 15:47:45.499] [LOG] {
+  "appToken": "AT_jwTv9fru903fhzcVdttQw13B36CDvsfs",
+  "content": "🔔 测试消息\n平台: wxpusher\n时间: 2025/9/4 15:47:45\n\n这是一条测试消息，如果您收到了，说明配置正确！",
+  "summary": "新短信",
+  "contentType": 1,
+  "uids": "UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P",
+  "topicIds": []
+}
+[2025-09-04 15:47:45.639] [LOG] [31mPOST /api/forward-settings/wxpusher/test 500[0m - 142ms - ::1
+[2025-09-04 17:12:37.259] [WEBHOOK] {"timestamp":"2025-09-04 17:12:37.259","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":1,"type":501,"netCh":0,"msgTs":1756977153,"imsi":"460012810115581","iccId":"89860118802476524938","msIsdn":"+8617602816612","scName":"联通保号卡","phNum":"10010","smsBd":"验证码：160447，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】","charset":"utf8","smsTs":1756977153,"devSmsTs":1756977153},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 17:12:37.268] [LOG] [32mPOST /api/webhook 200[0m - 12ms - ::1
+[2025-09-04 17:12:37.270] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 17:12:37.270] [LOG] 时间: 2025-09-04T09:12:37.258Z
+[2025-09-04 17:12:37.270] [LOG] 来源IP: ::1
+[2025-09-04 17:12:37.270] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 1,
+  "type": 501,
+  "netCh": 0,
+  "msgTs": 1756977153,
+  "imsi": "460012810115581",
+  "iccId": "89860118802476524938",
+  "msIsdn": "+8617602816612",
+  "scName": "联通保号卡",
+  "phNum": "10010",
+  "smsBd": "验证码：160447，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】",
+  "charset": "utf8",
+  "smsTs": 1756977153,
+  "devSmsTs": 1756977153
+}
+[2025-09-04 17:12:37.270] [LOG] 📱 检测到新短信，开始处理...
+[2025-09-04 17:12:37.295] [LOG] ✅ 短信保存成功！
+[2025-09-04 17:12:37.296] [LOG]    设备: 第一个设备 (1091a8443428)
+[2025-09-04 17:12:37.296] [LOG]    SIM卡: 联通保号卡 (卡槽1)
+[2025-09-04 17:12:37.296] [LOG]    发送方: 10010
+[2025-09-04 17:12:37.296] [LOG]    内容: 验证码：160447，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】
+[2025-09-04 17:12:37.297] [LOG]    消息ID: 6
+[2025-09-04 17:12:37.297] [LOG] 🔢 检测到验证码: 160447
+[2025-09-04 17:12:37.297] [LOG] ⚠️ 短信包含重要关键词
+[2025-09-04 17:12:37.298] [LOG] 📊 该号码(10010)共发送了 1 条短信
+[2025-09-04 17:12:37.300] [LOG] 📤 正在转发到 telegram...
+[2025-09-04 17:12:38.314] [LOG] ✅ [FORWARD-SUCCESS] telegram - 📱 新短信
+设备: 第一个设备
+SIM卡: 联通保号卡
+发送方: 10010
+内容: 验证码：160447，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】
+时间: 2025/9/4 17:12:37
+[2025-09-04 17:12:38.315] [LOG] ✅ 成功转发到 telegram
+[2025-09-04 17:12:38.316] [LOG] 📤 正在转发到 wxpusher...
+[2025-09-04 17:12:38.316] [LOG] {
+  "appToken": "AT_jwTv9fru903fhzcVdttQw13B36CDvsfs",
+  "content": "📱 新短信\n设备: 第一个设备\nSIM卡: 联通保号卡\n发送方: 10010\n内容: 验证码：160447，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】\n时间: 2025/9/4 17:12:37",
+  "summary": "新短信",
+  "contentType": 1,
+  "uids": "UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P",
+  "topicIds": []
+}
+[2025-09-04 17:12:38.560] [LOG] ❌ [FORWARD-FAILED] wxpusher - 📱 新短信
+设备: 第一个设备
+SIM卡: 联通保号卡
+发送方: 10010
+内容: 验证码：160447，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】
+时间: 2025/9/4 17:12:37
+[2025-09-04 17:12:38.560] [ERROR] ❌ 转发到 wxpusher 失败: 接口 [/api/send/message] 出现异常：Cannot construct instance of `java.util.HashSet` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value ('UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P')
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 325] (through reference chain: com.zjiecode.wxpusher.server.biz.bean.SendMessageReq["uids"])
+[2025-09-04 17:12:38.562] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 17:16:38.392] [WEBHOOK] {"timestamp":"2025-09-04 17:16:38.392","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":1,"type":501,"netCh":0,"msgTs":1756977395,"imsi":"460012810115581","iccId":"89860118802476524938","msIsdn":"+8617602816612","scName":"联通保号卡","phNum":"10010","smsBd":"验证码：850951，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】","charset":"utf8","smsTs":1756977395,"devSmsTs":1756977395},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 17:16:38.394] [LOG] [32mPOST /api/webhook 200[0m - 4ms - ::1
+[2025-09-04 17:16:38.396] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 17:16:38.396] [LOG] 时间: 2025-09-04T09:16:38.392Z
+[2025-09-04 17:16:38.397] [LOG] 来源IP: ::1
+[2025-09-04 17:16:38.400] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 1,
+  "type": 501,
+  "netCh": 0,
+  "msgTs": 1756977395,
+  "imsi": "460012810115581",
+  "iccId": "89860118802476524938",
+  "msIsdn": "+8617602816612",
+  "scName": "联通保号卡",
+  "phNum": "10010",
+  "smsBd": "验证码：850951，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】",
+  "charset": "utf8",
+  "smsTs": 1756977395,
+  "devSmsTs": 1756977395
+}
+[2025-09-04 17:16:38.403] [LOG] 📱 检测到新短信，开始处理...
+[2025-09-04 17:16:38.421] [LOG] ✅ 短信保存成功！
+[2025-09-04 17:16:38.422] [LOG]    设备: 第一个设备 (1091a8443428)
+[2025-09-04 17:16:38.422] [LOG]    SIM卡: 联通保号卡 (卡槽1)
+[2025-09-04 17:16:38.422] [LOG]    发送方: 10010
+[2025-09-04 17:16:38.422] [LOG]    内容: 验证码：850951，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】
+[2025-09-04 17:16:38.422] [LOG]    消息ID: 7
+[2025-09-04 17:16:38.422] [LOG] 🔢 检测到验证码: 850951
+[2025-09-04 17:16:38.422] [LOG] ⚠️ 短信包含重要关键词
+[2025-09-04 17:16:38.424] [LOG] 📊 该号码(10010)共发送了 2 条短信
+[2025-09-04 17:16:38.427] [LOG] 📤 正在转发到 telegram...
+[2025-09-04 17:16:39.269] [LOG] ✅ [FORWARD-SUCCESS] telegram - 📱 新短信
+设备: 第一个设备
+SIM卡: 联通保号卡
+发送方: 10010
+内容: 验证码：850951，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】
+时间: 2025/9/4 17:16:38
+[2025-09-04 17:16:39.270] [LOG] ✅ 成功转发到 telegram
+[2025-09-04 17:16:39.271] [LOG] 📤 正在转发到 wxpusher...
+[2025-09-04 17:16:39.271] [LOG] {
+  "appToken": "AT_jwTv9fru903fhzcVdttQw13B36CDvsfs",
+  "content": "📱 新短信\n设备: 第一个设备\nSIM卡: 联通保号卡\n发送方: 10010\n内容: 验证码：850951，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】\n时间: 2025/9/4 17:16:38",
+  "summary": "新短信",
+  "contentType": 1,
+  "uids": "UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P",
+  "topicIds": []
+}
+[2025-09-04 17:16:39.421] [LOG] ❌ [FORWARD-FAILED] wxpusher - 📱 新短信
+设备: 第一个设备
+SIM卡: 联通保号卡
+发送方: 10010
+内容: 验证码：850951，短信验证码2分钟内有效，请勿泄漏给他人。【中国联通】
+时间: 2025/9/4 17:16:38
+[2025-09-04 17:16:39.422] [ERROR] ❌ 转发到 wxpusher 失败: 接口 [/api/send/message] 出现异常：Cannot construct instance of `java.util.HashSet` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value ('UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P')
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 325] (through reference chain: com.zjiecode.wxpusher.server.biz.bean.SendMessageReq["uids"])
+[2025-09-04 17:16:39.423] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 17:17:50.479] [WEBHOOK] {"timestamp":"2025-09-04 17:17:50.479","type":"WEBHOOK","ip":"::1","url":"/api/webhook","body":{"devId":"1091a8443428","slot":1,"type":501,"netCh":0,"msgTs":1756977467,"imsi":"460012810115581","iccId":"89860118802476524938","msIsdn":"+8617602816612","scName":"联通保号卡","phNum":"10010","smsBd":"温馨提示：您于04日17时17分交费200元，账户当前可用余额为318.58元。点击进入 https://u.10010.cn/uAATg 查询详情。【中国联通】","charset":"utf8","smsTs":1756977467,"devSmsTs":1756977467,"smsGroupId":"12B26B05F595","smsRefNo":127,"smsMaxNo":2,"comp":true},"headers":{"content-type":"application/json;charset=utf-8","user-agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}}
+[2025-09-04 17:17:50.482] [LOG] [32mPOST /api/webhook 200[0m - 4ms - ::1
+[2025-09-04 17:17:50.483] [LOG] 
+========== Webhook 接收到新请求 ==========
+[2025-09-04 17:17:50.484] [LOG] 时间: 2025-09-04T09:17:50.479Z
+[2025-09-04 17:17:50.484] [LOG] 来源IP: ::1
+[2025-09-04 17:17:50.484] [LOG] 请求体: {
+  "devId": "1091a8443428",
+  "slot": 1,
+  "type": 501,
+  "netCh": 0,
+  "msgTs": 1756977467,
+  "imsi": "460012810115581",
+  "iccId": "89860118802476524938",
+  "msIsdn": "+8617602816612",
+  "scName": "联通保号卡",
+  "phNum": "10010",
+  "smsBd": "温馨提示：您于04日17时17分交费200元，账户当前可用余额为318.58元。点击进入 https://u.10010.cn/uAATg 查询详情。【中国联通】",
+  "charset": "utf8",
+  "smsTs": 1756977467,
+  "devSmsTs": 1756977467,
+  "smsGroupId": "12B26B05F595",
+  "smsRefNo": 127,
+  "smsMaxNo": 2,
+  "comp": true
+}
+[2025-09-04 17:17:50.484] [LOG] 📱 检测到新短信，开始处理...
+[2025-09-04 17:17:50.507] [LOG] ✅ 短信保存成功！
+[2025-09-04 17:17:50.507] [LOG]    设备: 第一个设备 (1091a8443428)
+[2025-09-04 17:17:50.507] [LOG]    SIM卡: 联通保号卡 (卡槽1)
+[2025-09-04 17:17:50.507] [LOG]    发送方: 10010
+[2025-09-04 17:17:50.507] [LOG]    内容: 温馨提示：您于04日17时17分交费200元，账户当前可用余额为318.58元。点击进入 https...
+[2025-09-04 17:17:50.507] [LOG]    消息ID: 8
+[2025-09-04 17:17:50.507] [LOG] 🔢 检测到验证码: 10010
+[2025-09-04 17:17:50.507] [LOG] ⚠️ 短信包含重要关键词
+[2025-09-04 17:17:50.508] [LOG] 📊 该号码(10010)共发送了 3 条短信
+[2025-09-04 17:17:50.510] [LOG] 📤 正在转发到 telegram...
+[2025-09-04 17:17:51.755] [LOG] ✅ [FORWARD-SUCCESS] telegram - 📱 新短信
+设备: 第一个设备
+SIM卡: 联通保号卡
+发送方: 10010
+内容: 温馨提示：您于04日17时17分交费200元，账户当前可用余额为318.58元。点击进入 https://u.10010.cn/uAATg 查询详情。【中国联通】
+时间: 2025/9/4 17:17:50
+[2025-09-04 17:17:51.759] [LOG] ✅ 成功转发到 telegram
+[2025-09-04 17:17:51.760] [LOG] 📤 正在转发到 wxpusher...
+[2025-09-04 17:17:51.763] [LOG] {
+  "appToken": "AT_jwTv9fru903fhzcVdttQw13B36CDvsfs",
+  "content": "📱 新短信\n设备: 第一个设备\nSIM卡: 联通保号卡\n发送方: 10010\n内容: 温馨提示：您于04日17时17分交费200元，账户当前可用余额为318.58元。点击进入 https://u.10010.cn/uAATg 查询详情。【中国联通】\n时间: 2025/9/4 17:17:50",
+  "summary": "新短信",
+  "contentType": 1,
+  "uids": "UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P",
+  "topicIds": []
+}
+[2025-09-04 17:17:52.394] [LOG] ❌ [FORWARD-FAILED] wxpusher - 📱 新短信
+设备: 第一个设备
+SIM卡: 联通保号卡
+发送方: 10010
+内容: 温馨提示：您于04日17时17分交费200元，账户当前可用余额为318.58元。点击进入 https://u.10010.cn/uAATg 查询详情。【中国联通】
+时间: 2025/9/4 17:17:50
+[2025-09-04 17:17:52.394] [ERROR] ❌ 转发到 wxpusher 失败: 接口 [/api/send/message] 出现异常：Cannot construct instance of `java.util.HashSet` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value ('UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P')
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 389] (through reference chain: com.zjiecode.wxpusher.server.biz.bean.SendMessageReq["uids"])
+[2025-09-04 17:17:52.395] [LOG] ========== 请求处理完毕 ==========
+
+[2025-09-04 17:58:47.731] [LOG] ✅ 数据库连接成功
+[2025-09-04 17:58:48.232] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 17:58:48.234] [LOG] 📊 已加载的数据模型:
+[2025-09-04 17:58:48.235] [LOG]    - Device (设备)
+[2025-09-04 17:58:48.235] [LOG]    - SimCard (SIM卡)
+[2025-09-04 17:58:48.235] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 17:58:48.236] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 17:58:48.236] [LOG] 📁 日志文件:
+[2025-09-04 17:58:48.238] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 17:58:48.239] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 17:58:48.239] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 17:58:48.240] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 17:58:48.240] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 17:58:48.244] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 17:58:48.245] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 17:58:48.246] [LOG] 🔐 默认账号: admin
+[2025-09-04 17:58:48.247] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 18:05:04.217] [LOG] ✅ 数据库连接成功
+[2025-09-04 18:05:04.721] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 18:05:04.722] [LOG] 📊 已加载的数据模型:
+[2025-09-04 18:05:04.723] [LOG]    - Device (设备)
+[2025-09-04 18:05:04.724] [LOG]    - SimCard (SIM卡)
+[2025-09-04 18:05:04.725] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 18:05:04.726] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 18:05:04.726] [LOG] 📁 日志文件:
+[2025-09-04 18:05:04.727] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 18:05:04.727] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 18:05:04.728] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 18:05:04.728] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 18:05:04.729] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 18:05:04.733] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 18:05:04.734] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 18:05:04.734] [LOG] 🔐 默认账号: admin
+[2025-09-04 18:05:04.734] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 18:05:12.742] [LOG] [32mPOST /api/login 200[0m - 24ms - ::1
+[2025-09-04 18:05:12.807] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 16ms - ::1
+[2025-09-04 18:05:12.809] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 18:05:12.811] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 19ms - ::1
+[2025-09-04 18:05:12.816] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 23ms - ::1
+[2025-09-04 18:05:18.075] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 14ms - ::1
+[2025-09-04 18:05:18.077] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 15ms - ::1
+[2025-09-04 18:05:18.079] [LOG] [32mGET /api/forward-settings/filters 200[0m - 15ms - ::1
+[2025-09-04 18:05:23.258] [LOG] [32mGET /api/forward-settings/wxpusher 200[0m - 9ms - ::1
+[2025-09-04 18:05:23.261] [LOG] [32mGET /api/forward-settings/filters 200[0m - 12ms - ::1
+[2025-09-04 18:05:23.263] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 13ms - ::1
+[2025-09-04 18:05:27.068] [LOG] 发送到 WxPusher 的数据: {
+  "appToken": "AT_jwTv9fru903fhzcVdttQw13B36CDvsfs",
+  "content": "🔔 测试消息\n平台: wxpusher\n时间: 2025/9/4 18:05:27\n\n这是一条测试消息，如果您收到了，说明配置正确！",
+  "summary": "新短信",
+  "contentType": 1,
+  "uids": [
+    "UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P"
+  ],
+  "topicIds": []
+}
+[2025-09-04 18:05:27.595] [LOG] [32mPOST /api/forward-settings/wxpusher/test 200[0m - 550ms - ::1
+[2025-09-04 18:06:31.699] [LOG] [32mGET /api/check-auth 200[0m - 3ms - ::1
+[2025-09-04 18:06:31.885] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 15ms - ::1
+[2025-09-04 18:06:31.886] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 17ms - ::1
+[2025-09-04 18:06:31.887] [LOG] [32mGET /api/forward-settings/filters 200[0m - 17ms - ::1
+[2025-09-04 18:06:33.623] [LOG] [32mGET /api/forward-settings/wxpusher 200[0m - 9ms - ::1
+[2025-09-04 18:06:33.626] [LOG] [32mGET /api/forward-settings/filters 200[0m - 13ms - ::1
+[2025-09-04 18:06:33.627] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 14ms - ::1
+[2025-09-04 18:06:40.384] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 6ms - ::1
+[2025-09-04 18:06:40.388] [LOG] [32mGET /api/forward-settings/filters 200[0m - 11ms - ::1
+[2025-09-04 18:06:40.390] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 11ms - ::1
+[2025-09-04 18:06:41.233] [LOG] [32mGET /api/forward-settings/bark 200[0m - 8ms - ::1
+[2025-09-04 18:06:41.235] [LOG] [32mGET /api/forward-settings/filters 200[0m - 9ms - ::1
+[2025-09-04 18:06:41.236] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 9ms - ::1
+[2025-09-04 18:08:00.303] [LOG] [32mPOST /api/forward-settings/bark/test 200[0m - 370ms - ::1
+[2025-09-04 18:08:03.860] [LOG] [32mPUT /api/forward-settings/bark 200[0m - 15ms - ::1
+[2025-09-04 18:08:03.875] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 6ms - ::1
+[2025-09-04 18:08:17.709] [LOG] 
+收到 SIGINT 信号，正在优雅关闭...

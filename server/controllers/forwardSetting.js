@@ -1,31 +1,21 @@
 // server/controllers/forwardSetting.js
+const ForwardSetting = require('../models/forwardSetting');
 const ForwardService = require('../services/forwardService');
 const Device = require('../models/device');
 const SimCard = require('../models/simCard');
+const SmsMessage = require('../models/smsMessage');
+const { Op } = require('sequelize');
 
 // 获取所有转发设置
 const getForwardSettings = async (ctx) => {
   try {
-    const settings = await ForwardService.getSettings();
-    
-    if (!settings) {
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: '无法读取转发设置'
-      };
-      return;
-    }
-    
-    // 转换为数组格式
-    const data = Object.entries(settings).map(([platform, config]) => ({
-      platform,
-      ...config
-    }));
+    const settings = await ForwardSetting.findAll({
+      order: [['platform', 'ASC']]
+    });
     
     ctx.body = {
       success: true,
-      data
+      data: settings
     };
   } catch (error) {
     ctx.status = 500;
@@ -41,21 +31,13 @@ const getForwardSettings = async (ctx) => {
 const getForwardSetting = async (ctx) => {
   try {
     const { platform } = ctx.params;
-    const settings = await ForwardService.getSettings();
     
-    if (!settings) {
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: '无法读取转发设置'
-      };
-      return;
-    }
-    
-    const setting = settings[platform];
+    let setting = await ForwardSetting.findOne({
+      where: { platform }
+    });
     
     if (!setting) {
-      // 返回默认配置
+      // 如果不存在，创建默认配置
       const defaultConfigs = {
         telegram: {
           enabled: false,
@@ -85,29 +67,14 @@ const getForwardSetting = async (ctx) => {
         bark: {
           enabled: false,
           config: {
-            serverUrl: 'https://api.day.app',
+            serverUrl: '',
             deviceKey: '',
-            group: '短信接收',
             sound: 'default',
-            level: 'active',
-            autoCopy: true,
-            icon: 'https://day.app/assets/images/avatar.jpg'
-          },
-          filterRules: {
-            keywords: [],
-            senders: [],
-            devices: [],
-            simCards: []
-          },
-          messageTemplate: '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
-        },
-        wxpusher: {
-          enabled: false,
-          config: {
-            appToken: '',
-            uids: [],
-            topicIds: [],
-            url: ''
+            icon: '',
+            group: '短信转发',
+            isArchive: true,
+            automaticallyCopy: false,
+            copy: ''
           },
           filterRules: {
             keywords: [],
@@ -132,14 +99,15 @@ const getForwardSetting = async (ctx) => {
             simCards: []
           },
           messageTemplate: '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
-        }
-      };
-      
-      ctx.body = { 
-        success: true, 
-        data: defaultConfigs[platform] || {
+        },
+        wxpusher: {
           enabled: false,
-          config: {},
+          config: {
+            appToken: '',
+            uids: [],
+            topicIds: [],
+            url: ''
+          },
           filterRules: {
             keywords: [],
             senders: [],
@@ -149,9 +117,29 @@ const getForwardSetting = async (ctx) => {
           messageTemplate: '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
         }
       };
-    } else {
-      ctx.body = { success: true, data: setting };
+      
+      const defaultConfig = defaultConfigs[platform];
+      
+      if (!defaultConfig) {
+        ctx.status = 400;
+        ctx.body = {
+          success: false,
+          message: '不支持的平台'
+        };
+        return;
+      }
+
+      // 创建新的设置
+      setting = await ForwardSetting.create({
+        platform,
+        ...defaultConfig
+      });
     }
+    
+    ctx.body = { 
+      success: true, 
+      data: setting 
+    };
   } catch (error) {
     ctx.status = 500;
     ctx.body = {
@@ -166,32 +154,41 @@ const getForwardSetting = async (ctx) => {
 const updateForwardSetting = async (ctx) => {
   try {
     const { platform } = ctx.params;
-    const updates = ctx.request.body;
+    const { enabled, config, filterRules, messageTemplate } = ctx.request.body;
     
-    // 如果传递了headers字符串，尝试解析为JSON
-    if (updates.config?.headers && typeof updates.config.headers === 'string') {
-      try {
-        updates.config.headers = JSON.parse(updates.config.headers);
-      } catch {
-        // 如果解析失败，保持原样
-      }
-    }
+    let setting = await ForwardSetting.findOne({
+      where: { platform }
+    });
     
-    const success = await ForwardService.updatePlatformSettings(platform, updates);
-    
-    if (!success) {
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: '更新配置失败'
-      };
-      return;
+    if (!setting) {
+      // 如果不存在，创建新的
+      setting = await ForwardSetting.create({
+        platform,
+        enabled: enabled || false,
+        config: config || {},
+        filterRules: filterRules || {
+          keywords: [],
+          senders: [],
+          devices: [],
+          simCards: []
+        },
+        messageTemplate: messageTemplate || '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
+      });
+    } else {
+      // 更新现有设置
+      const updateData = {};
+      if (enabled !== undefined) updateData.enabled = enabled;
+      if (config !== undefined) updateData.config = config;
+      if (filterRules !== undefined) updateData.filterRules = filterRules;
+      if (messageTemplate !== undefined) updateData.messageTemplate = messageTemplate;
+      
+      await setting.update(updateData);
     }
     
     ctx.body = { 
       success: true, 
-      message: '配置已更新',
-      data: updates 
+      data: setting,
+      message: '保存成功'
     };
   } catch (error) {
     ctx.status = 500;
@@ -235,49 +232,100 @@ const testForwardSetting = async (ctx) => {
   }
 };
 
-// 获取转发统计
+// 获取转发统计 - 简化版
 const getForwardStatistics = async (ctx) => {
   try {
-    const stats = await ForwardService.getStatistics();
-    const settings = await ForwardService.getSettings();
+    // 从数据库获取所有平台的统计数据
+    const settings = await ForwardSetting.findAll({
+      attributes: [
+        'platform',
+        'enabled',
+        'forwardCount',
+        'failCount',
+        'lastForwardTime'
+      ],
+      order: [['platform', 'ASC']]
+    });
     
-    if (!settings) {
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: '无法读取配置'
+    // 初始化统计变量
+    let totalForwarded = 0;
+    let totalFailed = 0;
+    let enabledCount = 0;
+    
+    // 构建每个平台的统计（包含独立成功率）
+    const platforms = settings.map(setting => {
+      const forwardCount = setting.forwardCount || 0;
+      const failCount = setting.failCount || 0;
+      const totalAttempts = forwardCount + failCount;
+      
+      // 累加总数
+      totalForwarded += forwardCount;
+      totalFailed += failCount;
+      if (setting.enabled) enabledCount++;
+      
+      // 计算单个平台的成功率
+      let successRate = '0.00';
+      if (totalAttempts > 0) {
+        successRate = ((forwardCount / totalAttempts) * 100).toFixed(2);
+      }
+      
+      return {
+        platform: setting.platform,
+        enabled: setting.enabled,
+        forwardCount: forwardCount,
+        failCount: failCount,
+        lastForwardTime: setting.lastForwardTime,
+        // 添加独立的成功率
+        successRate: successRate
       };
-      return;
+    });
+    
+    // 计算总体成功率
+    const totalAttempts = totalForwarded + totalFailed;
+    let overallSuccessRate = '0.00';
+    if (totalAttempts > 0) {
+      overallSuccessRate = ((totalForwarded / totalAttempts) * 100).toFixed(2);
     }
     
-    // 统计启用的平台数
-    const enabledCount = Object.values(settings).filter(s => s.enabled).length;
+    // 获取今日短信数量（重要指标）
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
-    // 构建平台统计
-    const platforms = Object.keys(settings).map(platform => ({
-      platform,
-      enabled: settings[platform].enabled,
-      forwardCount: stats.platforms[platform] || 0,
-      failCount: 0, // 从日志中无法准确统计失败次数
-      lastForwardTime: null
-    }));
+    const todayMessages = await SmsMessage.count({
+      where: {
+        createdAt: {
+          [Op.gte]: todayStart
+        }
+      }
+    });
     
+    // 构建响应数据
     ctx.body = {
       success: true,
       data: {
-        platforms,
+        // 各平台数据（包含独立成功率）
+        platforms: platforms,
+        
+        // 汇总统计（用于顶部4个卡片）
         summary: {
-          totalForwarded: stats.success,
-          totalFailed: stats.error,
-          enabledCount,
-          totalPlatforms: Object.keys(settings).length,
-          successRate: stats.total > 0 ? 
-            ((stats.success / stats.total) * 100).toFixed(2) + '%' : 
-            '0%'
+          // 1. 已启用平台数
+          enabledCount: enabledCount,
+          totalPlatforms: settings.length,
+          
+          // 2. 总转发成功次数
+          totalForwarded: totalForwarded,
+          totalFailed: totalFailed,
+          
+          // 3. 总体成功率
+          successRate: overallSuccessRate,
+          
+          // 4. 今日短信数（新增的重要指标）
+          todayMessages: todayMessages
         }
       }
     };
   } catch (error) {
+    console.error('获取统计数据失败:', error);
     ctx.status = 500;
     ctx.body = {
       success: false,

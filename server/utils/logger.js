@@ -2,13 +2,17 @@
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const moment = require('moment-timezone');
 
 class Logger {
   constructor() {
+    // 设置时区为中国时区（根据您的需求调整）
+    this.timezone = process.env.TZ || 'Asia/Shanghai';
+    
     this.logDir = path.join(process.cwd(), 'logs');
-    this.logFile = path.join(this.logDir, `app-${this.getDateString()}.log`);
-    this.requestLogFile = path.join(this.logDir, `request-${this.getDateString()}.log`);
-    this.errorLogFile = path.join(this.logDir, `error-${this.getDateString()}.log`);
+    this.logFile = path.join(this.logDir, `app-${this.getLocalDateString()}.log`);
+    this.requestLogFile = path.join(this.logDir, `request-${this.getLocalDateString()}.log`);
+    this.errorLogFile = path.join(this.logDir, `error-${this.getLocalDateString()}.log`);
     
     // 创建日志目录
     if (!fs.existsSync(this.logDir)) {
@@ -32,21 +36,32 @@ class Logger {
   }
 
   /**
-   * 获取日期字符串 YYYY-MM-DD
+   * 获取本地日期字符串 YYYY-MM-DD
+   * 使用moment-timezone确保时区正确
    */
-  getDateString() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  getLocalDateString() {
+    return moment().tz(this.timezone).format('YYYY-MM-DD');
   }
 
   /**
-   * 获取时间戳字符串
+   * 获取本地时间戳字符串
+   */
+  getLocalTimestamp() {
+    return moment().tz(this.timezone).format('YYYY-MM-DD HH:mm:ss.SSS');
+  }
+
+  /**
+   * 获取日期字符串（兼容旧代码）
+   */
+  getDateString() {
+    return this.getLocalDateString();
+  }
+
+  /**
+   * 获取时间戳字符串（兼容旧代码）
    */
   getTimestamp() {
-    return new Date().toISOString().replace('T', ' ').slice(0, -1);
+    return this.getLocalTimestamp();
   }
 
   /**
@@ -69,14 +84,15 @@ class Logger {
    * 写入日志文件
    */
   writeLog(level, args, options = {}) {
-    const timestamp = this.getTimestamp();
+    const timestamp = this.getLocalTimestamp();
     const message = this.formatArgs(args);
     const logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}\n`;
     
-    // 确保日志文件是当天的
-    const currentLogFile = options.requestLog ? 
-      path.join(this.logDir, `request-${this.getDateString()}.log`) :
-      path.join(this.logDir, `app-${this.getDateString()}.log`);
+    // 确保日志文件是当天的（使用本地日期）
+    const currentDate = this.getLocalDateString();
+    const currentLogFile = options.requestLog ?
+      path.join(this.logDir, `request-${currentDate}.log`) :
+      path.join(this.logDir, `app-${currentDate}.log`);
     
     // 同步写入主日志
     try {
@@ -88,7 +104,7 @@ class Logger {
     
     // 如果是错误或警告，额外写入错误日志文件
     if (level === 'error' || level === 'warn') {
-      const errorLogFile = path.join(this.logDir, `error-${this.getDateString()}.log`);
+      const errorLogFile = path.join(this.logDir, `error-${currentDate}.log`);
       try {
         fs.appendFileSync(errorLogFile, logEntry);
       } catch (error) {
@@ -183,7 +199,8 @@ class Logger {
    * 记录错误日志
    */
   logError(type, error, additionalInfo = {}) {
-    const timestamp = this.getTimestamp();
+    const timestamp = this.getLocalTimestamp();
+    const currentDate = this.getLocalDateString();
     const errorData = {
       timestamp,
       type,
@@ -195,14 +212,14 @@ class Logger {
     // 格式化错误信息
     const errorEntry = `[${timestamp}] [${type.toUpperCase()}] ${JSON.stringify(errorData, null, 2)}\n`;
     
-    // 写入错误日志文件
-    const errorLogFile = path.join(this.logDir, `error-${this.getDateString()}.log`);
+    // 写入错误日志文件（使用当前本地日期）
+    const errorLogFile = path.join(this.logDir, `error-${currentDate}.log`);
     
     try {
       fs.appendFileSync(errorLogFile, errorEntry);
       // 同时写入主日志
       fs.appendFileSync(
-        path.join(this.logDir, `app-${this.getDateString()}.log`), 
+        path.join(this.logDir, `app-${currentDate}.log`), 
         errorEntry
       );
     } catch (writeError) {
@@ -215,9 +232,15 @@ class Logger {
       this.originalConsole.error(error.stack);
     }
   }
+
+  /**
+   * 记录请求日志
+   */
   logRequest(ctx, responseTime) {
+    const timestamp = this.getLocalTimestamp();
+    const currentDate = this.getLocalDateString();
     const logData = {
-      timestamp: this.getTimestamp(),
+      timestamp,
       method: ctx.method,
       url: ctx.url,
       ip: ctx.ip,
@@ -228,9 +251,9 @@ class Logger {
       error: ctx.status >= 400 ? ctx.body : undefined
     };
 
-    const logEntry = `[${logData.timestamp}] [REQUEST] ${JSON.stringify(logData)}\n`;
+    const logEntry = `[${timestamp}] [REQUEST] ${JSON.stringify(logData)}\n`;
     
-    const requestLogFile = path.join(this.logDir, `request-${this.getDateString()}.log`);
+    const requestLogFile = path.join(this.logDir, `request-${currentDate}.log`);
     
     try {
       fs.appendFileSync(requestLogFile, logEntry);
@@ -254,19 +277,21 @@ class Logger {
    * 记录Webhook请求（外部请求）
    */
   logWebhook(data) {
+    const timestamp = this.getLocalTimestamp();
+    const currentDate = this.getLocalDateString();
     const logData = {
-      timestamp: this.getTimestamp(),
+      timestamp,
       type: 'WEBHOOK',
       ...data
     };
 
-    const logEntry = `[${logData.timestamp}] [WEBHOOK] ${JSON.stringify(logData)}\n`;
-    const webhookLogFile = path.join(this.logDir, `webhook-${this.getDateString()}.log`);
+    const logEntry = `[${timestamp}] [WEBHOOK] ${JSON.stringify(logData)}\n`;
+    const webhookLogFile = path.join(this.logDir, `webhook-${currentDate}.log`);
     
     try {
       fs.appendFileSync(webhookLogFile, logEntry);
       // 同时写入主日志
-      fs.appendFileSync(path.join(this.logDir, `app-${this.getDateString()}.log`), logEntry);
+      fs.appendFileSync(path.join(this.logDir, `app-${currentDate}.log`), logEntry);
     } catch (error) {
       this.originalConsole.error('写入Webhook日志失败:', error);
     }
@@ -275,23 +300,23 @@ class Logger {
   /**
    * 记录转发操作
    */
-  logForward(platform, success, data) {
+  logForward(data) {
+    const timestamp = this.getLocalTimestamp();
+    const currentDate = this.getLocalDateString();
     const logData = {
-      timestamp: this.getTimestamp(),
+      timestamp,
       type: 'FORWARD',
-      platform,
-      success,
       ...data
     };
 
-    const status = success ? 'SUCCESS' : 'FAILED';
-    const icon = success ? '✅' : '❌';
+    const status = data.status === 'success' ? 'SUCCESS' : 'FAILED';
+    const icon = data.status === 'success' ? '✅' : '❌';
     
-    console.log(`${icon} [FORWARD-${status}] ${platform} - ${data.message || ''}`);
+    console.log(`${icon} [FORWARD-${status}] ${data.platform} - ${data.message || ''}`);
     
     // 额外写入转发专用日志
-    const forwardLogFile = path.join(this.logDir, `forward-${this.getDateString()}.log`);
-    const logEntry = `[${logData.timestamp}] [${status}] ${JSON.stringify(logData)}\n`;
+    const forwardLogFile = path.join(this.logDir, `forward-${currentDate}.log`);
+    const logEntry = `[${timestamp}] [${status}] ${JSON.stringify(logData)}\n`;
     
     try {
       fs.appendFileSync(forwardLogFile, logEntry);

@@ -1,0 +1,42 @@
+[2025-09-03 23:46:11.120] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:46:11.120",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:51:02.510] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:51:02.510",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:51:05.294] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:51:05.294",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:51:21.093] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:51:21.093",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:53:47.327] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:53:47.327",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-03 23:54:32.283] [UNCAUGHTEXCEPTION] {
+  "timestamp": "2025-09-03 23:54:32.283",
+  "type": "UncaughtException",
+  "message": "Identifier 'getForwardStatistics' has already been declared",
+  "stack": "/Users/leos/Project/sms/server/controllers/forwardSetting.js:332\nconst getForwardStatistics = async (ctx) => {\n      ^\n\nSyntaxError: Identifier 'getForwardStatistics' has already been declared\n    at wrapSafe (node:internal/modules/cjs/loader:1666:18)\n    at Module._compile (node:internal/modules/cjs/loader:1708:20)\n    at Object..js (node:internal/modules/cjs/loader:1899:10)\n    at Module.load (node:internal/modules/cjs/loader:1469:32)\n    at Module._load (node:internal/modules/cjs/loader:1286:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1491:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/leos/Project/sms/server/routes/index.js:9:34)"
+}
+[2025-09-04 17:12:38.560] [ERROR] ❌ 转发到 wxpusher 失败: 接口 [/api/send/message] 出现异常：Cannot construct instance of `java.util.HashSet` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value ('UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P')
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 325] (through reference chain: com.zjiecode.wxpusher.server.biz.bean.SendMessageReq["uids"])
+[2025-09-04 17:16:39.422] [ERROR] ❌ 转发到 wxpusher 失败: 接口 [/api/send/message] 出现异常：Cannot construct instance of `java.util.HashSet` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value ('UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P')
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 325] (through reference chain: com.zjiecode.wxpusher.server.biz.bean.SendMessageReq["uids"])
+[2025-09-04 17:17:52.394] [ERROR] ❌ 转发到 wxpusher 失败: 接口 [/api/send/message] 出现异常：Cannot construct instance of `java.util.HashSet` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value ('UID_Iwi6sRLsLAtuZveLNO8fYouKFF2P')
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 389] (through reference chain: com.zjiecode.wxpusher.server.biz.bean.SendMessageReq["uids"])

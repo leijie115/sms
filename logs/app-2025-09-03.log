@@ -1293,3 +1293,44 @@
 [2025-09-03 14:30:44.079] [LOG] [32mGET /api/forward-settings/filters 200[0m - 12ms - ::1
 [2025-09-03 14:31:38.004] [LOG] 
 收到 SIGINT 信号，正在优雅关闭...
+[2025-09-03 14:48:50.899] [LOG] ✅ 数据库连接成功
+[2025-09-03 14:48:51.332] [LOG] ✅ 数据库模型同步成功
+[2025-09-03 14:48:51.332] [LOG] 📊 已加载的数据模型:
+[2025-09-03 14:48:51.332] [LOG]    - Device (设备)
+[2025-09-03 14:48:51.333] [LOG]    - SimCard (SIM卡)
+[2025-09-03 14:48:51.333] [LOG]    - SmsMessage (短信消息)
+[2025-09-03 14:48:51.333] [LOG]    - ForwardSetting (转发设置)
+[2025-09-03 14:48:51.333] [LOG] 📁 日志文件:
+[2025-09-03 14:48:51.333] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-03 14:48:51.333] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-03 14:48:51.333] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-03 14:48:51.333] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-03 14:48:51.334] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-03 14:48:51.335] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-03 14:48:51.335] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-03 14:48:51.335] [LOG] 🔐 默认账号: admin
+[2025-09-03 14:48:51.335] [LOG] 🔑 默认密码: admin123
+
+[2025-09-03 14:48:54.106] [LOG] [32mGET /api/check-auth 200[0m - 4ms - ::1
+[2025-09-03 14:48:54.193] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 22ms - ::1
+[2025-09-03 14:48:54.197] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-03 14:48:54.199] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 13ms - ::1
+[2025-09-03 14:48:54.205] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 19ms - ::1
+[2025-09-03 14:48:55.558] [LOG] [32mGET /api/check-auth 200[0m - 1ms - ::1
+[2025-09-03 14:48:55.606] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 4ms - ::1
+[2025-09-03 14:48:55.608] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 3ms - ::1
+[2025-09-03 14:48:55.613] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 5ms - ::1
+[2025-09-03 14:48:55.618] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 7ms - ::1
+[2025-09-03 14:48:56.978] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 10ms - ::1
+[2025-09-03 14:48:56.983] [LOG] [32mGET /api/forward-settings/bark 200[0m - 4ms - ::1
+[2025-09-03 14:48:56.988] [LOG] [32mGET /api/forward-settings/webhook 200[0m - 6ms - ::1
+[2025-09-03 14:48:56.990] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 8ms - ::1
+[2025-09-03 14:48:56.991] [LOG] [32mGET /api/forward-settings/filters 200[0m - 7ms - ::1
+[2025-09-03 14:49:06.705] [LOG] [32mPOST /api/forward-settings/telegram/test 200[0m - 907ms - ::1
+[2025-09-03 14:51:55.280] [LOG] [32mGET /api/check-auth 200[0m - 4ms - ::1
+[2025-09-03 14:51:55.443] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 10ms - ::1
+[2025-09-03 14:51:55.448] [LOG] [32mGET /api/forward-settings/bark 200[0m - 8ms - ::1
+[2025-09-03 14:51:55.451] [LOG] [32mGET /api/forward-settings/webhook 200[0m - 9ms - ::1
+[2025-09-03 14:51:55.456] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 6ms - ::1
+[2025-09-03 14:51:55.457] [LOG] [32mGET /api/forward-settings/filters 200[0m - 6ms - ::1

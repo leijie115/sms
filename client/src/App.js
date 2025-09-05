@@ -11,6 +11,14 @@ import ForwardSetting from './pages/ForwardSetting';
 import LogViewer from './pages/LogViewer';
 import { checkAuth } from './services/api';
 
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+
+
+dayjs.locale('zh-cn');
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return !!localStorage.getItem('token');
@@ -65,35 +73,37 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route 
-          path="/login" 
-          element={
-            isAuthenticated ? 
-            <Navigate to="/" replace /> : 
-            <Login onLogin={handleLogin} />
-          } 
-        />
-        <Route
-          path="/*"
-          element={
-            isAuthenticated ? 
-            <AdminLayout onLogout={handleLogout}>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/devices" element={<DeviceManagement />} />
-                <Route path="/simcards" element={<SimCardManagement />} />
-                <Route path="/sms-messages" element={<SmsMessageManagement />} />
-                <Route path="/forward-settings" element={<ForwardSetting />} />
-                <Route path="/logs" element={<LogViewer />} />
-              </Routes>
-            </AdminLayout> : 
-            <Navigate to="/login" replace />
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+    <ConfigProvider locale={zhCN}>
+      <BrowserRouter>
+        <Routes>
+          <Route 
+            path="/login" 
+            element={
+              isAuthenticated ? 
+              <Navigate to="/" replace /> : 
+              <Login onLogin={handleLogin} />
+            } 
+          />
+          <Route
+            path="/*"
+            element={
+              isAuthenticated ? 
+              <AdminLayout onLogout={handleLogout}>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/devices" element={<DeviceManagement />} />
+                  <Route path="/simcards" element={<SimCardManagement />} />
+                  <Route path="/sms-messages" element={<SmsMessageManagement />} />
+                  <Route path="/forward-settings" element={<ForwardSetting />} />
+                  <Route path="/logs" element={<LogViewer />} />
+                </Routes>
+              </AdminLayout> : 
+              <Navigate to="/login" replace />
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </ConfigProvider>
   );
 }
 

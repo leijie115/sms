@@ -794,10 +794,12 @@ const ForwardSetting = () => {
                 title="总转发次数"
                 value={statistics.summary.totalForwarded}
                 prefix={<SendOutlined style={{ color: '#1890ff' }} />}
+                suffix={
+                  <span style={{ fontSize: 14, fontWeight: 'normal', color: '#999' }}>
+                    / {statistics.summary.totalFailed} 失败
+                  </span>
+                }
               />
-              <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
-                失败: {statistics.summary.totalFailed}
-              </div>
             </Card>
           </Col>
           

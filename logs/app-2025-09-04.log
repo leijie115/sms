@@ -662,3 +662,270 @@ SIM卡: 联通保号卡
 [2025-09-04 18:08:03.875] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 6ms - ::1
 [2025-09-04 18:08:17.709] [LOG] 
 收到 SIGINT 信号，正在优雅关闭...
+[2025-09-04 18:09:25.763] [LOG] ✅ 数据库连接成功
+[2025-09-04 18:09:26.184] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 18:09:26.184] [LOG] 📊 已加载的数据模型:
+[2025-09-04 18:09:26.184] [LOG]    - Device (设备)
+[2025-09-04 18:09:26.184] [LOG]    - SimCard (SIM卡)
+[2025-09-04 18:09:26.184] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 18:09:26.185] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 18:09:26.185] [LOG] 📁 日志文件:
+[2025-09-04 18:09:26.185] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 18:09:26.185] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 18:09:26.185] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 18:09:26.185] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 18:09:26.185] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 18:09:26.186] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 18:09:26.186] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 18:09:26.186] [LOG] 🔐 默认账号: admin
+[2025-09-04 18:09:26.186] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 18:09:32.360] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 12ms - ::1
+[2025-09-04 18:09:32.363] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 14ms - ::1
+[2025-09-04 18:09:32.370] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 21ms - ::1
+[2025-09-04 18:09:32.376] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 22ms - ::1
+[2025-09-04 18:09:44.637] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 12ms - ::1
+[2025-09-04 18:09:44.638] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 12ms - ::1
+[2025-09-04 18:09:45.296] [LOG] [32mGET /api/devices?page=1&pageSize=10&search=&status= 200[0m - 6ms - ::1
+[2025-09-04 18:09:48.000] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 10ms - ::1
+[2025-09-04 18:09:48.002] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 10ms - ::1
+[2025-09-04 18:09:48.003] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-04 18:09:48.009] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 19ms - ::1
+[2025-09-04 18:09:53.814] [LOG] [32mGET /api/sms-messages/8 200[0m - 12ms - ::1
+[2025-09-04 18:10:25.942] [LOG] [32mGET /api/check-auth 200[0m - 4ms - ::1
+[2025-09-04 18:10:26.099] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 20ms - ::1
+[2025-09-04 18:10:26.100] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 21ms - ::1
+[2025-09-04 18:10:26.101] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 22ms - ::1
+[2025-09-04 18:10:26.105] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 26ms - ::1
+[2025-09-04 18:21:41.396] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 20ms - ::1
+[2025-09-04 18:21:41.397] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 20ms - ::1
+[2025-09-04 18:21:44.951] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 11ms - ::1
+[2025-09-04 18:21:44.956] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 17ms - ::1
+[2025-09-04 18:21:44.959] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 19ms - ::1
+[2025-09-04 18:21:44.960] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 21ms - ::1
+[2025-09-04 18:21:46.820] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 9ms - ::1
+[2025-09-04 18:21:46.826] [LOG] [32mGET /api/forward-settings/filters 200[0m - 16ms - ::1
+[2025-09-04 18:21:46.827] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 16ms - ::1
+[2025-09-04 18:22:08.579] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 5ms - ::1
+[2025-09-04 18:22:08.581] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 17ms - ::1
+[2025-09-04 18:22:08.583] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 18ms - ::1
+[2025-09-04 18:22:08.586] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 22ms - ::1
+[2025-09-04 18:22:19.880] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=j&deviceId=&simCardId= 200[0m - 18ms - ::1
+[2025-09-04 18:22:19.882] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 19ms - ::1
+[2025-09-04 18:22:19.884] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 20ms - ::1
+[2025-09-04 18:22:19.889] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 28ms - ::1
+[2025-09-04 18:22:20.268] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 10ms - ::1
+[2025-09-04 18:22:20.274] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 18:22:20.275] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 18ms - ::1
+[2025-09-04 18:22:20.276] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 18ms - ::1
+[2025-09-04 18:22:20.844] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=j&deviceId=&simCardId= 200[0m - 9ms - ::1
+[2025-09-04 18:22:20.850] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 15ms - ::1
+[2025-09-04 18:22:20.853] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 18:22:20.855] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 21ms - ::1
+[2025-09-04 18:22:20.961] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 11ms - ::1
+[2025-09-04 18:22:20.967] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 16ms - ::1
+[2025-09-04 18:22:20.968] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=ji&deviceId=&simCardId= 200[0m - 17ms - ::1
+[2025-09-04 18:22:20.969] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 19ms - ::1
+[2025-09-04 18:22:21.117] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 14ms - ::1
+[2025-09-04 18:22:21.118] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 15ms - ::1
+[2025-09-04 18:22:21.119] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=jia&deviceId=&simCardId= 200[0m - 16ms - ::1
+[2025-09-04 18:22:21.122] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 20ms - ::1
+[2025-09-04 18:22:21.124] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 4ms - ::1
+[2025-09-04 18:22:21.125] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 5ms - ::1
+[2025-09-04 18:22:21.128] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 7ms - ::1
+[2025-09-04 18:22:21.128] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=jiao&deviceId=&simCardId= 200[0m - 4ms - ::1
+[2025-09-04 18:22:21.379] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=jiao%27d&deviceId=&simCardId= 200[0m - 8ms - ::1
+[2025-09-04 18:22:21.386] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 13ms - ::1
+[2025-09-04 18:22:21.387] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 14ms - ::1
+[2025-09-04 18:22:21.389] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 17ms - ::1
+[2025-09-04 18:22:21.462] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 8ms - ::1
+[2025-09-04 18:22:21.463] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=jiao%27du&deviceId=&simCardId= 200[0m - 8ms - ::1
+[2025-09-04 18:22:21.464] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 10ms - ::1
+[2025-09-04 18:22:21.466] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 12ms - ::1
+[2025-09-04 18:22:21.542] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 3ms - ::1
+[2025-09-04 18:22:21.543] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 4ms - ::1
+[2025-09-04 18:22:21.545] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 6ms - ::1
+[2025-09-04 18:22:21.546] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6&deviceId=&simCardId= 200[0m - 4ms - ::1
+[2025-09-04 18:22:35.536] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 15ms - ::1
+[2025-09-04 18:22:35.537] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 19ms - ::1
+[2025-09-04 18:22:35.538] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6j&deviceId=&simCardId= 200[0m - 18ms - ::1
+[2025-09-04 18:22:35.543] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 25ms - ::1
+[2025-09-04 18:22:37.062] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 6ms - ::1
+[2025-09-04 18:22:37.070] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 12ms - ::1
+[2025-09-04 18:22:37.072] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6ji&deviceId=&simCardId= 200[0m - 15ms - ::1
+[2025-09-04 18:22:37.075] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 19ms - ::1
+[2025-09-04 18:22:37.140] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6jia&deviceId=&simCardId= 200[0m - 4ms - ::1
+[2025-09-04 18:22:37.143] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 5ms - ::1
+[2025-09-04 18:22:37.145] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 5ms - ::1
+[2025-09-04 18:22:37.145] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 7ms - ::1
+[2025-09-04 18:22:37.172] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 4ms - ::1
+[2025-09-04 18:22:37.175] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 6ms - ::1
+[2025-09-04 18:22:37.176] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6jian&deviceId=&simCardId= 200[0m - 4ms - ::1
+[2025-09-04 18:22:37.178] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 10ms - ::1
+[2025-09-04 18:22:37.240] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 4ms - ::1
+[2025-09-04 18:22:37.245] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 7ms - ::1
+[2025-09-04 18:22:37.250] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6jiang&deviceId=&simCardId= 200[0m - 13ms - ::1
+[2025-09-04 18:22:37.254] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 20ms - ::1
+[2025-09-04 18:22:41.332] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6%E8%AE%B2&deviceId=&simCardId= 200[0m - 8ms - ::1
+[2025-09-04 18:22:41.338] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 14ms - ::1
+[2025-09-04 18:22:41.342] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 18:22:41.345] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 21ms - ::1
+[2025-09-04 18:23:17.214] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6%E8%AE%B2&deviceId=&simCardId= 200[0m - 13ms - ::1
+[2025-09-04 18:23:18.940] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=%E8%A7%92%E5%BA%A6%E8%AE%B2&deviceId=&simCardId= 200[0m - 8ms - ::1
+[2025-09-04 18:23:26.859] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 33ms - ::1
+[2025-09-04 18:23:26.862] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 34ms - ::1
+[2025-09-04 18:23:26.862] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 35ms - ::1
+[2025-09-04 18:23:26.865] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 39ms - ::1
+[2025-09-04 18:24:18.134] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 21ms - ::1
+[2025-09-04 18:24:18.136] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=1&deviceId=&simCardId= 200[0m - 23ms - ::1
+[2025-09-04 18:24:18.137] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 23ms - ::1
+[2025-09-04 18:24:18.140] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 27ms - ::1
+[2025-09-04 18:25:59.974] [LOG] ✅ 数据库连接成功
+[2025-09-04 18:26:00.492] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 18:26:00.493] [LOG] 📊 已加载的数据模型:
+[2025-09-04 18:26:00.493] [LOG]    - Device (设备)
+[2025-09-04 18:26:00.493] [LOG]    - SimCard (SIM卡)
+[2025-09-04 18:26:00.494] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 18:26:00.494] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 18:26:00.494] [LOG] 📁 日志文件:
+[2025-09-04 18:26:00.494] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 18:26:00.495] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 18:26:00.495] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 18:26:00.495] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 18:26:00.495] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 18:26:00.498] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 18:26:00.498] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 18:26:00.499] [LOG] 🔐 默认账号: admin
+[2025-09-04 18:26:00.499] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 18:26:02.264] [LOG] [32mGET /api/check-auth 200[0m - 8ms - ::1
+[2025-09-04 18:26:02.423] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 24ms - ::1
+[2025-09-04 18:26:02.427] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 26ms - ::1
+[2025-09-04 18:26:02.428] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 28ms - ::1
+[2025-09-04 18:26:02.432] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 34ms - ::1
+[2025-09-04 18:26:10.295] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 9ms - ::1
+[2025-09-04 18:26:10.299] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 13ms - ::1
+[2025-09-04 18:26:11.545] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 12ms - ::1
+[2025-09-04 18:26:11.550] [LOG] [32mGET /api/forward-settings/filters 200[0m - 15ms - ::1
+[2025-09-04 18:26:11.550] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 14ms - ::1
+[2025-09-04 18:26:12.930] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 13ms - ::1
+[2025-09-04 18:26:12.935] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 16ms - ::1
+[2025-09-04 18:26:12.937] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 18:26:12.938] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 20ms - ::1
+[2025-09-04 18:26:15.545] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 8ms - ::1
+[2025-09-04 18:26:15.548] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 11ms - ::1
+[2025-09-04 18:26:17.351] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 19ms - ::1
+[2025-09-04 18:26:17.352] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 20ms - ::1
+[2025-09-04 18:26:17.353] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 21ms - ::1
+[2025-09-04 18:26:17.358] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 27ms - ::1
+[2025-09-04 18:26:18.418] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 11ms - ::1
+[2025-09-04 18:26:18.421] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 12ms - ::1
+[2025-09-04 18:26:19.811] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 9ms - ::1
+[2025-09-04 18:26:19.815] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 10ms - ::1
+[2025-09-04 18:26:19.816] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 13ms - ::1
+[2025-09-04 18:26:19.818] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 15ms - ::1
+[2025-09-04 18:26:23.549] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 7ms - ::1
+[2025-09-04 18:26:23.551] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 8ms - ::1
+[2025-09-04 18:26:25.772] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 11ms - ::1
+[2025-09-04 18:26:25.778] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 16ms - ::1
+[2025-09-04 18:26:25.779] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 18:26:25.780] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 20ms - ::1
+[2025-09-04 20:21:16.663] [LOG] [32mGET /api/forward-settings/telegram 200[0m - 17ms - ::1
+[2025-09-04 20:21:16.666] [LOG] [32mGET /api/forward-settings/statistics 200[0m - 21ms - ::1
+[2025-09-04 20:21:16.667] [LOG] [32mGET /api/forward-settings/filters 200[0m - 22ms - ::1
+[2025-09-04 20:21:20.559] [LOG] [32mGET /api/logs 200[0m - 6ms - ::1
+[2025-09-04 22:21:25.952] [LOG] ✅ 数据库连接成功
+[2025-09-04 22:21:26.478] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 22:21:26.479] [LOG] 📊 已加载的数据模型:
+[2025-09-04 22:21:26.480] [LOG]    - Device (设备)
+[2025-09-04 22:21:26.480] [LOG]    - SimCard (SIM卡)
+[2025-09-04 22:21:26.480] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 22:21:26.481] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 22:21:26.481] [LOG] 📁 日志文件:
+[2025-09-04 22:21:26.482] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 22:21:26.483] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 22:21:26.483] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 22:21:26.483] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 22:21:26.484] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 22:21:26.487] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 22:21:26.488] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 22:21:26.488] [LOG] 🔐 默认账号: admin
+[2025-09-04 22:21:26.488] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 22:21:39.227] [LOG] 
+收到 SIGINT 信号，正在优雅关闭...
+[2025-09-04 22:21:42.636] [LOG] ✅ 数据库连接成功
+[2025-09-04 22:21:43.071] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 22:21:43.072] [LOG] 📊 已加载的数据模型:
+[2025-09-04 22:21:43.072] [LOG]    - Device (设备)
+[2025-09-04 22:21:43.072] [LOG]    - SimCard (SIM卡)
+[2025-09-04 22:21:43.072] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 22:21:43.072] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 22:21:43.073] [LOG] 📁 日志文件:
+[2025-09-04 22:21:43.073] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 22:21:43.073] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 22:21:43.073] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 22:21:43.073] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 22:21:43.073] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 22:21:43.074] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 22:21:43.074] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 22:21:43.075] [LOG] 🔐 默认账号: admin
+[2025-09-04 22:21:43.075] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 22:21:52.012] [LOG] [32mPOST /api/login 200[0m - 12ms - ::1
+[2025-09-04 22:21:52.075] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 12ms - ::1
+[2025-09-04 22:21:52.079] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 15ms - ::1
+[2025-09-04 22:21:52.082] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 19ms - ::1
+[2025-09-04 22:21:52.083] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 21ms - ::1
+[2025-09-04 22:21:53.913] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 9ms - ::1
+[2025-09-04 22:21:53.919] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 9ms - ::1
+[2025-09-04 22:21:53.921] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 7ms - ::1
+[2025-09-04 22:21:53.922] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 12ms - ::1
+[2025-09-04 22:21:59.186] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=0&deviceId=&simCardId= 200[0m - 10ms - ::1
+[2025-09-04 22:21:59.975] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=04&deviceId=&simCardId= 200[0m - 8ms - ::1
+[2025-09-04 22:22:01.248] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=0&deviceId=&simCardId= 200[0m - 6ms - ::1
+[2025-09-04 22:22:03.244] [LOG] [32mGET /api/sms-messages/8 200[0m - 14ms - ::1
+[2025-09-04 22:22:12.678] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId=&startDate=2025-09-03&endDate=2025-10-09 200[0m - 10ms - ::1
+[2025-09-04 22:25:23.072] [LOG] ✅ 数据库连接成功
+[2025-09-04 22:25:23.589] [LOG] ✅ 数据库模型同步成功
+[2025-09-04 22:25:23.589] [LOG] 📊 已加载的数据模型:
+[2025-09-04 22:25:23.589] [LOG]    - Device (设备)
+[2025-09-04 22:25:23.589] [LOG]    - SimCard (SIM卡)
+[2025-09-04 22:25:23.589] [LOG]    - SmsMessage (短信消息)
+[2025-09-04 22:25:23.590] [LOG]    - ForwardSetting (转发设置)
+[2025-09-04 22:25:23.590] [LOG] 📁 日志文件:
+[2025-09-04 22:25:23.590] [LOG]    - logs/app-YYYY-MM-DD.log (应用日志)
+[2025-09-04 22:25:23.590] [LOG]    - logs/error-YYYY-MM-DD.log (错误日志)
+[2025-09-04 22:25:23.590] [LOG]    - logs/request-YYYY-MM-DD.log (请求日志)
+[2025-09-04 22:25:23.590] [LOG]    - logs/webhook-YYYY-MM-DD.log (Webhook日志)
+[2025-09-04 22:25:23.590] [LOG]    - logs/forward-YYYY-MM-DD.log (转发日志)
+[2025-09-04 22:25:23.591] [LOG] 
+🚀 服务器运行在 http://localhost:3000
+[2025-09-04 22:25:23.591] [LOG] 📝 Webhook 接口: POST http://localhost:3000/api/webhook
+[2025-09-04 22:25:23.591] [LOG] 🔐 默认账号: admin
+[2025-09-04 22:25:23.591] [LOG] 🔑 默认密码: admin123
+
+[2025-09-04 22:25:31.434] [LOG] [32mPOST /api/login 200[0m - 17ms - ::1
+[2025-09-04 22:25:31.497] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 12ms - ::1
+[2025-09-04 22:25:31.498] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 15ms - ::1
+[2025-09-04 22:25:31.501] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 17ms - ::1
+[2025-09-04 22:25:31.506] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 21ms - ::1
+[2025-09-04 22:25:33.735] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 13ms - ::1
+[2025-09-04 22:25:33.738] [LOG] [32mGET /api/simcards?page=1&pageSize=10&search=&status=&deviceId= 200[0m - 15ms - ::1
+[2025-09-04 22:25:34.943] [LOG] [32mGET /api/sms-messages?page=1&pageSize=20&search=&deviceId=&simCardId= 200[0m - 12ms - ::1
+[2025-09-04 22:25:34.955] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 23ms - ::1
+[2025-09-04 22:25:34.958] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 25ms - ::1
+[2025-09-04 22:25:34.962] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 31ms - ::1
+[2025-09-04 22:25:45.588] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 20ms - ::1
+[2025-09-04 22:25:45.592] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 24ms - ::1
+[2025-09-04 22:25:45.593] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 23ms - ::1
+[2025-09-04 22:25:45.597] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 27ms - ::1
+[2025-09-04 22:26:16.183] [LOG] [32mGET /api/devices?pageSize=100 200[0m - 16ms - ::1
+[2025-09-04 22:26:16.184] [LOG] [32mGET /api/simcards?pageSize=100 200[0m - 16ms - ::1
+[2025-09-04 22:26:16.185] [LOG] [32mGET /api/sms-messages?pageSize=10 200[0m - 17ms - ::1
+[2025-09-04 22:26:16.188] [LOG] [32mGET /api/sms-messages/statistics?days=7 200[0m - 20ms - ::1
+[2025-09-04 22:26:34.558] [LOG] [32mGET /api/devices?page=1&pageSize=10&search=&status= 200[0m - 8ms - ::1

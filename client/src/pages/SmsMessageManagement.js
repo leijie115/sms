@@ -1,3 +1,4 @@
+// client/src/pages/SmsMessageManagement.js
 import React, { useState, useEffect } from 'react';
 import { 
   Table, Button, Space, Modal, Input, Select, DatePicker,
@@ -41,6 +42,7 @@ function SmsMessageManagement() {
     }
   });
 
+  // 获取短信列表
   const fetchMessages = async (page = 1, pageSize = 20) => {
     setLoading(true);
     try {
@@ -71,6 +73,7 @@ function SmsMessageManagement() {
     }
   };
 
+  // 获取统计数据
   const fetchStatistics = async () => {
     try {
       const response = await api.get('/sms-messages/statistics', {
@@ -82,6 +85,7 @@ function SmsMessageManagement() {
     }
   };
 
+  // 获取设备列表 - 只在组件挂载时调用一次
   const fetchDevices = async () => {
     try {
       const response = await api.get('/devices', { params: { pageSize: 100 } });
@@ -91,6 +95,7 @@ function SmsMessageManagement() {
     }
   };
 
+  // 获取SIM卡列表 - 只在组件挂载时调用一次
   const fetchSimCards = async () => {
     try {
       const response = await api.get('/simcards', { params: { pageSize: 100 } });
@@ -100,13 +105,32 @@ function SmsMessageManagement() {
     }
   };
 
+  // 组件挂载时，获取所有初始数据
   useEffect(() => {
+    // 初始化加载所有数据
     fetchMessages();
     fetchStatistics();
     fetchDevices();
     fetchSimCards();
+  }, []); // 空依赖数组，只在组件挂载时执行
+
+  // 监听筛选条件变化，只重新获取短信列表
+  useEffect(() => {
+    // 跳过初始渲染
+    if (searchText === '' && deviceFilter === '' && simCardFilter === '' && dateRange === null) {
+      return;
+    }
+    // 筛选条件变化时，只重新获取短信列表，不再请求设备和SIM卡
+    fetchMessages();
   }, [searchText, deviceFilter, simCardFilter, dateRange]);
 
+  // 手动刷新函数
+  const handleRefresh = () => {
+    fetchMessages(pagination.current, pagination.pageSize);
+    fetchStatistics(); // 同时刷新统计数据
+  };
+
+  // 查看详情
   const handleViewDetail = async (record) => {
     try {
       const response = await api.get(`/sms-messages/${record.id}`);
@@ -174,9 +198,9 @@ function SmsMessageManagement() {
               </Tag>
             )}
             <div style={{ 
-              whiteSpace: 'nowrap', 
-              overflow: 'hidden', 
-              textOverflow: 'ellipsis' 
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
             }}>
               {text}
             </div>
@@ -212,37 +236,46 @@ function SmsMessageManagement() {
 
       {/* 统计卡片 */}
       {statistics && (
-        <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-          <Col xs={24} sm={8}>
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col xs={12} sm={6}>
             <Card size="small">
               <Statistic
-                title="7天内短信总数"
-                value={statistics.totalCount}
+                title="今日短信"
+                value={statistics.todayCount || 0}
                 prefix={<MessageOutlined />}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={8}>
+          <Col xs={12} sm={6}>
             <Card size="small">
               <Statistic
-                title="活跃设备数"
-                value={statistics.byDevice?.length || 0}
-                prefix={<MobileOutlined />}
+                title="本周短信"
+                value={statistics.weekCount || 0}
+                prefix={<MessageOutlined />}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={8}>
+          <Col xs={12} sm={6}>
             <Card size="small">
               <Statistic
-                title="活跃SIM卡数"
-                value={statistics.bySimCard?.length || 0}
-                prefix={<PhoneOutlined />}
+                title="总短信数"
+                value={statistics.totalCount || 0}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card size="small">
+              <Statistic
+                title="活跃设备"
+                value={statistics.activeDevices || 0}
+                prefix={<MobileOutlined />}
               />
             </Card>
           </Col>
         </Row>
       )}
 
+      {/* 筛选区域 */}
       <div style={{ 
         marginBottom: 16, 
         background: '#fafafa', 
@@ -252,7 +285,7 @@ function SmsMessageManagement() {
         <Row gutter={[12, 12]} align="middle">
           <Col xs={24} sm={12} md={6}>
             <Input
-              placeholder="搜索短信内容或号码"
+              placeholder="搜索短信内容或手机号"
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -301,7 +334,7 @@ function SmsMessageManagement() {
           <Col xs={24} sm={6} md={2}>
             <Button
               icon={<ReloadOutlined />}
-              onClick={() => fetchMessages()}
+              onClick={handleRefresh}
               style={{ width: '100%' }}
             >
               刷新
@@ -310,6 +343,7 @@ function SmsMessageManagement() {
         </Row>
       </div>
 
+      {/* 表格区域 */}
       <div style={{ 
         flex: 1, 
         overflow: 'hidden',
@@ -341,8 +375,8 @@ function SmsMessageManagement() {
         />
       </div>
 
-     {/* 详情弹窗 */}
-     <Modal
+      {/* 详情弹窗 */}
+      <Modal
         title="短信详情"
         open={detailModalVisible}
         onCancel={() => {
@@ -353,62 +387,41 @@ function SmsMessageManagement() {
         width={700}
       >
         {selectedMessage && (
-          <Descriptions column={1} bordered size="small">
+          <Descriptions bordered column={1} size="small">
             <Descriptions.Item label="消息ID">
               {selectedMessage.id}
-            </Descriptions.Item>
-            <Descriptions.Item label="设备">
-              {selectedMessage.device?.name} ({selectedMessage.device?.devId})
-            </Descriptions.Item>
-            <Descriptions.Item label="SIM卡">
-              {selectedMessage.simCard?.scName} - 卡槽{selectedMessage.simCard?.slot}
-            </Descriptions.Item>
-            <Descriptions.Item label="手机号(MSISDN)">
-              {selectedMessage.simCard?.msIsdn || '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label="IMSI">
-              {selectedMessage.simCard?.imsi || '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label="发送方号码">
-              {selectedMessage.phNum}
             </Descriptions.Item>
             <Descriptions.Item label="接收时间">
               {dayjs(selectedMessage.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </Descriptions.Item>
-            <Descriptions.Item label="短信内容">
-              <div style={{ 
-                maxHeight: 200, 
-                overflow: 'auto',
-                wordBreak: 'break-all'
-              }}>
-                <TextArea 
-                  value={selectedMessage.smsBd} 
-                  readOnly 
-                  autoSize={{ minRows: 3, maxRows: 8 }}
-                  style={{ resize: 'none', border: 'none', padding: 0 }}
-                />
-              </div>
+            <Descriptions.Item label="设备信息">
+              {selectedMessage.device?.name} ({selectedMessage.device?.devId})
             </Descriptions.Item>
-            {selectedMessage.rawData && (
-              <Descriptions.Item label="原始数据">
-                <div style={{ 
-                  maxHeight: 300,
-                  overflow: 'auto'
-                }}>
-                  <pre style={{ 
-                    background: '#f5f5f5', 
-                    padding: 10, 
-                    borderRadius: 4,
-                    fontSize: 12,
-                    margin: 0,
-                    wordBreak: 'break-all',
-                    whiteSpace: 'pre-wrap'
-                  }}>
-                    {JSON.stringify(selectedMessage.rawData, null, 2)}
-                  </pre>
-                </div>
-              </Descriptions.Item>
-            )}
+            <Descriptions.Item label="SIM卡信息">
+              {selectedMessage.simCard?.scName} - 卡槽{selectedMessage.simCard?.slot}
+              <br />
+              号码: {selectedMessage.simCard?.msIsdn}
+            </Descriptions.Item>
+            <Descriptions.Item label="发送方号码">
+              {selectedMessage.phNum}
+            </Descriptions.Item>
+            <Descriptions.Item label="短信内容">
+              <TextArea 
+                value={selectedMessage.smsBd} 
+                readOnly 
+                autoSize={{ minRows: 3, maxRows: 10 }}
+                style={{ resize: 'none', background: '#f5f5f5' }}
+              />
+            </Descriptions.Item>
+            <Descriptions.Item label="消息时间戳">
+              {selectedMessage.msgTs}
+            </Descriptions.Item>
+            <Descriptions.Item label="短信时间戳">
+              {selectedMessage.smsTs}
+            </Descriptions.Item>
+            <Descriptions.Item label="网络通道">
+              {selectedMessage.netCh === 0 ? 'WiFi' : `卡槽${selectedMessage.netCh}`}
+            </Descriptions.Item>
           </Descriptions>
         )}
       </Modal>

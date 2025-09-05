@@ -1,7 +1,8 @@
+// client/src/pages/DeviceManagement.js
 import React, { useState, useEffect } from 'react';
 import { 
   Table, Button, Space, Modal, Form, Input, Select, 
-  Tag, message, Row, Col, Card, Typography, Badge 
+  Tag, message, Row, Col, Card, Typography, Badge, Spin
 } from 'antd';
 import { 
   PlusOutlined, EditOutlined, SearchOutlined, 
@@ -17,6 +18,7 @@ function DeviceManagement() {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
   const [editingDevice, setEditingDevice] = useState(null);
   const [form] = Form.useForm();
   const [pagination, setPagination] = useState({
@@ -34,6 +36,7 @@ function DeviceManagement() {
     }
   });
 
+  // 获取设备列表
   const fetchDevices = async (page = 1, pageSize = 10) => {
     setLoading(true);
     try {
@@ -57,21 +60,49 @@ function DeviceManagement() {
     }
   };
 
+  // 获取单个设备的最新数据
+  const fetchDeviceDetail = async (deviceId) => {
+    setModalLoading(true);
+    try {
+      const response = await api.get(`/devices/${deviceId}`);
+      const device = response.data.data;
+      
+      // 设置表单数据
+      form.setFieldsValue({
+        name: device.name,
+        status: device.status,
+        description: device.description
+      });
+      
+      setEditingDevice(device);
+      setModalVisible(true);
+    } catch (error) {
+      message.error('获取设备详情失败');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchDevices();
   }, [searchText, statusFilter]);
 
+  // 处理编辑按钮点击
   const handleEdit = async (record) => {
-    setEditingDevice(record);
-    form.setFieldsValue({
-      name: record.name,
-      status: record.status,
-      description: record.description
-    });
+    // 不直接使用列表数据，而是从服务器获取最新数据
+    await fetchDeviceDetail(record.id);
+  };
+
+  // 处理新增按钮点击
+  const handleAdd = () => {
+    setEditingDevice(null);
+    form.resetFields();
     setModalVisible(true);
   };
 
+  // 处理表单提交
   const handleSubmit = async (values) => {
+    setModalLoading(true);
     try {
       if (editingDevice) {
         // 编辑模式：只更新名称、状态和描述
@@ -93,6 +124,8 @@ function DeviceManagement() {
       fetchDevices(pagination.current, pagination.pageSize);
     } catch (error) {
       message.error(error.response?.data?.message || '操作失败');
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -103,7 +136,6 @@ function DeviceManagement() {
     '205': { text: '已弹出', color: 'default' },
     '209': { text: '卡异常', color: 'error' }
   };
-  
 
   const columns = [
     {
@@ -116,9 +148,11 @@ function DeviceManagement() {
       title: '设备ID',
       dataIndex: 'devId',
       key: 'devId',
-      width: 150,
+      width: 120,
       render: (text) => (
-        <span style={{ fontFamily: 'monospace' }}>{text}</span>
+        <span style={{ fontFamily: 'monospace', fontSize: 12 }}>
+          {text}
+        </span>
       ),
     },
     {
@@ -133,35 +167,37 @@ function DeviceManagement() {
       key: 'status',
       width: 100,
       render: (status) => {
-        const config = {
-          active: { color: 'green', text: '激活' },
-          inactive: { color: 'orange', text: '未激活' },
-          offline: { color: 'red', text: '离线' }
+        const statusMap = {
+          active: { color: 'success', text: '激活' },
+          inactive: { color: 'default', text: '未激活' },
+          offline: { color: 'error', text: '离线' }
         };
-        return (
-          <Tag color={config[status]?.color}>
-            {config[status]?.text || status}
-          </Tag>
-        );
+        const config = statusMap[status] || { color: 'default', text: status };
+        return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
     {
-      title: 'SIM卡',
-      dataIndex: 'simCards',
+      title: 'SIM卡状态',
       key: 'simCards',
       width: 200,
-      render: (simCards) => (
-        <Space direction="vertical" size="small">
-          {simCards?.map(sim => {
-            const statusConfig = SIM_STATUS_MAP[sim.status] || { text: sim.status, color: 'default' };
+      render: (_, record) => (
+        <Space direction="vertical" size={0}>
+          {record.simCards?.map((sim) => {
+            const statusConfig = SIM_STATUS_MAP[sim.status] || { 
+              text: sim.status || '未知', 
+              color: 'default' 
+            };
+            
             return (
-              <div key={sim.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={sim.id} style={{ marginBottom: 4 }}>
                 <Badge 
-                  status={statusConfig.color === 'success' ? 'success' : 
-                          statusConfig.color === 'error' ? 'error' : 
-                          statusConfig.color === 'warning' ? 'warning' : 
-                          statusConfig.color === 'processing' ? 'processing' : 
-                          'default'}
+                  status={
+                    statusConfig.color === 'success' ? 'success' : 
+                    statusConfig.color === 'error' ? 'error' : 
+                    statusConfig.color === 'warning' ? 'warning' : 
+                    statusConfig.color === 'processing' ? 'processing' : 
+                    'default'
+                  }
                   text={`卡槽${sim.slot}: ${statusConfig.text}`}
                 />
               </div>
@@ -210,6 +246,7 @@ function DeviceManagement() {
         </Title>
       </div>
 
+      {/* 搜索和筛选区域 */}
       <div style={{ 
         marginBottom: 16, 
         background: '#fafafa', 
@@ -253,19 +290,16 @@ function DeviceManagement() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => {
-                setEditingDevice(null);
-                form.resetFields();
-                setModalVisible(true);
-              }}
+              onClick={handleAdd}
               style={{ width: '100%' }}
             >
-              新建设备
+              新增设备
             </Button>
           </Col>
         </Row>
       </div>
 
+      {/* 表格区域 */}
       <div style={{ 
         flex: 1, 
         overflow: 'hidden',
@@ -291,84 +325,104 @@ function DeviceManagement() {
           size="small"
           scroll={{ 
             x: 1200,
-            y: 'calc(100vh - 340px)'
+            y: 'calc(100vh - 280px)'
           }}
         />
       </div>
 
+      {/* 编辑/新增弹窗 */}
       <Modal
-        title={editingDevice ? '编辑设备' : '新建设备'}
+        title={editingDevice ? '编辑设备' : '新增设备'}
         open={modalVisible}
+        onOk={() => form.submit()}
         onCancel={() => {
           setModalVisible(false);
           form.resetFields();
           setEditingDevice(null);
         }}
-        footer={null}
+        confirmLoading={modalLoading}
         width={600}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
-          {!editingDevice && (
+        <Spin spinning={modalLoading}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+          >
+            {editingDevice && (
+              <Form.Item label="设备ID">
+                <Input value={editingDevice.devId} disabled />
+              </Form.Item>
+            )}
+            
+            {!editingDevice && (
+              <Form.Item
+                name="devId"
+                label="设备ID"
+                rules={[
+                  { required: true, message: '请输入设备ID' },
+                  { pattern: /^[a-zA-Z0-9]+$/, message: '设备ID只能包含字母和数字' }
+                ]}
+              >
+                <Input placeholder="请输入设备ID" />
+              </Form.Item>
+            )}
+            
             <Form.Item
-              name="devId"
-              label="设备ID"
-              rules={[
-                { required: true, message: '请输入设备ID' },
-                { pattern: /^[a-zA-Z0-9]+$/, message: '设备ID只能包含字母和数字' }
-              ]}
-              extra="设备ID创建后不能修改"
+              name="name"
+              label="设备名称"
+              rules={[{ required: true, message: '请输入设备名称' }]}
             >
-              <Input placeholder="请输入设备ID" disabled={editingDevice} />
+              <Input placeholder="请输入设备名称" />
             </Form.Item>
-          )}
+            
+            <Form.Item
+              name="status"
+              label="设备状态"
+              rules={[{ required: true, message: '请选择设备状态' }]}
+              initialValue="active"
+            >
+              <Select>
+                <Option value="active">激活</Option>
+                <Option value="inactive">未激活</Option>
+                <Option value="offline">离线</Option>
+              </Select>
+            </Form.Item>
+            
+            <Form.Item
+              name="description"
+              label="设备描述"
+            >
+              <TextArea 
+                rows={3} 
+                placeholder="请输入设备描述（可选）" 
+              />
+            </Form.Item>
 
-          <Form.Item
-            name="name"
-            label="设备名称"
-            rules={[{ required: true, message: '请输入设备名称' }]}
-          >
-            <Input placeholder="请输入设备名称" />
-          </Form.Item>
-
-          <Form.Item
-            name="status"
-            label="状态"
-            initialValue="active"
-            rules={[{ required: true, message: '请选择状态' }]}
-          >
-            <Select>
-              <Option value="active">激活</Option>
-              <Option value="inactive">未激活</Option>
-              <Option value="offline">离线</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="description"
-            label="描述"
-          >
-            <TextArea rows={4} placeholder="请输入设备描述" />
-          </Form.Item>
-
-          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
-            <Space>
-              <Button onClick={() => {
-                setModalVisible(false);
-                form.resetFields();
-                setEditingDevice(null);
-              }}>
-                取消
-              </Button>
-              <Button type="primary" htmlType="submit">
-                {editingDevice ? '更新' : '创建'}
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
+            {editingDevice && editingDevice.simCards && editingDevice.simCards.length > 0 && (
+              <Form.Item label="关联的SIM卡">
+                <Card size="small">
+                  {editingDevice.simCards.map((sim) => {
+                    const statusConfig = SIM_STATUS_MAP[sim.status] || { 
+                      text: sim.status || '未知', 
+                      color: 'default' 
+                    };
+                    return (
+                      <div key={sim.id} style={{ marginBottom: 8 }}>
+                        <Space>
+                          <span>卡槽{sim.slot}:</span>
+                          <span>{sim.scName}</span>
+                          <Tag color={statusConfig.color}>{statusConfig.text}</Tag>
+                          <span style={{ fontSize: 12, color: '#999' }}>{sim.msIsdn}</span>
+                        </Space>
+                      </div>
+                    );
+                  })}
+                </Card>
+              </Form.Item>
+            )}
+          </Form>
+        </Spin>
       </Modal>
     </div>
   );

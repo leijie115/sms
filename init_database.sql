@@ -106,6 +106,16 @@ VALUES
   '{"keywords":[],"senders":[],"devices":[],"simCards":[]}',
   '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}');
 
+
+
+ALTER TABLE `SmsMessages` 
+ADD COLUMN `msgType` enum('sms','call') DEFAULT 'sms' COMMENT '消息类型：sms-短信，call-来电' AFTER `deviceId`,
+ADD COLUMN `callDuration` int DEFAULT NULL COMMENT '通话时长（秒）- 仅来电记录' AFTER `smsTs`,
+ADD COLUMN `callStatus` varchar(20) DEFAULT NULL COMMENT '来电状态：ringing-响铃中，missed-未接，answered-已接听' AFTER `callDuration`,
+ADD INDEX `idx_msgType` (`msgType`);
+
+-- 更新现有记录为短信类型
+UPDATE `SmsMessages` SET `msgType` = 'sms' WHERE `msgType` IS NULL;
 -- 10. 查看插入的数据
 SELECT '设备数据:' as '数据类型';
 SELECT * FROM Devices;

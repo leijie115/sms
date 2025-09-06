@@ -1,3 +1,4 @@
+// server/controllers/smsMessage.js
 const SmsMessage = require('../models/smsMessage');
 const SimCard = require('../models/simCard');
 const Device = require('../models/device');
@@ -125,7 +126,7 @@ const deleteSmsMessage = async (ctx) => {
   };
 };
 
-// 获取短信统计
+// 获取短信统计 - 修复版本
 const getSmsStatistics = async (ctx) => {
   try {
     const { deviceId, simCardId, days = 7 } = ctx.query;
@@ -134,19 +135,72 @@ const getSmsStatistics = async (ctx) => {
     if (deviceId) where.deviceId = deviceId;
     if (simCardId) where.simCardId = simCardId;
     
-    // 添加时间范围
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - parseInt(days));
-    where.createdAt = {
-      [Op.gte]: startDate
+    // 获取当前时间
+    const now = new Date();
+    
+    // 计算今日开始时间（本地时间0点）
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    
+    // 计算本周开始时间（周一0点）
+    const weekStart = new Date(now);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1); // 调整到周一
+    weekStart.setDate(diff);
+    weekStart.setHours(0, 0, 0, 0);
+    
+    // 计算指定天数前的时间
+    const daysAgo = new Date();
+    daysAgo.setDate(daysAgo.getDate() - parseInt(days));
+    daysAgo.setHours(0, 0, 0, 0);
+    
+    // 1. 今日短信数量
+    const todayCount = await SmsMessage.count({
+      where: {
+        ...where,
+        createdAt: {
+          [Op.gte]: todayStart
+        }
+      }
+    });
+    
+    // 2. 本周短信数量
+    const weekCount = await SmsMessage.count({
+      where: {
+        ...where,
+        createdAt: {
+          [Op.gte]: weekStart
+        }
+      }
+    });
+    
+    // 3. 总短信数量（所有时间）
+    const totalCount = await SmsMessage.count({
+      where
+    });
+    
+    // 4. 活跃设备数量（今日有接收短信的设备）
+    const activeDevices = await SmsMessage.count({
+      where: {
+        createdAt: {
+          [Op.gte]: todayStart
+        }
+      },
+      distinct: true,
+      col: 'deviceId'
+    });
+    
+    // 5. 指定天数内的短信统计
+    const periodWhere = {
+      ...where,
+      createdAt: {
+        [Op.gte]: daysAgo
+      }
     };
     
-    // 总数统计
-    const totalCount = await SmsMessage.count({ where });
-    
-    // 按发送方统计
+    // 按发送方统计（指定天数内）
     const bySender = await SmsMessage.findAll({
-      where,
+      where: periodWhere,
       attributes: [
         'phNum',
         [SmsMessage.sequelize.fn('COUNT', '*'), 'count']
@@ -156,9 +210,9 @@ const getSmsStatistics = async (ctx) => {
       limit: 10
     });
     
-    // 按设备统计
+    // 按设备统计（指定天数内）
     const byDevice = await SmsMessage.findAll({
-      where,
+      where: periodWhere,
       attributes: [
         'deviceId',
         [SmsMessage.sequelize.fn('COUNT', '*'), 'count']
@@ -174,9 +228,9 @@ const getSmsStatistics = async (ctx) => {
       order: [[SmsMessage.sequelize.fn('COUNT', '*'), 'DESC']]
     });
     
-    // 按SIM卡统计
+    // 按SIM卡统计（指定天数内）
     const bySimCard = await SmsMessage.findAll({
-      where,
+      where: periodWhere,
       attributes: [
         'simCardId',
         [SmsMessage.sequelize.fn('COUNT', '*'), 'count']
@@ -192,17 +246,64 @@ const getSmsStatistics = async (ctx) => {
       order: [[SmsMessage.sequelize.fn('COUNT', '*'), 'DESC']]
     });
     
+    // 6. 计算昨日短信数量（用于计算增长率）
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+    const yesterdayEnd = new Date(todayStart);
+    
+    const yesterdayCount = await SmsMessage.count({
+      where: {
+        ...where,
+        createdAt: {
+          [Op.gte]: yesterdayStart,
+          [Op.lt]: yesterdayEnd
+        }
+      }
+    });
+    
+    // 计算增长率
+    let growthRate = 0;
+    if (yesterdayCount > 0) {
+      growthRate = ((todayCount - yesterdayCount) / yesterdayCount * 100).toFixed(1);
+    } else if (todayCount > 0) {
+      growthRate = 100;
+    }
+    
+    // 返回统计数据
     ctx.body = {
       success: true,
       data: {
-        totalCount,
+        // 主要统计指标
+        todayCount,        // 今日短信
+        weekCount,         // 本周短信
+        totalCount,        // 总短信数
+        activeDevices,     // 活跃设备数
+        growthRate,        // 相比昨日增长率
+        
+        // 详细统计
         days: parseInt(days),
         bySender,
         byDevice,
-        bySimCard
+        bySimCard,
+        
+        // 时间范围
+        periods: {
+          today: {
+            start: todayStart.toISOString(),
+            count: todayCount
+          },
+          week: {
+            start: weekStart.toISOString(),
+            count: weekCount
+          },
+          yesterday: {
+            count: yesterdayCount
+          }
+        }
       }
     };
   } catch (error) {
+    console.error('获取统计数据失败:', error);
     ctx.status = 500;
     ctx.body = {
       success: false,

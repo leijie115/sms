@@ -70,148 +70,47 @@ app.use(async (ctx) => {
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404 - 页面未找到</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      height: 100vh;
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #333;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-    
     .container {
       text-align: center;
-      background: white;
-      padding: 60px 40px;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-width: 500px;
-      margin: 20px;
-    }
-    
-    .error-code {
-      font-size: 120px;
-      font-weight: bold;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-      line-height: 1;
-    }
-    
-    .error-title {
-      font-size: 32px;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    
-    .error-message {
-      font-size: 16px;
-      color: #666;
-      margin-bottom: 30px;
-      line-height: 1.6;
-    }
-    
-    .error-path {
-      font-family: 'Courier New', monospace;
-      background: #f4f4f4;
-      padding: 10px 15px;
-      border-radius: 5px;
-      margin: 20px 0;
-      color: #e74c3c;
-      word-break: break-all;
-    }
-    
-    .buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
-    .btn {
-      display: inline-block;
-      padding: 12px 30px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+    }
+    h1 { font-size: 120px; margin: 0; }
+    p { font-size: 24px; margin: 20px 0; }
+    a { 
+      color: white; 
       text-decoration: none;
-      border-radius: 50px;
-      font-weight: 500;
-      transition: transform 0.3s, box-shadow 0.3s;
+      padding: 10px 20px;
+      border: 2px solid white;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 20px;
+      transition: all 0.3s;
     }
-    
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-secondary {
-      background: #f4f4f4;
-      color: #333;
-    }
-    
-    .btn-secondary:hover {
-      background: #e8e8e8;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .illustration {
-      font-size: 80px;
-      margin-bottom: 20px;
-    }
-    
-    @media (max-width: 480px) {
-      .error-code {
-        font-size: 80px;
-      }
-      
-      .error-title {
-        font-size: 24px;
-      }
-      
-      .container {
-        padding: 40px 30px;
-      }
+    a:hover {
+      background: white;
+      color: #667eea;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="illustration">🔍</div>
-    <div class="error-code">404</div>
-    <h1 class="error-title">页面未找到</h1>
-    <p class="error-message">
-      抱歉，您访问的页面不存在或已被移除。<br>
-      请检查网址是否正确，或返回首页继续浏览。
-    </p>
-    <div class="error-path">${ctx.path}</div>
-    <div class="buttons">
-      <a href="/" class="btn">返回首页</a>
-      <a href="javascript:history.back()" class="btn btn-secondary">返回上页</a>
-    </div>
+    <h1>404</h1>
+    <p>页面未找到</p>
+    <a href="/">返回首页</a>
   </div>
-  
-  <script>
-    // 5秒后自动跳转到首页
-    setTimeout(() => {
-      console.log('自动跳转到首页...');
-      // window.location.href = '/';
-    }, 5000);
-  </script>
 </body>
-</html>
-    `;
+</html>`;
   }
 });
 
@@ -226,11 +125,11 @@ app.on('error', (err, ctx) => {
   }
 });
 
-// 每天凌晨2点清理30天前的日志
+// 每天凌晨2点清理365天前的日志（已修改为365天）
 setInterval(() => {
   const now = new Date();
   if (now.getHours() === 2 && now.getMinutes() === 0) {
-    logger.cleanOldLogs(30);
+    logger.cleanOldLogs(365); // 修改为365天
   }
 }, 60000); // 每分钟检查一次
 
@@ -240,9 +139,37 @@ async function start() {
     await sequelize.authenticate();
     console.log('✅ 数据库连接成功');
     
-    // 同步数据库模型
-    await sequelize.sync({ alter: true });
-    console.log('✅ 数据库模型同步成功');
+    // 根据环境变量决定是否同步数据库
+    // 生产环境：不自动同步
+    // 开发环境：只在首次运行时同步，之后不再自动同步
+    const shouldSync = process.env.DB_SYNC === 'true' || process.env.NODE_ENV === 'development_first_run';
+    
+    if (shouldSync) {
+      console.log('⚠️  正在同步数据库模型...');
+      // 使用 sync({ force: false }) 而不是 alter: true
+      // force: false 只会创建不存在的表，不会修改已存在的表结构
+      await sequelize.sync({ force: false });
+      console.log('✅ 数据库模型同步成功');
+      console.log('');
+      console.log('📌 提示：如果需要更新表结构，请手动执行 SQL 语句');
+      console.log('📌 或者设置环境变量 DB_SYNC=true 来强制同步');
+    } else {
+      console.log('ℹ️  跳过数据库同步（生产模式）');
+      
+      // 验证表是否存在
+      try {
+        await Device.findOne({ limit: 1 });
+        await SimCard.findOne({ limit: 1 });
+        await SmsMessage.findOne({ limit: 1 });
+        await ForwardSetting.findOne({ limit: 1 });
+        console.log('✅ 数据库表验证成功');
+      } catch (error) {
+        console.error('❌ 数据库表验证失败，请确保所有表都已创建');
+        console.error('   提示：运行 init_database.sql 初始化数据库');
+        console.error('   或设置 DB_SYNC=true 环境变量来自动创建表');
+        throw error;
+      }
+    }
     
     // 输出模型信息
     console.log('📊 已加载的数据模型:');
@@ -262,6 +189,14 @@ async function start() {
       console.log(`📝 Webhook 接口: POST http://localhost:${port}/api/webhook`);
       console.log(`🔐 默认账号: admin`);
       console.log(`🔑 默认密码: admin123\n`);
+      
+      // 生产环境提示
+      if (process.env.NODE_ENV === 'production') {
+        console.log('⚠️  当前运行在生产模式');
+        console.log('   - 数据库不会自动同步');
+        console.log('   - 日志保留365天');
+        console.log('   - 请确保已正确配置所有环境变量\n');
+      }
     });
   } catch (error) {
     logger.logError('StartupError', error, {
@@ -271,6 +206,19 @@ async function start() {
     process.exit(1);
   }
 }
+
+// 优雅关闭
+process.on('SIGINT', async () => {
+  console.log('\n收到 SIGINT 信号，正在优雅关闭...');
+  try {
+    await sequelize.close();
+    console.log('✅ 数据库连接已关闭');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ 关闭数据库连接失败:', error);
+    process.exit(1);
+  }
+});
 
 // 处理启动错误
 start().catch(error => {

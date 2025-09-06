@@ -81,7 +81,8 @@ class ForwardService {
           keywords: [],
           senders: [],
           devices: [],
-          simCards: []
+          simCards: [],
+          blockCallNumbers: [] // 新增：来电黑名单
         },
         messageTemplate: '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
       },
@@ -101,7 +102,8 @@ class ForwardService {
           keywords: [],
           senders: [],
           devices: [],
-          simCards: []
+          simCards: [],
+          blockCallNumbers: [] // 新增：来电黑名单
         },
         messageTemplate: '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
       },
@@ -117,7 +119,8 @@ class ForwardService {
           keywords: [],
           senders: [],
           devices: [],
-          simCards: []
+          simCards: [],
+          blockCallNumbers: [] // 新增：来电黑名单
         },
         messageTemplate: '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
       },
@@ -133,7 +136,8 @@ class ForwardService {
           keywords: [],
           senders: [],
           devices: [],
-          simCards: []
+          simCards: [],
+          blockCallNumbers: [] // 新增：来电黑名单
         },
         messageTemplate: '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
       }
@@ -222,6 +226,40 @@ class ForwardService {
   matchFilter(rules, message, device, simCard) {
     if (!rules) return true;
 
+    // 判断消息类型
+    const isCall = message.msgType === 'call';
+
+    // 来电特殊处理
+    if (isCall) {
+      // 检查来电黑名单
+      if (rules.blockCallNumbers && rules.blockCallNumbers.length > 0) {
+        const isBlocked = rules.blockCallNumbers.some(number => 
+          message.phNum?.includes(number)
+        );
+        if (isBlocked) {
+          console.log(`🚫 来电号码 ${message.phNum} 在黑名单中，不转发`);
+          return false;
+        }
+      }
+
+      // 检查设备和SIM卡过滤
+      if (rules.devices && rules.devices.length > 0) {
+        if (!rules.devices.includes(device.id)) {
+          return false;
+        }
+      }
+
+      if (rules.simCards && rules.simCards.length > 0) {
+        if (!rules.simCards.includes(simCard.id)) {
+          return false;
+        }
+      }
+
+      // 来电默认都转发（除非在黑名单）
+      return true;
+    }
+
+    // 短信的原有过滤逻辑
     // 如果所有规则都为空，则不过滤（全部转发）
     const hasRules = 
       (rules.keywords && rules.keywords.length > 0) ||
@@ -266,9 +304,25 @@ class ForwardService {
   }
 
   /**
-   * 格式化消息模板
+   * 格式化消息模板（根据消息类型选择不同模板）
    */
   formatMessage(template, message, device, simCard) {
+    // 判断是否是来电
+    const isCall = message.msgType === 'call';
+    
+    // 来电使用特殊模板
+    if (isCall) {
+      return this.formatCallMessage(template, message, device, simCard);
+    }
+    
+    // 短信使用原有模板
+    return this.formatSmsMessage(template, message, device, simCard);
+  }
+
+  /**
+   * 格式化短信消息
+   */
+  formatSmsMessage(template, message, device, simCard) {
     const time = new Date(message.createdAt || message.smsTs || Date.now()).toLocaleString('zh-CN');
     
     return template
@@ -277,6 +331,54 @@ class ForwardService {
       .replace(/{sender}/g, message.phNum || '未知')
       .replace(/{content}/g, message.smsBd || '空')
       .replace(/{time}/g, time);
+  }
+
+  /**
+   * 格式化来电消息
+   */
+  formatCallMessage(template, message, device, simCard) {
+    const time = new Date(message.createdAt || message.smsTs || Date.now()).toLocaleString('zh-CN');
+    
+    // 格式化来电状态
+    let statusText = '来电';
+    if (message.callStatus === 'missed') {
+      statusText = '未接来电';
+    } else if (message.callStatus === 'answered') {
+      const duration = this.formatDuration(message.callDuration);
+      statusText = `已接听 (${duration})`;
+    } else if (message.callStatus === 'rejected') {
+      statusText = '已拒绝';
+    } else if (message.callStatus === 'ringing') {
+      statusText = '响铃中';
+    }
+
+    // 来电专用模板
+    const callTemplate = `📞 ${statusText}
+设备: ${device.name || device.devId}
+SIM卡: ${simCard.scName || simCard.msIsdn}
+来电号码: ${message.phNum || '未知号码'}
+时间: ${time}`;
+
+    return callTemplate;
+  }
+
+  /**
+   * 格式化通话时长
+   */
+  formatDuration(seconds) {
+    if (!seconds || seconds === 0) return '0秒';
+    
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}小时${minutes}分${secs}秒`;
+    } else if (minutes > 0) {
+      return `${minutes}分${secs}秒`;
+    } else {
+      return `${secs}秒`;
+    }
   }
 
   /**
@@ -289,6 +391,7 @@ class ForwardService {
       });
 
       const results = [];
+      const isCall = message.msgType === 'call';
 
       for (const setting of settings) {
         const platform = setting.platform;
@@ -299,9 +402,9 @@ class ForwardService {
           continue;
         }
 
-        // 格式化消息
+        // 格式化消息（会根据类型自动选择合适的格式）
         const formattedMessage = this.formatMessage(
-          setting.messageTemplate || '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}',
+          setting.messageTemplate,
           message,
           device,
           simCard
@@ -309,8 +412,18 @@ class ForwardService {
 
         // 转发消息
         try {
-          console.log(`📤 正在转发到 ${platform}...`);
-          await this.sendToPlatform(platform, formattedMessage, setting.config);
+          console.log(`📤 正在转发${isCall ? '来电' : '短信'}到 ${platform}...`);
+          
+          // 根据消息类型调整发送参数
+          let sendConfig = { ...setting.config };
+          
+          // 来电可能需要特殊的声音提醒
+          if (isCall && platform === 'bark') {
+            sendConfig.sound = 'ringtone'; // 使用电话铃声
+            sendConfig.group = '来电通知';
+          }
+
+          await this.sendToPlatform(platform, formattedMessage, sendConfig);
           
           // 更新成功统计
           await setting.increment('forwardCount');
@@ -320,13 +433,14 @@ class ForwardService {
           logger.logForward({
             platform,
             status: 'success',
+            messageType: isCall ? 'call' : 'sms',
             message: formattedMessage,
             device: device.name,
             simCard: simCard.scName
           });
           
           results.push({ platform, success: true });
-          console.log(`✅ 成功转发到 ${platform}`);
+          console.log(`✅ 成功转发${isCall ? '来电' : '短信'}到 ${platform}`);
         } catch (error) {
           // 更新失败统计
           await setting.increment('failCount');
@@ -335,6 +449,7 @@ class ForwardService {
           logger.logForward({
             platform,
             status: 'error',
+            messageType: isCall ? 'call' : 'sms',
             error: error.message,
             message: formattedMessage,
             device: device.name,
@@ -425,12 +540,15 @@ class ForwardService {
     const baseUrl = config.serverUrl.replace(/\/$/, ''); // 移除末尾斜杠
     const url = `${baseUrl}/${config.deviceKey}`;
 
+    // 判断是否是来电通知
+    const isCall = message.includes('📞');
+    
     // 构建请求参数
     const params = {
-      title: '新短信',
+      title: isCall ? '来电通知' : '新短信',
       body: message,
-      sound: config.sound || 'default',
-      group: config.group || '短信转发',
+      sound: config.sound || (isCall ? 'ringtone' : 'default'),
+      group: config.group || (isCall ? '来电通知' : '短信转发'),
       isArchive: config.isArchive ? '1' : '0'
     };
 
@@ -464,8 +582,11 @@ class ForwardService {
       throw new Error('Webhook URL 未配置');
     }
 
+    // 判断消息类型
+    const isCall = message.includes('📞');
+    
     const data = {
-      type: 'sms_forward',
+      type: isCall ? 'call_forward' : 'sms_forward',
       message,
       timestamp: new Date().toISOString()
     };
@@ -486,85 +607,85 @@ class ForwardService {
 
   /**
    * 发送到 WxPusher
+   * 修复版：正确处理 uids 和 topicIds 的数组格式
    */
-  /**
- * 发送到 WxPusher
- * 修复版：正确处理 uids 和 topicIds 的数组格式
- */
-async sendToWxPusher(message, config) {
-  if (!config.appToken) {
-    throw new Error('WxPusher appToken 未配置');
-  }
-
-  // 处理 uids - 确保是数组格式
-  let uids = [];
-  if (config.uids) {
-    if (typeof config.uids === 'string') {
-      // 如果是字符串，按逗号分割并去除空白
-      uids = config.uids.split(',')
-        .map(uid => uid.trim())
-        .filter(uid => uid.length > 0);
-    } else if (Array.isArray(config.uids)) {
-      // 如果已经是数组，直接使用
-      uids = config.uids.filter(uid => uid && uid.length > 0);
+  async sendToWxPusher(message, config) {
+    if (!config.appToken) {
+      throw new Error('WxPusher appToken 未配置');
     }
-  }
 
-  // 处理 topicIds - 确保是数组格式
-  let topicIds = [];
-  if (config.topicIds) {
-    if (typeof config.topicIds === 'string') {
-      // 如果是字符串，按逗号分割并去除空白
-      topicIds = config.topicIds.split(',')
-        .map(id => id.trim())
-        .filter(id => id.length > 0);
-    } else if (Array.isArray(config.topicIds)) {
-      // 如果已经是数组，直接使用
-      topicIds = config.topicIds.filter(id => id && id.length > 0);
-    }
-  }
-
-  // 确保至少有一个接收者
-  if (uids.length === 0 && topicIds.length === 0) {
-    throw new Error('WxPusher 需要至少配置一个 UID 或 Topic ID');
-  }
-
-  const url = 'https://wxpusher.zjiecode.com/api/send/message';
-  
-  const data = {
-    appToken: config.appToken,
-    content: message,
-    summary: '新短信',
-    contentType: 1, // 文本类型
-    uids: uids,      // 确保是数组
-    topicIds: topicIds // 确保是数组
-  };
-
-  // 如果配置了跳转URL
-  if (config.url) {
-    data.url = config.url;
-  }
-
-  console.log('发送到 WxPusher 的数据:', JSON.stringify(data, null, 2));
-
-  try {
-    const response = await axios.post(url, data, {
-      timeout: 10000,
-      headers: {
-        'Content-Type': 'application/json'
+    // 处理 uids - 确保是数组格式
+    let uids = [];
+    if (config.uids) {
+      if (typeof config.uids === 'string') {
+        // 如果是字符串，按逗号分割并去除空白
+        uids = config.uids.split(',')
+          .map(uid => uid.trim())
+          .filter(uid => uid.length > 0);
+      } else if (Array.isArray(config.uids)) {
+        // 如果已经是数组，直接使用
+        uids = config.uids.filter(uid => uid && uid.length > 0);
       }
-    });
-
-    if (response.data.code !== 1000) {
-      throw new Error(response.data.msg || 'WxPusher 推送失败');
     }
 
-    return response.data;
-  } catch (error) {
-    console.error('WxPusher 发送失败:', error.response?.data || error.message);
-    throw error;
+    // 处理 topicIds - 确保是数组格式
+    let topicIds = [];
+    if (config.topicIds) {
+      if (typeof config.topicIds === 'string') {
+        // 如果是字符串，按逗号分割并去除空白
+        topicIds = config.topicIds.split(',')
+          .map(id => id.trim())
+          .filter(id => id.length > 0);
+      } else if (Array.isArray(config.topicIds)) {
+        // 如果已经是数组，直接使用
+        topicIds = config.topicIds.filter(id => id && id.length > 0);
+      }
+    }
+
+    // 确保至少有一个接收者
+    if (uids.length === 0 && topicIds.length === 0) {
+      throw new Error('WxPusher 需要至少配置一个 UID 或 Topic ID');
+    }
+
+    // 判断是否是来电
+    const isCall = message.includes('📞');
+
+    const url = 'https://wxpusher.zjiecode.com/api/send/message';
+    
+    const data = {
+      appToken: config.appToken,
+      content: message,
+      summary: isCall ? '来电通知' : '新短信',
+      contentType: 1, // 文本类型
+      uids: uids,      // 确保是数组
+      topicIds: topicIds // 确保是数组
+    };
+
+    // 如果配置了跳转URL
+    if (config.url) {
+      data.url = config.url;
+    }
+
+    console.log('发送到 WxPusher 的数据:', JSON.stringify(data, null, 2));
+
+    try {
+      const response = await axios.post(url, data, {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.code !== 1000) {
+        throw new Error(response.data.msg || 'WxPusher 推送失败');
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('WxPusher 发送失败:', error.response?.data || error.message);
+      throw error;
+    }
   }
-}
 
   /**
    * 测试转发

@@ -203,6 +203,7 @@ function formatFileSize(bytes) {
 // 辅助函数：获取日志类型
 function getLogType(filename) {
   if (filename.includes('app-')) return 'application';
+  if (filename.includes('error-')) return 'error';
   if (filename.includes('request-')) return 'request';
   if (filename.includes('webhook-')) return 'webhook';
   if (filename.includes('forward-')) return 'forward';

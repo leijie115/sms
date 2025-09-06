@@ -53,6 +53,11 @@ class DeviceControlService {
         timeout: 10000
       });
 
+      // 检查返回结果是否为错误
+      if (response.data && response.data.code === 101) {
+        throw new Error(response.data.msg || '设备返回错误');
+      }
+
       // 更新设备统计
       await device.update({
         lastApiCallTime: new Date(),
@@ -76,6 +81,12 @@ class DeviceControlService {
         command,
         params
       });
+
+      // 如果是axios错误，提取更友好的错误信息
+      if (error.response) {
+        const errorMsg = error.response.data?.msg || error.response.data?.message || '设备请求失败';
+        throw new Error(errorMsg);
+      }
 
       throw error;
     }
@@ -111,7 +122,14 @@ class DeviceControlService {
       p6: speaker ? 1 : 0
     };
 
-    return await this.sendCommand(deviceId, 'telanswer', params);
+    const result = await this.sendCommand(deviceId, 'telanswer', params);
+    
+    // 检查返回结果
+    if (result.data && result.data.code === 101) {
+      throw new Error(result.data.msg || '接听命令执行失败');
+    }
+    
+    return result;
   }
 
   /**
@@ -123,7 +141,15 @@ class DeviceControlService {
     const params = {
       p1: slot
     };
-    return await this.sendCommand(deviceId, 'telhangup', params);
+    
+    const result = await this.sendCommand(deviceId, 'telhangup', params);
+    
+    // 检查返回结果
+    if (result.data && result.data.code === 101) {
+      throw new Error(result.data.msg || '挂断命令执行失败');
+    }
+    
+    return result;
   }
 
   /**
@@ -131,7 +157,14 @@ class DeviceControlService {
    * @param {number} deviceId - 设备ID
    */
   async rebootDevice(deviceId) {
-    return await this.sendCommand(deviceId, 'restart');
+    const result = await this.sendCommand(deviceId, 'restart');
+    
+    // 检查返回结果
+    if (result.data && result.data.code === 101) {
+      throw new Error(result.data.msg || '重启命令执行失败');
+    }
+    
+    return result;
   }
 
   /**
@@ -146,27 +179,79 @@ class DeviceControlService {
         throw new Error('设备配置不完整');
       }
 
-      // 使用设备状态命令测试连接
+      // 使用 stat 命令测试连接
       const url = `${device.apiUrl}/ctrl`;
       const response = await axios.get(url, {
         params: {
           token: device.apiToken,
-          cmd: 'status'
+          cmd: 'stat'  // 改用 stat 命令
         },
         timeout: 5000
       });
 
-      await device.update({
-        status: 'active',
-        lastActiveTime: new Date()
-      });
+      // 检查返回数据
+      if (response.data && response.data.code === 101) {
+        // 设备返回错误
+        throw new Error(response.data.msg || 'Invalid arguments');
+      }
 
-      return {
-        success: true,
-        status: 'online',
-        message: '设备连接正常',
-        data: response.data
-      };
+      // 检查是否有设备ID，表示返回了正确的状态信息
+      if (response.data && response.data.devId) {
+        // 解析设备状态信息
+        const statusData = response.data;
+        
+        // 更新设备信息
+        await device.update({
+          status: 'active',
+          lastActiveTime: new Date(),
+          // 如果需要，可以存储更多设备信息
+          devId: statusData.devId || device.devId
+        });
+
+        // 构建详细的状态信息
+        const slotInfo = statusData.slot || {};
+        const wifiInfo = statusData.wifi || {};
+        
+        return {
+          success: true,
+          status: 'online',
+          message: '设备连接正常',
+          data: {
+            deviceId: statusData.devId,
+            hardware: statusData.hwVer,
+            network: {
+              type: statusData.netCh === 0 ? 'WiFi' : 'Mobile',
+              wifi: {
+                ssid: wifiInfo.ssid,
+                ip: wifiInfo.ip,
+                signal: wifiInfo.dbm
+              }
+            },
+            simCards: {
+              slot1: {
+                status: slotInfo.slot1_sta || 'N/A',
+                operator: slotInfo.sim1_op,
+                signal: slotInfo.sim1_dbm,
+                iccId: slotInfo.sim1_iccId,
+                number: slotInfo.sim1_msIsdn
+              },
+              slot2: {
+                status: slotInfo.slot2_sta || 'N/A',
+                operator: slotInfo.sim2_op,
+                signal: slotInfo.sim2_dbm,
+                iccId: slotInfo.sim2_iccId,
+                number: slotInfo.sim2_msIsdn
+              }
+            },
+            deviceTime: statusData.devTime,
+            dailyRestart: statusData.dailyRst,
+            pingInterval: statusData.pingSec
+          }
+        };
+      } else {
+        // 返回数据格式不正确
+        throw new Error('设备返回数据格式错误');
+      }
 
     } catch (error) {
       const device = await Device.findByPk(deviceId);
@@ -176,12 +261,65 @@ class DeviceControlService {
         });
       }
 
+      // 处理不同类型的错误
+      let errorMessage = '设备连接失败';
+      let errorDetail = error.message;
+
+      if (error.code === 'ECONNREFUSED') {
+        errorMessage = '无法连接到设备';
+        errorDetail = '请检查设备IP地址和端口是否正确';
+      } else if (error.code === 'ETIMEDOUT') {
+        errorMessage = '连接超时';
+        errorDetail = '设备响应超时，请检查网络连接';
+      } else if (error.response && error.response.data) {
+        if (error.response.data.code === 101) {
+          errorMessage = '认证失败';
+          errorDetail = error.response.data.msg || 'Token无效或已过期';
+        }
+      }
+
       return {
         success: false,
         status: 'offline',
-        message: '设备连接失败',
-        error: error.message
+        message: errorMessage,
+        error: errorDetail
       };
+    }
+  }
+
+  /**
+   * 获取设备详细状态
+   * @param {number} deviceId - 设备ID
+   */
+  async getDeviceStatus(deviceId) {
+    try {
+      const device = await Device.findByPk(deviceId);
+      
+      if (!device || !device.apiUrl || !device.apiToken) {
+        throw new Error('设备配置不完整');
+      }
+
+      const url = `${device.apiUrl}/ctrl`;
+      const response = await axios.get(url, {
+        params: {
+          token: device.apiToken,
+          cmd: 'stat'
+        },
+        timeout: 5000
+      });
+
+      // 检查返回数据
+      if (response.data && response.data.code === 101) {
+        throw new Error(response.data.msg || '获取状态失败');
+      }
+
+      return {
+        success: true,
+        data: response.data
+      };
+
+    } catch (error) {
+      throw error;
     }
   }
 }

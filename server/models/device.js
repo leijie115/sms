@@ -27,10 +27,37 @@ const Device = sequelize.define('Device', {
     type: DataTypes.TEXT,
     comment: '设备描述'
   },
+  apiUrl: {
+    type: DataTypes.STRING(255),
+    comment: '设备API接口地址',
+    validate: {
+      isUrl: {
+        msg: '请输入有效的URL地址'
+      }
+    }
+  },
+  apiToken: {
+    type: DataTypes.STRING(255),
+    comment: '设备API访问令牌'
+  },
+  apiEnabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: '是否启用API控制'
+  },
   lastActiveTime: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
     comment: '最后活跃时间'
+  },
+  lastApiCallTime: {
+    type: DataTypes.DATE,
+    comment: '最后API调用时间'
+  },
+  apiCallCount: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    comment: 'API调用次数'
   }
 }, {
   timestamps: true,

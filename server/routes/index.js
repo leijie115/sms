@@ -31,6 +31,13 @@ router.post('/devices', authMiddleware, deviceController.createDevice);
 router.put('/devices/:id', authMiddleware, deviceController.updateDevice);
 router.delete('/devices/:id', authMiddleware, deviceController.deleteDevice); // 禁用
 
+// 设备API控制路由（精简版）
+router.put('/devices/:id/api', authMiddleware, deviceController.updateDeviceApi);
+router.post('/devices/:id/test', authMiddleware, deviceController.testDeviceConnection);
+router.post('/devices/:id/answer', authMiddleware, deviceController.answerCall);
+router.post('/devices/:id/hangup', authMiddleware, deviceController.hangUp);
+router.post('/devices/:id/reboot', authMiddleware, deviceController.rebootDevice);
+
 // SIM卡路由
 router.get('/simcards', authMiddleware, simCardController.getSimCards);
 router.get('/simcards/:id', authMiddleware, simCardController.getSimCard);

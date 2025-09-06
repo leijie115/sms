@@ -182,6 +182,28 @@ ADD COLUMN `callDuration` int DEFAULT NULL COMMENT '通话时长（秒）- 仅�
 ADD COLUMN `callStatus` varchar(20) DEFAULT NULL COMMENT '来电状态：ringing-响铃中，missed-未接，answered-已接听' AFTER `callDuration`,
 ADD INDEX `idx_msgType` (`msgType`);
 
+
+-- 1. 添加API控制相关字段
+ALTER TABLE `Devices`
+ADD COLUMN `apiUrl` varchar(255) DEFAULT NULL COMMENT '设备API接口地址' AFTER `description`,
+ADD COLUMN `apiToken` varchar(255) DEFAULT NULL COMMENT '设备API访问令牌' AFTER `apiUrl`,
+ADD COLUMN `apiEnabled` tinyint(1) DEFAULT '0' COMMENT '是否启用API控制' AFTER `apiToken`,
+ADD COLUMN `lastApiCallTime` datetime DEFAULT NULL COMMENT '最后API调用时间' AFTER `lastActiveTime`,
+ADD COLUMN `apiCallCount` int DEFAULT '0' COMMENT 'API调用次数' AFTER `lastApiCallTime`;
+
+-- 2. 查看更新后的表结构
+DESCRIBE Devices;
+
+-- 3. 为现有设备设置默认值（可选）
+UPDATE `Devices` 
+SET `apiEnabled` = 0, 
+    `apiCallCount` = 0 
+WHERE `apiEnabled` IS NULL;
+
+-- 4. 查看更新结果
+SELECT id, name, devId, apiUrl, apiToken, apiEnabled, lastApiCallTime, apiCallCount 
+FROM Devices;
+
 -- 更新现有记录为短信类型
 UPDATE `SmsMessages` SET `msgType` = 'sms' WHERE `msgType` IS NULL;
 

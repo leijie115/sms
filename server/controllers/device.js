@@ -1,6 +1,8 @@
+// server/controllers/device.js
 const Device = require('../models/device');
 const SimCard = require('../models/simCard');
 const { Op } = require('sequelize');
+const deviceControlService = require('../services/deviceControlService');
 
 // 获取设备列表
 const getDevices = async (ctx) => {
@@ -143,8 +145,9 @@ const updateDevice = async (ctx) => {
         where: { 
           name,
           id: { [Op.ne]: id }
-        } 
+        }
       });
+      
       if (existingName) {
         ctx.status = 400;
         ctx.body = {
@@ -155,13 +158,11 @@ const updateDevice = async (ctx) => {
       }
     }
     
-    // 只更新允许的字段
-    const updateData = {};
-    if (name !== undefined) updateData.name = name;
-    if (status !== undefined) updateData.status = status;
-    if (description !== undefined) updateData.description = description;
-    
-    await device.update(updateData);
+    await device.update({
+      name,
+      status,
+      description
+    });
     
     ctx.body = { success: true, data: device };
   } catch (error) {
@@ -183,10 +184,179 @@ const deleteDevice = async (ctx) => {
   };
 };
 
+// ========== API控制相关方法 ==========
+
+/**
+ * 更新设备API配置
+ */
+const updateDeviceApi = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const { apiUrl, apiToken, apiEnabled } = ctx.request.body;
+    
+    const device = await Device.findByPk(id);
+    
+    if (!device) {
+      ctx.status = 404;
+      ctx.body = { success: false, message: '设备不存在' };
+      return;
+    }
+    
+    // 如果提供了URL，验证格式
+    if (apiUrl) {
+      try {
+        new URL(apiUrl);
+      } catch (error) {
+        ctx.status = 400;
+        ctx.body = { 
+          success: false, 
+          message: '无效的API地址格式' 
+        };
+        return;
+      }
+    }
+    
+    await device.update({
+      apiUrl,
+      apiToken,
+      apiEnabled: apiEnabled !== undefined ? apiEnabled : device.apiEnabled
+    });
+    
+    ctx.body = { 
+      success: true, 
+      data: device,
+      message: 'API配置更新成功'
+    };
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '更新API配置失败',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * 测试设备连接
+ */
+const testDeviceConnection = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    
+    const result = await deviceControlService.testConnection(id);
+    
+    ctx.status = result.success ? 200 : 500;
+    ctx.body = result;
+    
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '测试连接失败',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * 接听电话
+ */
+const answerCall = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const { 
+      slot = 1,
+      duration = 55,
+      ttsContent = '',
+      ttsRepeat = 2,
+      recording = true,
+      speaker = true
+    } = ctx.request.body;
+    
+    const result = await deviceControlService.answerCall(id, {
+      slot,
+      duration,
+      ttsContent,
+      ttsRepeat,
+      recording,
+      speaker
+    });
+    
+    ctx.body = {
+      success: true,
+      data: result,
+      message: '接听命令已发送'
+    };
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '接听命令发送失败',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * 挂断电话
+ */
+const hangUp = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const { slot = 1 } = ctx.request.body;
+    
+    const result = await deviceControlService.hangUp(id, slot);
+    
+    ctx.body = {
+      success: true,
+      data: result,
+      message: '挂断命令已发送'
+    };
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '挂断命令发送失败',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * 重启设备
+ */
+const rebootDevice = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    
+    const result = await deviceControlService.rebootDevice(id);
+    
+    ctx.body = {
+      success: true,
+      data: result,
+      message: '重启命令已发送'
+    };
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '重启命令发送失败',
+      error: error.message
+    };
+  }
+};
+
 module.exports = {
   getDevices,
   getDevice,
   createDevice,
   updateDevice,
-  deleteDevice
+  deleteDevice,
+  // API控制相关
+  updateDeviceApi,
+  testDeviceConnection,
+  answerCall,
+  hangUp,
+  rebootDevice
 };

@@ -2,6 +2,7 @@
 const Device = require('../models/device');
 const SimCard = require('../models/simCard');
 const SmsMessage = require('../models/smsMessage');
+const TtsTemplate = require('../models/ttsTemplate');
 const forwardService = require('../services/forwardService'); // 直接导入实例，不是类
 const { logger } = require('../utils/logger');
 
@@ -570,7 +571,6 @@ const processSmsMessage = async (data) => {
   }
 };
 
-
 /**
  * 处理来电振铃（type=601）
  * @param {Object} data - 来电振铃数据
@@ -597,12 +597,16 @@ const processCallRinging = async (data) => {
       lastActiveTime: new Date()
     }, { transaction: t });
     
-    // 2. 查找或创建SIM卡
+    // 2. 查找或创建SIM卡，包含TTS模板关联
     let simCard = await SimCard.findOne({
       where: {
         deviceId: device.id,
         slot: data.slot
       },
+      include: [{
+        model: TtsTemplate,
+        as: 'autoAnswerTemplate'
+      }],
       transaction: t
     });
     
@@ -617,7 +621,7 @@ const processCallRinging = async (data) => {
         iccId: data.iccId,
         scName: data.scName || `卡槽${data.slot}`,
         status: '204',
-        callStatus: 'ringing', // 设置为响铃中
+        callStatus: 'ringing',
         lastCallNumber: data.phNum,
         lastCallTime: new Date(),
         lastActiveTime: new Date()
@@ -629,7 +633,7 @@ const processCallRinging = async (data) => {
       const updateData = {
         lastActiveTime: new Date(),
         status: '204',
-        callStatus: 'ringing', // 设置为响铃中
+        callStatus: 'ringing',
         lastCallNumber: data.phNum,
         lastCallTime: new Date()
       };
@@ -667,7 +671,74 @@ const processCallRinging = async (data) => {
     console.log(`   来电号码: ${data.phNum || '未知号码'}`);
     console.log(`   记录ID: ${callRecord.id}`);
     
-    // 4. 异步转发来电通知
+    // 4. 检查是否需要自动接听
+    if (simCard.autoAnswer && device.apiEnabled) {
+      console.log(`🤖 SIM卡已启用自动接听，延迟 ${simCard.autoAnswerDelay} 秒后接听`);
+      
+      // 设置延迟自动接听
+      setTimeout(async () => {
+        try {
+          // 再次检查SIM卡状态，确保仍在响铃中
+          const currentSimCard = await SimCard.findByPk(simCard.id, {
+            include: [{
+              model: TtsTemplate,
+              as: 'autoAnswerTemplate'
+            }]
+          });
+          
+          if (currentSimCard.callStatus === 'ringing') {
+            console.log('🤖 执行自动接听...');
+            
+            // 获取TTS内容
+            let ttsContent = '';
+            if (currentSimCard.autoAnswerTtsTemplateId && currentSimCard.autoAnswerTemplate) {
+              ttsContent = currentSimCard.autoAnswerTemplate.content;
+            } else {
+              // 如果没有配置模板，使用默认内容
+              const defaultTemplate = await TtsTemplate.findOne({
+                where: { isDefault: true }
+              });
+              ttsContent = defaultTemplate ? defaultTemplate.content : '您好，暂时无人接听，请稍后再拨。';
+            }
+            
+            // 调用设备控制服务自动接听
+            const deviceControlService = require('../services/deviceControlService');
+            const result = await deviceControlService.answerCall(device.id, {
+              slot: currentSimCard.slot,
+              duration: currentSimCard.autoAnswerDuration || 55,
+              ttsContent: ttsContent,
+              ttsRepeat: currentSimCard.autoAnswerTtsRepeat || 2,
+              pauseTime: currentSimCard.autoAnswerPauseTime || 1,
+              afterTtsAction: currentSimCard.autoAnswerAfterAction || 1
+            });
+            
+            // 更新SIM卡状态为通话中
+            await currentSimCard.update({
+              callStatus: 'connected'
+            });
+            
+            console.log('✅ 自动接听成功');
+            
+            // 记录自动接听日志
+            await SmsMessage.create({
+              simCardId: currentSimCard.id,
+              deviceId: device.id,
+              msgType: 'call',
+              phNum: data.phNum || '未知号码',
+              smsBd: `🤖 自动接听：${data.phNum || '未知号码'}`,
+              callStatus: 'connected',
+              rawData: { ...data, autoAnswered: true }
+            });
+          } else {
+            console.log('❌ 自动接听取消：通话状态已改变');
+          }
+        } catch (error) {
+          console.error('❌ 自动接听失败:', error);
+        }
+      }, simCard.autoAnswerDelay * 1000); // 转换为毫秒
+    }
+    
+    // 5. 异步转发来电通知
     setImmediate(async () => {
       try {
         await forwardService.forwardMessage(callRecord, device, simCard);

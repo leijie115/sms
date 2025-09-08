@@ -188,6 +188,32 @@ DESCRIBE `TtsTemplates`;
 -- 查看插入的数据
 SELECT * FROM `TtsTemplates` ORDER BY `sortOrder` ASC;
 
+
+-- 为 SimCards 表添加自动接听相关字段
+ALTER TABLE `SimCards`
+ADD COLUMN `autoAnswer` BOOLEAN DEFAULT 0 COMMENT '是否自动接听' AFTER `lastCallTime`,
+ADD COLUMN `autoAnswerDelay` INT(11) DEFAULT 5 COMMENT '自动接听延迟（秒）' AFTER `autoAnswer`,
+ADD COLUMN `autoAnswerTtsTemplateId` INT(11) DEFAULT NULL COMMENT '自动接听使用的TTS模板ID' AFTER `autoAnswerDelay`,
+ADD COLUMN `autoAnswerDuration` INT(11) DEFAULT 55 COMMENT '自动接听通话时长（秒）' AFTER `autoAnswerTtsTemplateId`,
+ADD COLUMN `autoAnswerTtsRepeat` INT(11) DEFAULT 2 COMMENT '自动接听TTS播放次数' AFTER `autoAnswerDuration`,
+ADD COLUMN `autoAnswerPauseTime` INT(11) DEFAULT 1 COMMENT '自动接听TTS暂停时间（秒）' AFTER `autoAnswerTtsRepeat`,
+ADD COLUMN `autoAnswerAfterAction` INT(11) DEFAULT 1 COMMENT '自动接听TTS播放完成后动作：0无操作，1挂断' AFTER `autoAnswerPauseTime`;
+
+-- 添加外键约束
+ALTER TABLE `SimCards`
+ADD CONSTRAINT `fk_simcards_tts_template`
+FOREIGN KEY (`autoAnswerTtsTemplateId`) 
+REFERENCES `TtsTemplates`(`id`) 
+ON DELETE SET NULL 
+ON UPDATE CASCADE;
+
+-- 添加索引
+ALTER TABLE `SimCards`
+ADD INDEX `idx_auto_answer` (`autoAnswer`),
+ADD INDEX `idx_auto_answer_template` (`autoAnswerTtsTemplateId`);
+
+-- 查看更新后的表结构
+DESCRIBE `SimCards`;
 -- 2. 查看更新后的表结构
 DESCRIBE Devices;
 

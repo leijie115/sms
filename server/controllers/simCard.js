@@ -1,16 +1,27 @@
 const SimCard = require('../models/simCard');
 const Device = require('../models/device');
 const SmsMessage = require('../models/smsMessage');
+const TtsTemplate = require('../models/ttsTemplate');
 const { Op } = require('sequelize');
 
-// 获取SIM卡列表
+/**
+ * 获取SIM卡列表（包含自动接听模板）
+ */
 const getSimCards = async (ctx) => {
   try {
-    const { page = 1, pageSize = 10, status, deviceId, search } = ctx.query;
+    const { 
+      page = 1, 
+      pageSize = 10, 
+      search = '', 
+      status = '', 
+      deviceId = '' 
+    } = ctx.query;
     
+    const offset = (page - 1) * pageSize;
+    
+    // 构建查询条件
     const where = {};
-    if (status) where.status = status;
-    if (deviceId) where.deviceId = deviceId;
+    
     if (search) {
       where[Op.or] = [
         { scName: { [Op.like]: `%${search}%` } },
@@ -20,7 +31,16 @@ const getSimCards = async (ctx) => {
       ];
     }
     
-    const { rows, count } = await SimCard.findAndCountAll({
+    if (status) {
+      where.status = status;
+    }
+    
+    if (deviceId) {
+      where.deviceId = deviceId;
+    }
+    
+    // 查询数据 - 包含设备和TTS模板
+    const { count, rows } = await SimCard.findAndCountAll({
       where,
       include: [
         {
@@ -31,15 +51,20 @@ const getSimCards = async (ctx) => {
             'devId', 
             'name', 
             'status',
-            // 'apiUrl',        // 包含API URL
-            // 'apiToken',      // 包含API Token  
-            'apiEnabled'  
+            'apiUrl',
+            'apiToken',
+            'apiEnabled'
           ]
+        },
+        {
+          model: TtsTemplate,
+          as: 'autoAnswerTemplate',
+          attributes: ['id', 'name', 'content']
         }
       ],
       limit: parseInt(pageSize),
-      offset: (parseInt(page) - 1) * parseInt(pageSize),
-      order: [['createdAt', 'DESC']]
+      offset: parseInt(offset),
+      order: [['id', 'DESC']]
     });
     
     ctx.body = {
@@ -188,82 +213,79 @@ const createSimCard = async (ctx) => {
   }
 };
 
-// 更新SIM卡
+/**
+ * 更新SIM卡
+ */
 const updateSimCard = async (ctx) => {
   try {
     const { id } = ctx.params;
-    const { scName, status, msIsdn, imsi, iccId } = ctx.request.body;
+    const {
+      scName,
+      msIsdn,
+      imsi,
+      iccId,
+      status,
+      // 自动接听配置
+      autoAnswer,
+      autoAnswerDelay,
+      autoAnswerTtsTemplateId,
+      autoAnswerDuration,
+      autoAnswerTtsRepeat,
+      autoAnswerPauseTime,
+      autoAnswerAfterAction
+    } = ctx.request.body;
     
     const simCard = await SimCard.findByPk(id);
     
     if (!simCard) {
       ctx.status = 404;
-      ctx.body = { success: false, message: 'SIM卡不存在' };
+      ctx.body = {
+        success: false,
+        message: 'SIM卡不存在'
+      };
       return;
     }
     
-    // 检查唯一字段
-    if (msIsdn && msIsdn !== simCard.msIsdn) {
-      const existing = await SimCard.findOne({ 
-        where: { 
-          msIsdn,
-          id: { [Op.ne]: id }
-        } 
-      });
-      if (existing) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: '手机号已存在'
-        };
-        return;
-      }
-    }
-    
-    if (imsi && imsi !== simCard.imsi) {
-      const existing = await SimCard.findOne({ 
-        where: { 
-          imsi,
-          id: { [Op.ne]: id }
-        } 
-      });
-      if (existing) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'IMSI已存在'
-        };
-        return;
-      }
-    }
-    
-    if (iccId && iccId !== simCard.iccId) {
-      const existing = await SimCard.findOne({ 
-        where: { 
-          iccId,
-          id: { [Op.ne]: id }
-        } 
-      });
-      if (existing) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'ICC ID已存在'
-        };
-        return;
-      }
-    }
-    
+    // 构建更新数据
     const updateData = {};
+    
+    // 基本信息
     if (scName !== undefined) updateData.scName = scName;
-    if (status !== undefined) updateData.status = status;
     if (msIsdn !== undefined) updateData.msIsdn = msIsdn;
     if (imsi !== undefined) updateData.imsi = imsi;
     if (iccId !== undefined) updateData.iccId = iccId;
+    if (status !== undefined) updateData.status = status;
+    
+    // 自动接听配置
+    if (autoAnswer !== undefined) updateData.autoAnswer = autoAnswer;
+    if (autoAnswerDelay !== undefined) updateData.autoAnswerDelay = autoAnswerDelay;
+    if (autoAnswerTtsTemplateId !== undefined) updateData.autoAnswerTtsTemplateId = autoAnswerTtsTemplateId;
+    if (autoAnswerDuration !== undefined) updateData.autoAnswerDuration = autoAnswerDuration;
+    if (autoAnswerTtsRepeat !== undefined) updateData.autoAnswerTtsRepeat = autoAnswerTtsRepeat;
+    if (autoAnswerPauseTime !== undefined) updateData.autoAnswerPauseTime = autoAnswerPauseTime;
+    if (autoAnswerAfterAction !== undefined) updateData.autoAnswerAfterAction = autoAnswerAfterAction;
     
     await simCard.update(updateData);
     
-    ctx.body = { success: true, data: simCard };
+    // 重新查询包含关联数据
+    const updatedSimCard = await SimCard.findByPk(id, {
+      include: [
+        {
+          model: Device,
+          as: 'device'
+        },
+        {
+          model: TtsTemplate,
+          as: 'autoAnswerTemplate'
+        }
+      ]
+    });
+    
+    ctx.body = {
+      success: true,
+      data: updatedSimCard,
+      message: '更新成功'
+    };
   } catch (error) {
     ctx.status = 500;
     ctx.body = {

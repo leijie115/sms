@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Table, Button, Space, Modal, Form, Input, Select, 
   Tag, message, Row, Col, Typography, Badge, Switch, InputNumber,
-  Tabs, List, Popconfirm, Empty, Radio
+  Tabs, List, Popconfirm, Empty, Radio, Divider
 } from 'antd';
 import { 
   PlusOutlined, EditOutlined, PhoneOutlined, PhoneFilled,
@@ -59,7 +59,7 @@ function SimCardManagement() {
   const [ttsTemplates, setTtsTemplates] = useState([]);
   const [ttsModalVisible, setTtsModalVisible] = useState(false);
   const [editingTts, setEditingTts] = useState(null);
-  const [ttsInputMode, setTtsInputMode] = useState('template'); // 'template' or 'custom'
+  const [ttsInputMode, setTtsInputMode] = useState('template');
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [customTtsContent, setCustomTtsContent] = useState('');
 
@@ -108,7 +108,6 @@ function SimCardManagement() {
       const response = await api.get('/tts-templates', { params: { isActive: true } });
       setTtsTemplates(response.data.data);
       
-      // 设置默认选中的模板
       const defaultTemplate = response.data.data.find(t => t.isDefault);
       if (defaultTemplate) {
         setSelectedTemplateId(defaultTemplate.id);
@@ -124,7 +123,7 @@ function SimCardManagement() {
     fetchTtsTemplates();
   }, [searchText, statusFilter, deviceFilter]);
 
-  // 自动刷新（当有电话响铃时）
+  // 自动刷新
   useEffect(() => {
     const hasRinging = simCards.some(card => card.callStatus === 'ringing' || card.callStatus === 'connected');
     
@@ -154,7 +153,15 @@ function SimCardManagement() {
       imsi: record.imsi,
       iccId: record.iccId,
       scName: record.scName,
-      status: record.status
+      status: record.status,
+      // 自动接听配置
+      autoAnswer: record.autoAnswer || false,
+      autoAnswerDelay: record.autoAnswerDelay || 5,
+      autoAnswerTtsTemplateId: record.autoAnswerTtsTemplateId,
+      autoAnswerDuration: record.autoAnswerDuration || 55,
+      autoAnswerTtsRepeat: record.autoAnswerTtsRepeat || 2,
+      autoAnswerPauseTime: record.autoAnswerPauseTime || 1,
+      autoAnswerAfterAction: record.autoAnswerAfterAction || 1
     });
     setModalVisible(true);
   };
@@ -228,8 +235,6 @@ function SimCardManagement() {
     
     setSelectedSimCard(simCard);
     callForm.resetFields();
-    
-    // 设置默认值
     callForm.setFieldsValue({
       duration: 55,
       ttsRepeat: 2,
@@ -237,7 +242,6 @@ function SimCardManagement() {
       afterTtsAction: 1
     });
     
-    // 设置默认TTS内容
     const defaultTemplate = ttsTemplates.find(t => t.isDefault);
     if (defaultTemplate) {
       setSelectedTemplateId(defaultTemplate.id);
@@ -259,7 +263,6 @@ function SimCardManagement() {
     try {
       const values = await callForm.validateFields();
       
-      // 根据输入模式获取TTS内容
       let ttsContent = '';
       if (ttsInputMode === 'template' && selectedTemplateId) {
         const template = ttsTemplates.find(t => t.id === selectedTemplateId);
@@ -388,6 +391,21 @@ function SimCardManagement() {
           </Tag>
         );
       },
+    },
+    {
+      title: '自动接听',
+      key: 'autoAnswer',
+      width: 100,
+      render: (_, record) => {
+        if (record.autoAnswer) {
+          return (
+            <Tag color="green" icon={<CheckOutlined />}>
+              {record.autoAnswerDelay}秒
+            </Tag>
+          );
+        }
+        return <Tag color="default">关闭</Tag>;
+      }
     },
     {
       title: '最后来电',
@@ -565,7 +583,7 @@ function SimCardManagement() {
               }}
               size="small"
               scroll={{ 
-                x: 1600,
+                x: 1700,
                 y: 'calc(100vh - 380px)'
               }}
               rowClassName={(record) => {
@@ -657,7 +675,7 @@ function SimCardManagement() {
           setEditingSimCard(null);
         }}
         footer={null}
-        width={600}
+        width={700}
       >
         <Form
           form={form}
@@ -734,6 +752,153 @@ function SimCardManagement() {
                 </Option>
               ))}
             </Select>
+          </Form.Item>
+
+          {/* 自动接听配置 */}
+          <Divider orientation="left">自动接听配置</Divider>
+          
+          <Form.Item
+            name="autoAnswer"
+            label="启用自动接听"
+            valuePropName="checked"
+          >
+            <Switch 
+              checkedChildren="启用" 
+              unCheckedChildren="关闭"
+              onChange={(checked) => {
+                if (checked && !form.getFieldValue('autoAnswerTtsTemplateId')) {
+                  const defaultTemplate = ttsTemplates.find(t => t.isDefault);
+                  if (defaultTemplate) {
+                    form.setFieldsValue({
+                      autoAnswerTtsTemplateId: defaultTemplate.id
+                    });
+                  }
+                }
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => 
+              prevValues.autoAnswer !== currentValues.autoAnswer
+            }
+          >
+            {({ getFieldValue }) =>
+              getFieldValue('autoAnswer') ? (
+                <>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="autoAnswerDelay"
+                        label="响铃多久后接听（秒）"
+                        rules={[{ required: true, message: '请输入延迟时间' }]}
+                      >
+                        <InputNumber
+                          min={1}
+                          max={30}
+                          style={{ width: '100%' }}
+                          placeholder="响铃后等待秒数"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="autoAnswerDuration"
+                        label="通话时长（秒）"
+                        rules={[{ required: true, message: '请输入通话时长' }]}
+                      >
+                        <InputNumber
+                          min={1}
+                          max={300}
+                          style={{ width: '100%' }}
+                          placeholder="自动挂断时间"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Form.Item
+                    name="autoAnswerTtsTemplateId"
+                    label="TTS语音模板"
+                    rules={[{ required: true, message: '请选择TTS模板' }]}
+                  >
+                    <Select placeholder="请选择自动接听时使用的TTS模板">
+                      {ttsTemplates.map(template => (
+                        <Option key={template.id} value={template.id}>
+                          {template.name}
+                          {template.isDefault && (
+                            <Tag color="green" style={{ marginLeft: 8 }}>默认</Tag>
+                          )}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    noStyle
+                    shouldUpdate={(prevValues, currentValues) =>
+                      prevValues.autoAnswerTtsTemplateId !== currentValues.autoAnswerTtsTemplateId
+                    }
+                  >
+                    {({ getFieldValue }) => {
+                      const templateId = getFieldValue('autoAnswerTtsTemplateId');
+                      const template = ttsTemplates.find(t => t.id === templateId);
+                      return template ? (
+                        <div style={{
+                          marginBottom: 16,
+                          padding: 8,
+                          background: '#f5f5f5',
+                          borderRadius: 4,
+                          fontSize: 12
+                        }}>
+                          <strong>TTS内容预览：</strong>
+                          {template.content}
+                        </div>
+                      ) : null;
+                    }}
+                  </Form.Item>
+
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Form.Item
+                        name="autoAnswerTtsRepeat"
+                        label="TTS播放次数"
+                      >
+                        <InputNumber
+                          min={1}
+                          max={10}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
+                        name="autoAnswerPauseTime"
+                        label="暂停时间（秒）"
+                      >
+                        <InputNumber
+                          min={0}
+                          max={10}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
+                        name="autoAnswerAfterAction"
+                        label="播放完成后"
+                      >
+                        <Select>
+                          <Option value={0}>无操作</Option>
+                          <Option value={1}>挂断电话</Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </>
+              ) : null
+            }
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
@@ -903,7 +1068,6 @@ function SimCardManagement() {
                   />
                 )}
 
-                {/* 显示预览内容 */}
                 {ttsInputMode === 'template' && selectedTemplateId && (
                   <div style={{ 
                     marginTop: 8, 

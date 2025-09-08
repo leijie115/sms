@@ -44,7 +44,7 @@ const SimCard = sequelize.define('SimCard', {
     defaultValue: '204',
     comment: 'SIM卡状态：202基站注册中，203ID已读取，204已就绪，205已弹出，209卡异常'
   },
-  // 新增通话相关字段
+  // 通话相关字段
   callStatus: {
     type: DataTypes.ENUM('idle', 'ringing', 'connected', 'ended'),
     defaultValue: 'idle',
@@ -57,6 +57,45 @@ const SimCard = sequelize.define('SimCard', {
   lastCallTime: {
     type: DataTypes.DATE,
     comment: '最后来电时间'
+  },
+  // 自动接听配置
+  autoAnswer: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: '是否自动接听'
+  },
+  autoAnswerDelay: {
+    type: DataTypes.INTEGER,
+    defaultValue: 5,
+    comment: '自动接听延迟（秒）'
+  },
+  autoAnswerTtsTemplateId: {
+    type: DataTypes.INTEGER,
+    comment: '自动接听使用的TTS模板ID',
+    references: {
+      model: 'TtsTemplates',
+      key: 'id'
+    }
+  },
+  autoAnswerDuration: {
+    type: DataTypes.INTEGER,
+    defaultValue: 55,
+    comment: '自动接听通话时长（秒）'
+  },
+  autoAnswerTtsRepeat: {
+    type: DataTypes.INTEGER,
+    defaultValue: 2,
+    comment: '自动接听TTS播放次数'
+  },
+  autoAnswerPauseTime: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1,
+    comment: '自动接听TTS暂停时间（秒）'
+  },
+  autoAnswerAfterAction: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1,
+    comment: '自动接听TTS播放完成后动作：0无操作，1挂断'
   },
   lastActiveTime: {
     type: DataTypes.DATE,

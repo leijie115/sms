@@ -6,7 +6,6 @@ const SmsMessage = require('./smsMessage');
 const ForwardSetting = require('./forwardSetting');
 const TtsTemplate = require('./ttsTemplate');
 
-
 // 定义模型关联关系
 
 // Device 和 SimCard 的关系：一个设备可以有多个SIM卡
@@ -40,6 +39,17 @@ Device.hasMany(SmsMessage, {
 SmsMessage.belongsTo(Device, {
   foreignKey: 'deviceId',
   as: 'device'
+});
+
+// SimCard 和 TtsTemplate 的关系：SIM卡可以关联一个自动接听TTS模板
+SimCard.belongsTo(TtsTemplate, {
+  foreignKey: 'autoAnswerTtsTemplateId',
+  as: 'autoAnswerTemplate'
+});
+
+TtsTemplate.hasMany(SimCard, {
+  foreignKey: 'autoAnswerTtsTemplateId',
+  as: 'simCards'
 });
 
 module.exports = {

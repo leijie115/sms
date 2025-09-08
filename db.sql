@@ -198,6 +198,62 @@ ADD COLUMN `lastCallTime` datetime DEFAULT NULL COMMENT '最后来电时间' AFT
 ADD COLUMN `lastCallNumber` varchar(20) DEFAULT NULL COMMENT '最后来电号码' AFTER `lastCallTime`,
 ADD COLUMN `callStatus` enum('idle', 'ringing', 'connected', 'ended') DEFAULT 'idle' COMMENT '通话状态：idle空闲，ringing响铃中，connected通话中，ended已结束' AFTER `lastCallNumber`;
 
+
+-- 创建 TtsTemplates 表
+CREATE TABLE IF NOT EXISTS `TtsTemplates` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL COMMENT '模板名称',
+  `content` TEXT NOT NULL COMMENT 'TTS语音内容',
+  `isDefault` BOOLEAN DEFAULT 0 COMMENT '是否为默认模板',
+  `sortOrder` INT(11) DEFAULT 0 COMMENT '排序顺序',
+  `isActive` BOOLEAN DEFAULT 1 COMMENT '是否启用',
+  `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_isDefault` (`isDefault`),
+  INDEX `idx_isActive` (`isActive`),
+  INDEX `idx_sortOrder` (`sortOrder`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TTS语音模板表';
+
+-- 插入一些默认的TTS模板数据
+INSERT INTO `TtsTemplates` (`name`, `content`, `isDefault`, `sortOrder`, `isActive`) VALUES
+('默认语音', '您好，这里暂时无人接听，请稍后再拨。', 1, 0, 1),
+('验证码接收', '您好，正在接收验证码，请稍等。', 0, 1, 1),
+('快递通知', '您好，快递已收到，谢谢。', 0, 2, 1),
+('无人在家', '您好，现在不在家，请改天再联系。', 0, 3, 1),
+('会议中', '您好，现在正在开会，稍后回电。', 0, 4, 1),
+('忙碌中', '您好，现在有点忙，请稍后联系。', 0, 5, 1),
+('外出中', '您好，我现在在外面，不方便接电话。', 0, 6, 1),
+('驾驶中', '您好，正在开车，稍后联系您。', 0, 7, 1);
+
+-- 确保只有一个默认模板
+-- 创建触发器，当设置新的默认模板时，自动取消其他默认模板
+DELIMITER $$
+CREATE TRIGGER `before_tts_template_update` 
+BEFORE UPDATE ON `TtsTemplates` 
+FOR EACH ROW
+BEGIN
+    IF NEW.isDefault = 1 AND OLD.isDefault = 0 THEN
+        UPDATE `TtsTemplates` SET `isDefault` = 0 WHERE `id` != NEW.id;
+    END IF;
+END$$
+
+CREATE TRIGGER `before_tts_template_insert` 
+BEFORE INSERT ON `TtsTemplates` 
+FOR EACH ROW
+BEGIN
+    IF NEW.isDefault = 1 THEN
+        UPDATE `TtsTemplates` SET `isDefault` = 0;
+    END IF;
+END$$
+DELIMITER ;
+
+-- 查看创建的表结构
+DESCRIBE `TtsTemplates`;
+
+-- 查看插入的数据
+SELECT * FROM `TtsTemplates` ORDER BY `sortOrder` ASC;
+
 -- 2. 查看更新后的表结构
 DESCRIBE Devices;
 

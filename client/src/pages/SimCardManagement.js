@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Table, Button, Space, Modal, Form, Input, Select, 
-  Tag, message, Row, Col, Typography, Badge, Switch, InputNumber
+  Tag, message, Row, Col, Typography, Badge, Switch, InputNumber,
+  Tabs, List, Popconfirm, Empty, Radio
 } from 'antd';
 import { 
   PlusOutlined, EditOutlined, PhoneOutlined, PhoneFilled,
-  SearchOutlined, ReloadOutlined, CreditCardOutlined, CloseCircleOutlined
+  SearchOutlined, ReloadOutlined, CreditCardOutlined, CloseCircleOutlined,
+  DeleteOutlined, CheckOutlined, SoundOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Title } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
+const { TabPane } = Tabs;
 
 // SIM卡状态映射
 const SIM_STATUS_MAP = {
@@ -38,6 +41,7 @@ function SimCardManagement() {
   const [editingSimCard, setEditingSimCard] = useState(null);
   const [form] = Form.useForm();
   const [callForm] = Form.useForm();
+  const [ttsForm] = Form.useForm();
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -50,6 +54,14 @@ function SimCardManagement() {
   const [selectedSimCard, setSelectedSimCard] = useState(null);
   const [sendingCommand, setSendingCommand] = useState(false);
   const [refreshTimer, setRefreshTimer] = useState(null);
+  
+  // TTS模板相关状态
+  const [ttsTemplates, setTtsTemplates] = useState([]);
+  const [ttsModalVisible, setTtsModalVisible] = useState(false);
+  const [editingTts, setEditingTts] = useState(null);
+  const [ttsInputMode, setTtsInputMode] = useState('template'); // 'template' or 'custom'
+  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [customTtsContent, setCustomTtsContent] = useState('');
 
   const api = axios.create({
     baseURL: '/api',
@@ -91,9 +103,25 @@ function SimCardManagement() {
     }
   };
 
+  const fetchTtsTemplates = async () => {
+    try {
+      const response = await api.get('/tts-templates', { params: { isActive: true } });
+      setTtsTemplates(response.data.data);
+      
+      // 设置默认选中的模板
+      const defaultTemplate = response.data.data.find(t => t.isDefault);
+      if (defaultTemplate) {
+        setSelectedTemplateId(defaultTemplate.id);
+      }
+    } catch (error) {
+      console.error('获取TTS模板失败');
+    }
+  };
+
   useEffect(() => {
     fetchSimCards();
     fetchDevices();
+    fetchTtsTemplates();
   }, [searchText, statusFilter, deviceFilter]);
 
   // 自动刷新（当有电话响铃时）
@@ -101,7 +129,6 @@ function SimCardManagement() {
     const hasRinging = simCards.some(card => card.callStatus === 'ringing' || card.callStatus === 'connected');
     
     if (hasRinging) {
-      // 如果有响铃或通话中的SIM卡，每3秒刷新一次
       const timer = setInterval(() => {
         fetchSimCards(pagination.current, pagination.pageSize);
       }, 3000);
@@ -111,7 +138,6 @@ function SimCardManagement() {
         if (timer) clearInterval(timer);
       };
     } else {
-      // 没有活动通话，清除定时器
       if (refreshTimer) {
         clearInterval(refreshTimer);
         setRefreshTimer(null);
@@ -152,6 +178,47 @@ function SimCardManagement() {
     }
   };
 
+  // TTS模板管理
+  const handleTtsSubmit = async (values) => {
+    try {
+      if (editingTts) {
+        await api.put(`/tts-templates/${editingTts.id}`, values);
+        message.success('更新成功');
+      } else {
+        await api.post('/tts-templates', values);
+        message.success('创建成功');
+      }
+      
+      setTtsModalVisible(false);
+      ttsForm.resetFields();
+      setEditingTts(null);
+      fetchTtsTemplates();
+    } catch (error) {
+      message.error('操作失败');
+    }
+  };
+
+  const handleDeleteTts = async (id) => {
+    try {
+      await api.delete(`/tts-templates/${id}`);
+      message.success('删除成功');
+      fetchTtsTemplates();
+    } catch (error) {
+      message.error('删除失败');
+    }
+  };
+
+  const handleSetDefaultTts = async (id) => {
+    try {
+      await api.post(`/tts-templates/${id}/set-default`);
+      message.success('设置默认模板成功');
+      fetchTtsTemplates();
+      setSelectedTemplateId(id);
+    } catch (error) {
+      message.error('设置失败');
+    }
+  };
+
   // 打开电话控制弹窗
   const handleCallControl = (simCard) => {
     if (!simCard.device?.apiEnabled) {
@@ -161,12 +228,28 @@ function SimCardManagement() {
     
     setSelectedSimCard(simCard);
     callForm.resetFields();
+    
+    // 设置默认值
     callForm.setFieldsValue({
       duration: 55,
       ttsRepeat: 2,
-      recording: true,
-      speaker: true
+      pauseTime: 1,
+      afterTtsAction: 1
     });
+    
+    // 设置默认TTS内容
+    const defaultTemplate = ttsTemplates.find(t => t.isDefault);
+    if (defaultTemplate) {
+      setSelectedTemplateId(defaultTemplate.id);
+      setTtsInputMode('template');
+    } else if (ttsTemplates.length > 0) {
+      setSelectedTemplateId(ttsTemplates[0].id);
+      setTtsInputMode('template');
+    } else {
+      setTtsInputMode('custom');
+    }
+    
+    setCustomTtsContent('');
     setCallControlModalVisible(true);
   };
 
@@ -175,18 +258,33 @@ function SimCardManagement() {
     setSendingCommand(true);
     try {
       const values = await callForm.validateFields();
+      
+      // 根据输入模式获取TTS内容
+      let ttsContent = '';
+      if (ttsInputMode === 'template' && selectedTemplateId) {
+        const template = ttsTemplates.find(t => t.id === selectedTemplateId);
+        ttsContent = template ? template.content : '';
+      } else {
+        ttsContent = customTtsContent;
+      }
+      
+      if (!ttsContent) {
+        message.error('请选择TTS模板或输入自定义内容');
+        setSendingCommand(false);
+        return;
+      }
+      
       const response = await api.post(`/simcards/${selectedSimCard.id}/answer`, {
         duration: values.duration,
-        ttsContent: values.ttsContent || '',
+        ttsContent: ttsContent,
         ttsRepeat: values.ttsRepeat,
-        recording: values.recording,
-        speaker: values.speaker
+        pauseTime: values.pauseTime,
+        afterTtsAction: values.afterTtsAction
       });
       
       if (response.data.success) {
         message.success('接听命令已发送');
         setCallControlModalVisible(false);
-        // 刷新列表
         fetchSimCards(pagination.current, pagination.pageSize);
       }
     } catch (error) {
@@ -205,7 +303,6 @@ function SimCardManagement() {
       if (response.data.success) {
         message.success('挂断命令已发送');
         setCallControlModalVisible(false);
-        // 刷新列表
         fetchSimCards(pagination.current, pagination.pageSize);
       }
     } catch (error) {
@@ -327,13 +424,6 @@ function SimCardManagement() {
         const isConnected = record.callStatus === 'connected';
         const canControl = record.device?.apiEnabled;
         
-        // 调试信息（生产环境可以删除）
-        console.log(`SIM卡 ${record.id}:`, {
-          callStatus: record.callStatus,
-          apiEnabled: record.device?.apiEnabled,
-          deviceName: record.device?.name
-        });
-        
         return (
           <Space size="small">
             {(isRinging || isConnected) && canControl && (
@@ -363,126 +453,199 @@ function SimCardManagement() {
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}>
-          <CreditCardOutlined /> SIM卡管理
-          {refreshTimer && (
-            <Tag color="processing" style={{ marginLeft: 12 }}>
-              <Badge status="processing" text="自动刷新中" />
-            </Tag>
-          )}
-        </Title>
-      </div>
+      <Tabs defaultActiveKey="simcards">
+        <TabPane tab="SIM卡列表" key="simcards">
+          <div style={{ marginBottom: 16 }}>
+            <Title level={4} style={{ margin: 0 }}>
+              <CreditCardOutlined /> SIM卡管理
+              {refreshTimer && (
+                <Tag color="processing" style={{ marginLeft: 12 }}>
+                  <Badge status="processing" text="自动刷新中" />
+                </Tag>
+              )}
+            </Title>
+          </div>
 
-      <div style={{ 
-        marginBottom: 16, 
-        background: '#fafafa', 
-        padding: 12, 
-        borderRadius: 6 
-      }}>
-        <Row gutter={[12, 12]} align="middle">
-          <Col xs={24} sm={12} md={6}>
-            <Input
-              placeholder="搜索名称/号码/IMSI/ICCID"
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              allowClear
+          <div style={{ 
+            marginBottom: 16, 
+            background: '#fafafa', 
+            padding: 12, 
+            borderRadius: 6 
+          }}>
+            <Row gutter={[12, 12]} align="middle">
+              <Col xs={24} sm={12} md={6}>
+                <Input
+                  placeholder="搜索名称/号码/IMSI/ICCID"
+                  prefix={<SearchOutlined />}
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  allowClear
+                />
+              </Col>
+              <Col xs={12} sm={6} md={4}>
+                <Select
+                  placeholder="设备"
+                  style={{ width: '100%' }}
+                  value={deviceFilter}
+                  onChange={setDeviceFilter}
+                  allowClear
+                >
+                  <Option value="">全部设备</Option>
+                  {devices.map(device => (
+                    <Option key={device.id} value={device.id}>
+                      {device.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={12} sm={6} md={3}>
+                <Select
+                  placeholder="状态"
+                  style={{ width: '100%' }}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  allowClear
+                >
+                  <Option value="">全部</Option>
+                  {Object.entries(SIM_STATUS_MAP).map(([value, config]) => (
+                    <Option key={value} value={value}>
+                      {config.text}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={12} sm={6} md={3}>
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={() => fetchSimCards()}
+                  style={{ width: '100%' }}
+                >
+                  刷新
+                </Button>
+              </Col>
+              <Col xs={12} sm={6} md={4}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    setEditingSimCard(null);
+                    form.resetFields();
+                    form.setFieldsValue({ status: '204' });
+                    setModalVisible(true);
+                  }}
+                  style={{ width: '100%' }}
+                >
+                  新建SIM卡
+                </Button>
+              </Col>
+            </Row>
+          </div>
+
+          <div style={{ 
+            flex: 1, 
+            overflow: 'hidden',
+            background: '#fff',
+            borderRadius: 6,
+            border: '1px solid #f0f0f0'
+          }}>
+            <Table
+              columns={columns}
+              dataSource={simCards}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                ...pagination,
+                size: 'small',
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total) => `共 ${total} 条记录`,
+                onChange: (page, pageSize) => {
+                  fetchSimCards(page, pageSize);
+                },
+              }}
+              size="small"
+              scroll={{ 
+                x: 1600,
+                y: 'calc(100vh - 380px)'
+              }}
+              rowClassName={(record) => {
+                if (record.callStatus === 'ringing') return 'ringing-row';
+                if (record.callStatus === 'connected') return 'connected-row';
+                return '';
+              }}
             />
-          </Col>
-          <Col xs={12} sm={6} md={4}>
-            <Select
-              placeholder="设备"
-              style={{ width: '100%' }}
-              value={deviceFilter}
-              onChange={setDeviceFilter}
-              allowClear
-            >
-              <Option value="">全部设备</Option>
-              {devices.map(device => (
-                <Option key={device.id} value={device.id}>
-                  {device.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={3}>
-            <Select
-              placeholder="状态"
-              style={{ width: '100%' }}
-              value={statusFilter}
-              onChange={setStatusFilter}
-              allowClear
-            >
-              <Option value="">全部</Option>
-              {Object.entries(SIM_STATUS_MAP).map(([value, config]) => (
-                <Option key={value} value={value}>
-                  {config.text}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={3}>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() => fetchSimCards()}
-              style={{ width: '100%' }}
-            >
-              刷新
-            </Button>
-          </Col>
-          <Col xs={12} sm={6} md={4}>
+          </div>
+        </TabPane>
+
+        <TabPane tab="TTS模板设置" key="tts">
+          <div style={{ marginBottom: 16 }}>
+            <Title level={4} style={{ margin: 0 }}>
+              <SoundOutlined /> TTS语音模板
+            </Title>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => {
-                setEditingSimCard(null);
-                form.resetFields();
-                form.setFieldsValue({ status: '204' }); // 默认状态为已就绪
-                setModalVisible(true);
+                setEditingTts(null);
+                ttsForm.resetFields();
+                setTtsModalVisible(true);
               }}
-              style={{ width: '100%' }}
             >
-              新建SIM卡
+              新增模板
             </Button>
-          </Col>
-        </Row>
-      </div>
+          </div>
 
-      <div style={{ 
-        flex: 1, 
-        overflow: 'hidden',
-        background: '#fff',
-        borderRadius: 6,
-        border: '1px solid #f0f0f0'
-      }}>
-        <Table
-          columns={columns}
-          dataSource={simCards}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            ...pagination,
-            size: 'small',
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 条记录`,
-            onChange: (page, pageSize) => {
-              fetchSimCards(page, pageSize);
-            },
-          }}
-          size="small"
-          scroll={{ 
-            x: 1600,
-            y: 'calc(100vh - 340px)'
-          }}
-          rowClassName={(record) => {
-            if (record.callStatus === 'ringing') return 'ringing-row';
-            if (record.callStatus === 'connected') return 'connected-row';
-            return '';
-          }}
-        />
-      </div>
+          <List
+            bordered
+            dataSource={ttsTemplates}
+            locale={{ emptyText: <Empty description="暂无TTS模板" /> }}
+            renderItem={(item) => (
+              <List.Item
+                actions={[
+                  item.isDefault ? (
+                    <Tag color="green" icon={<CheckOutlined />}>默认</Tag>
+                  ) : (
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={() => handleSetDefaultTts(item.id)}
+                    >
+                      设为默认
+                    </Button>
+                  ),
+                  <Button
+                    type="link"
+                    size="small"
+                    onClick={() => {
+                      setEditingTts(item);
+                      ttsForm.setFieldsValue(item);
+                      setTtsModalVisible(true);
+                    }}
+                  >
+                    编辑
+                  </Button>,
+                  <Popconfirm
+                    title="确定删除这个模板吗？"
+                    onConfirm={() => handleDeleteTts(item.id)}
+                  >
+                    <Button type="link" size="small" danger>
+                      删除
+                    </Button>
+                  </Popconfirm>
+                ]}
+              >
+                <List.Item.Meta
+                  title={item.name}
+                  description={item.content}
+                />
+              </List.Item>
+            )}
+          />
+        </TabPane>
+      </Tabs>
 
       {/* 编辑/新建SIM卡弹窗 */}
       <Modal
@@ -590,6 +753,93 @@ function SimCardManagement() {
         </Form>
       </Modal>
 
+      {/* TTS模板编辑弹窗 */}
+      <Modal
+        title={editingTts ? '编辑TTS模板' : '新建TTS模板'}
+        open={ttsModalVisible}
+        onCancel={() => {
+          setTtsModalVisible(false);
+          ttsForm.resetFields();
+          setEditingTts(null);
+        }}
+        footer={null}
+        width={600}
+      >
+        <Form
+          form={ttsForm}
+          layout="vertical"
+          onFinish={handleTtsSubmit}
+        >
+          <Form.Item
+            name="name"
+            label="模板名称"
+            rules={[{ required: true, message: '请输入模板名称' }]}
+          >
+            <Input placeholder="请输入模板名称" />
+          </Form.Item>
+
+          <Form.Item
+            name="content"
+            label="TTS语音内容"
+            rules={[{ required: true, message: '请输入TTS语音内容' }]}
+          >
+            <TextArea
+              rows={4}
+              placeholder="请输入TTS语音内容"
+            />
+          </Form.Item>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="sortOrder"
+                label="排序顺序"
+                initialValue={0}
+              >
+                <InputNumber
+                  min={0}
+                  style={{ width: '100%' }}
+                  placeholder="数字越小越靠前"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="isActive"
+                label="是否启用"
+                valuePropName="checked"
+                initialValue={true}
+              >
+                <Switch checkedChildren="启用" unCheckedChildren="禁用" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item
+            name="isDefault"
+            valuePropName="checked"
+            initialValue={false}
+          >
+            <Switch checkedChildren="设为默认" unCheckedChildren="非默认" />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            <Space>
+              <Button onClick={() => {
+                setTtsModalVisible(false);
+                ttsForm.resetFields();
+                setEditingTts(null);
+              }}>
+                取消
+              </Button>
+              <Button type="primary" htmlType="submit">
+                {editingTts ? '更新' : '创建'}
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
       {/* 电话控制弹窗 */}
       <Modal
         title={
@@ -609,7 +859,7 @@ function SimCardManagement() {
           setSelectedSimCard(null);
         }}
         footer={null}
-        width={600}
+        width={700}
       >
         <Form
           form={callForm}
@@ -617,6 +867,57 @@ function SimCardManagement() {
         >
           {selectedSimCard?.callStatus === 'ringing' ? (
             <>
+              <Form.Item
+                label="TTS语音内容选择"
+                required
+              >
+                <Radio.Group 
+                  value={ttsInputMode} 
+                  onChange={(e) => setTtsInputMode(e.target.value)}
+                  style={{ marginBottom: 16 }}
+                >
+                  <Radio value="template">使用模板</Radio>
+                  <Radio value="custom">自定义输入</Radio>
+                </Radio.Group>
+
+                {ttsInputMode === 'template' ? (
+                  <Select
+                    value={selectedTemplateId}
+                    onChange={setSelectedTemplateId}
+                    placeholder="请选择TTS模板"
+                    style={{ width: '100%' }}
+                  >
+                    {ttsTemplates.map(template => (
+                      <Option key={template.id} value={template.id}>
+                        {template.name}
+                        {template.isDefault && <Tag color="green" style={{ marginLeft: 8 }}>默认</Tag>}
+                      </Option>
+                    ))}
+                  </Select>
+                ) : (
+                  <TextArea
+                    value={customTtsContent}
+                    onChange={(e) => setCustomTtsContent(e.target.value)}
+                    rows={3}
+                    placeholder="请输入自定义TTS语音内容"
+                  />
+                )}
+
+                {/* 显示预览内容 */}
+                {ttsInputMode === 'template' && selectedTemplateId && (
+                  <div style={{ 
+                    marginTop: 8, 
+                    padding: 8, 
+                    background: '#f5f5f5', 
+                    borderRadius: 4,
+                    fontSize: 12
+                  }}>
+                    <strong>预览：</strong> 
+                    {ttsTemplates.find(t => t.id === selectedTemplateId)?.content}
+                  </div>
+                )}
+              </Form.Item>
+
               <Form.Item
                 name="duration"
                 label="通话总时长（秒）"
@@ -629,17 +930,6 @@ function SimCardManagement() {
                   max={300}
                   style={{ width: '100%' }}
                   placeholder="通话总时长"
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="ttsContent"
-                label="TTS语音内容"
-                rules={[{ required: true, message: '请输入TTS语音内容' }]}
-              >
-                <TextArea
-                  rows={3}
-                  placeholder="电话接通后向对方播放的TTS语音内容（必填）"
                 />
               </Form.Item>
 

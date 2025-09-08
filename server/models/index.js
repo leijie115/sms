@@ -4,6 +4,8 @@ const Device = require('./device');
 const SimCard = require('./simCard');
 const SmsMessage = require('./smsMessage');
 const ForwardSetting = require('./forwardSetting');
+const TtsTemplate = require('./ttsTemplate');
+
 
 // 定义模型关联关系
 
@@ -45,5 +47,6 @@ module.exports = {
   Device,
   SimCard,
   SmsMessage,
-  ForwardSetting
+  ForwardSetting,
+  TtsTemplate
 };

@@ -7,6 +7,7 @@ const deviceController = require('../controllers/device');
 const simCardController = require('../controllers/simCard');
 const smsMessageController = require('../controllers/smsMessage');
 const forwardSettingController = require('../controllers/forwardSetting');
+const ttsTemplateController = require('../controllers/ttsTemplate');
 const logController = require('../controllers/log');
 
 const router = new Router({ prefix: '/api' });
@@ -73,5 +74,12 @@ router.get('/logs/tail', authMiddleware, logController.tailLog);
 router.get('/logs/:filename', authMiddleware, logController.readLogFile);
 router.get('/logs/:filename/download', authMiddleware, logController.downloadLogFile);
 router.post('/logs/clean', authMiddleware, logController.cleanOldLogs);
+
+// TTS模板路由
+router.get('/tts-templates', ttsTemplateController.getTtsTemplates);
+router.post('/tts-templates', ttsTemplateController.createTtsTemplate);
+router.put('/tts-templates/:id', ttsTemplateController.updateTtsTemplate);
+router.delete('/tts-templates/:id', ttsTemplateController.deleteTtsTemplate);
+router.post('/tts-templates/:id/set-default', ttsTemplateController.setDefaultTemplate);
 
 module.exports = router;

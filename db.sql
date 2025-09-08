@@ -191,6 +191,13 @@ ADD COLUMN `apiEnabled` tinyint(1) DEFAULT '0' COMMENT '是否启用API控制' A
 ADD COLUMN `lastApiCallTime` datetime DEFAULT NULL COMMENT '最后API调用时间' AFTER `lastActiveTime`,
 ADD COLUMN `apiCallCount` int DEFAULT '0' COMMENT 'API调用次数' AFTER `lastApiCallTime`;
 
+
+
+ALTER TABLE `SimCards`
+ADD COLUMN `lastCallTime` datetime DEFAULT NULL COMMENT '最后来电时间' AFTER `status`,
+ADD COLUMN `lastCallNumber` varchar(20) DEFAULT NULL COMMENT '最后来电号码' AFTER `lastCallTime`,
+ADD COLUMN `callStatus` enum('idle', 'ringing', 'connected', 'ended') DEFAULT 'idle' COMMENT '通话状态：idle空闲，ringing响铃中，connected通话中，ended已结束' AFTER `lastCallNumber`;
+
 -- 2. 查看更新后的表结构
 DESCRIBE Devices;
 

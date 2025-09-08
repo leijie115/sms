@@ -1,3 +1,4 @@
+// server/models/simCard.js
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 
@@ -42,6 +43,20 @@ const SimCard = sequelize.define('SimCard', {
     type: DataTypes.ENUM('202', '203', '204', '205', '209'),
     defaultValue: '204',
     comment: 'SIM卡状态：202基站注册中，203ID已读取，204已就绪，205已弹出，209卡异常'
+  },
+  // 新增通话相关字段
+  callStatus: {
+    type: DataTypes.ENUM('idle', 'ringing', 'connected', 'ended'),
+    defaultValue: 'idle',
+    comment: '通话状态：idle空闲，ringing响铃中，connected通话中，ended已结束'
+  },
+  lastCallNumber: {
+    type: DataTypes.STRING(20),
+    comment: '最后来电号码'
+  },
+  lastCallTime: {
+    type: DataTypes.DATE,
+    comment: '最后来电时间'
   },
   lastActiveTime: {
     type: DataTypes.DATE,

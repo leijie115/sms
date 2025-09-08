@@ -45,6 +45,11 @@ router.post('/simcards', authMiddleware, simCardController.createSimCard);
 router.put('/simcards/:id', authMiddleware, simCardController.updateSimCard);
 // router.delete('/simcards/:id', authMiddleware, simCardController.deleteSimCard); // 移除删除功能
 
+// 新增电话控制路由
+router.post('/simcards/:id/answer', simCardController.answerCall);
+router.post('/simcards/:id/hangup', simCardController.hangUp);
+
+
 // 短信路由
 router.get('/sms-messages', authMiddleware, smsMessageController.getSmsMessages);
 router.get('/sms-messages/statistics', authMiddleware, smsMessageController.getSmsStatistics);

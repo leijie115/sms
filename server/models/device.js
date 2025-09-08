@@ -49,15 +49,6 @@ const Device = sequelize.define('Device', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
     comment: '最后活跃时间'
-  },
-  lastApiCallTime: {
-    type: DataTypes.DATE,
-    comment: '最后API调用时间'
-  },
-  apiCallCount: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-    comment: 'API调用次数'
   }
 }, {
   timestamps: true,

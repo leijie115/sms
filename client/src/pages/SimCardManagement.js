@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Table, Button, Space, Modal, Form, Input, Select, 
-  Tag, message, Row, Col, Typography 
+  Tag, message, Row, Col, Typography, Badge, Switch, InputNumber
 } from 'antd';
 import { 
-  PlusOutlined, EditOutlined, 
-  SearchOutlined, ReloadOutlined, CreditCardOutlined 
+  PlusOutlined, EditOutlined, PhoneOutlined, PhoneFilled,
+  SearchOutlined, ReloadOutlined, CreditCardOutlined, CloseCircleOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Title } = Typography;
 const { Option } = Select;
+const { TextArea } = Input;
 
 // SIM卡状态映射
 const SIM_STATUS_MAP = {
@@ -21,6 +22,14 @@ const SIM_STATUS_MAP = {
   '209': { text: '卡异常', color: 'error' }
 };
 
+// 通话状态映射
+const CALL_STATUS_MAP = {
+  'idle': { text: '空闲', color: 'default' },
+  'ringing': { text: '响铃中', color: 'warning', icon: <PhoneFilled style={{ color: '#faad14' }} /> },
+  'connected': { text: '通话中', color: 'processing', icon: <PhoneFilled style={{ color: '#1890ff' }} /> },
+  'ended': { text: '已结束', color: 'default' }
+};
+
 function SimCardManagement() {
   const [simCards, setSimCards] = useState([]);
   const [devices, setDevices] = useState([]);
@@ -28,6 +37,7 @@ function SimCardManagement() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingSimCard, setEditingSimCard] = useState(null);
   const [form] = Form.useForm();
+  const [callForm] = Form.useForm();
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -36,6 +46,10 @@ function SimCardManagement() {
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [deviceFilter, setDeviceFilter] = useState('');
+  const [callControlModalVisible, setCallControlModalVisible] = useState(false);
+  const [selectedSimCard, setSelectedSimCard] = useState(null);
+  const [sendingCommand, setSendingCommand] = useState(false);
+  const [refreshTimer, setRefreshTimer] = useState(null);
 
   const api = axios.create({
     baseURL: '/api',
@@ -82,6 +96,29 @@ function SimCardManagement() {
     fetchDevices();
   }, [searchText, statusFilter, deviceFilter]);
 
+  // 自动刷新（当有电话响铃时）
+  useEffect(() => {
+    const hasRinging = simCards.some(card => card.callStatus === 'ringing' || card.callStatus === 'connected');
+    
+    if (hasRinging) {
+      // 如果有响铃或通话中的SIM卡，每3秒刷新一次
+      const timer = setInterval(() => {
+        fetchSimCards(pagination.current, pagination.pageSize);
+      }, 3000);
+      setRefreshTimer(timer);
+      
+      return () => {
+        if (timer) clearInterval(timer);
+      };
+    } else {
+      // 没有活动通话，清除定时器
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        setRefreshTimer(null);
+      }
+    }
+  }, [simCards]);
+
   const handleEdit = async (record) => {
     setEditingSimCard(record);
     form.setFieldsValue({
@@ -112,6 +149,69 @@ function SimCardManagement() {
       fetchSimCards(pagination.current, pagination.pageSize);
     } catch (error) {
       message.error(error.response?.data?.message || '操作失败');
+    }
+  };
+
+  // 打开电话控制弹窗
+  const handleCallControl = (simCard) => {
+    if (!simCard.device?.apiEnabled) {
+      message.warning('请先配置并启用设备API');
+      return;
+    }
+    
+    setSelectedSimCard(simCard);
+    callForm.resetFields();
+    callForm.setFieldsValue({
+      duration: 55,
+      ttsRepeat: 2,
+      recording: true,
+      speaker: true
+    });
+    setCallControlModalVisible(true);
+  };
+
+  // 接听电话
+  const handleAnswerCall = async () => {
+    setSendingCommand(true);
+    try {
+      const values = await callForm.validateFields();
+      const response = await api.post(`/simcards/${selectedSimCard.id}/answer`, {
+        duration: values.duration,
+        ttsContent: values.ttsContent || '',
+        ttsRepeat: values.ttsRepeat,
+        recording: values.recording,
+        speaker: values.speaker
+      });
+      
+      if (response.data.success) {
+        message.success('接听命令已发送');
+        setCallControlModalVisible(false);
+        // 刷新列表
+        fetchSimCards(pagination.current, pagination.pageSize);
+      }
+    } catch (error) {
+      message.error(error.response?.data?.message || '接听命令发送失败');
+    } finally {
+      setSendingCommand(false);
+    }
+  };
+
+  // 挂断电话
+  const handleHangUp = async () => {
+    setSendingCommand(true);
+    try {
+      const response = await api.post(`/simcards/${selectedSimCard.id}/hangup`);
+      
+      if (response.data.success) {
+        message.success('挂断命令已发送');
+        setCallControlModalVisible(false);
+        // 刷新列表
+        fetchSimCards(pagination.current, pagination.pageSize);
+      }
+    } catch (error) {
+      message.error(error.response?.data?.message || '挂断命令发送失败');
+    } finally {
+      setSendingCommand(false);
     }
   };
 
@@ -147,34 +247,11 @@ function SimCardManagement() {
       ellipsis: true,
     },
     {
-      title: '手机号(MSISDN)',
+      title: '手机号',
       dataIndex: 'msIsdn',
       key: 'msIsdn',
       width: 150,
       render: (text) => text || '-',
-    },
-    {
-      title: 'IMSI',
-      dataIndex: 'imsi',
-      key: 'imsi',
-      width: 160,
-      render: (text) => (
-        <span style={{ fontFamily: 'monospace', fontSize: 12 }}>
-          {text || '-'}
-        </span>
-      ),
-    },
-    {
-      title: 'ICC ID',
-      dataIndex: 'iccId',
-      key: 'iccId',
-      width: 180,
-      ellipsis: true,
-      render: (text) => (
-        <span style={{ fontFamily: 'monospace', fontSize: 12 }}>
-          {text || '-'}
-        </span>
-      ),
     },
     {
       title: '状态',
@@ -191,6 +268,49 @@ function SimCardManagement() {
       },
     },
     {
+      title: '通话状态',
+      key: 'callStatus',
+      width: 140,
+      render: (_, record) => {
+        const callStatus = record.callStatus || 'idle';
+        const config = CALL_STATUS_MAP[callStatus];
+        
+        if (callStatus === 'ringing') {
+          return (
+            <Badge dot offset={[-8, 0]} status="processing">
+              <Tag color={config.color} icon={config.icon}>
+                {config.text}
+              </Tag>
+            </Badge>
+          );
+        }
+        
+        return (
+          <Tag color={config.color} icon={config.icon}>
+            {config.text}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: '最后来电',
+      key: 'lastCall',
+      width: 180,
+      render: (_, record) => {
+        if (record.lastCallNumber) {
+          return (
+            <div>
+              <div style={{ fontSize: 12 }}>{record.lastCallNumber}</div>
+              <div style={{ fontSize: 11, color: '#999' }}>
+                {record.lastCallTime ? new Date(record.lastCallTime).toLocaleString('zh-CN') : '-'}
+              </div>
+            </div>
+          );
+        }
+        return '-';
+      },
+    },
+    {
       title: '最后活跃',
       dataIndex: 'lastActiveTime',
       key: 'lastActiveTime',
@@ -200,18 +320,44 @@ function SimCardManagement() {
     {
       title: '操作',
       key: 'action',
-      width: 80,
+      width: 160,
       fixed: 'right',
-      render: (_, record) => (
-        <Button
-          type="link"
-          size="small"
-          icon={<EditOutlined />}
-          onClick={() => handleEdit(record)}
-        >
-          编辑
-        </Button>
-      ),
+      render: (_, record) => {
+        const isRinging = record.callStatus === 'ringing';
+        const isConnected = record.callStatus === 'connected';
+        const canControl = record.device?.apiEnabled;
+        
+        // 调试信息（生产环境可以删除）
+        console.log(`SIM卡 ${record.id}:`, {
+          callStatus: record.callStatus,
+          apiEnabled: record.device?.apiEnabled,
+          deviceName: record.device?.name
+        });
+        
+        return (
+          <Space size="small">
+            {(isRinging || isConnected) && canControl && (
+              <Button
+                type="primary"
+                danger={isConnected}
+                size="small"
+                icon={isRinging ? <PhoneOutlined /> : <CloseCircleOutlined />}
+                onClick={() => handleCallControl(record)}
+              >
+                {isRinging ? '接听' : '挂断'}
+              </Button>
+            )}
+            <Button
+              type="link"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+            >
+              编辑
+            </Button>
+          </Space>
+        );
+      },
     },
   ];
 
@@ -220,6 +366,11 @@ function SimCardManagement() {
       <div style={{ marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}>
           <CreditCardOutlined /> SIM卡管理
+          {refreshTimer && (
+            <Tag color="processing" style={{ marginLeft: 12 }}>
+              <Badge status="processing" text="自动刷新中" />
+            </Tag>
+          )}
         </Title>
       </div>
 
@@ -322,12 +473,18 @@ function SimCardManagement() {
           }}
           size="small"
           scroll={{ 
-            x: 1400,
+            x: 1600,
             y: 'calc(100vh - 340px)'
+          }}
+          rowClassName={(record) => {
+            if (record.callStatus === 'ringing') return 'ringing-row';
+            if (record.callStatus === 'connected') return 'connected-row';
+            return '';
           }}
         />
       </div>
 
+      {/* 编辑/新建SIM卡弹窗 */}
       <Modal
         title={editingSimCard ? '编辑SIM卡' : '新建SIM卡'}
         open={modalVisible}
@@ -432,6 +589,173 @@ function SimCardManagement() {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* 电话控制弹窗 */}
+      <Modal
+        title={
+          <Space>
+            <PhoneOutlined />
+            {selectedSimCard?.callStatus === 'ringing' ? '接听来电' : '挂断通话'}
+            <Tag color="blue">{selectedSimCard?.scName}</Tag>
+            {selectedSimCard?.lastCallNumber && (
+              <Tag color="orange">{selectedSimCard.lastCallNumber}</Tag>
+            )}
+          </Space>
+        }
+        open={callControlModalVisible}
+        onCancel={() => {
+          setCallControlModalVisible(false);
+          callForm.resetFields();
+          setSelectedSimCard(null);
+        }}
+        footer={null}
+        width={600}
+      >
+        <Form
+          form={callForm}
+          layout="vertical"
+        >
+          {selectedSimCard?.callStatus === 'ringing' ? (
+            <>
+              <Form.Item
+                name="duration"
+                label="通话总时长（秒）"
+                rules={[{ required: true, message: '请输入通话时长' }]}
+                initialValue={55}
+                extra="到达时间后将自动挂断电话，默认175秒"
+              >
+                <InputNumber
+                  min={1}
+                  max={300}
+                  style={{ width: '100%' }}
+                  placeholder="通话总时长"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="ttsContent"
+                label="TTS语音内容"
+                rules={[{ required: true, message: '请输入TTS语音内容' }]}
+              >
+                <TextArea
+                  rows={3}
+                  placeholder="电话接通后向对方播放的TTS语音内容（必填）"
+                />
+              </Form.Item>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="ttsRepeat"
+                    label="TTS播放次数"
+                    initialValue={2}
+                    extra="TTS共播放几轮"
+                  >
+                    <InputNumber
+                      min={1}
+                      max={10}
+                      style={{ width: '100%' }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="pauseTime"
+                    label="暂停时间（秒）"
+                    initialValue={1}
+                    extra="每轮播放后暂停秒数"
+                  >
+                    <InputNumber
+                      min={0}
+                      max={10}
+                      style={{ width: '100%' }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item
+                name="afterTtsAction"
+                label="TTS播放完成后的动作"
+                initialValue={1}
+              >
+                <Select>
+                  <Option value={0}>无操作</Option>
+                  <Option value={1}>挂断电话</Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+                <Space>
+                  <Button onClick={() => {
+                    setCallControlModalVisible(false);
+                    callForm.resetFields();
+                    setSelectedSimCard(null);
+                  }}>
+                    取消
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<PhoneOutlined />}
+                    onClick={handleAnswerCall}
+                    loading={sendingCommand}
+                  >
+                    接听
+                  </Button>
+                </Space>
+              </Form.Item>
+            </>
+          ) : (
+            <>
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <p>确定要挂断当前通话吗？</p>
+                <p style={{ color: '#999', fontSize: 12 }}>
+                  设备：{selectedSimCard?.device?.name}
+                </p>
+                <p style={{ color: '#999', fontSize: 12 }}>
+                  卡槽：{selectedSimCard?.slot}
+                </p>
+              </div>
+              <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+                <Space>
+                  <Button onClick={() => {
+                    setCallControlModalVisible(false);
+                    setSelectedSimCard(null);
+                  }}>
+                    取消
+                  </Button>
+                  <Button
+                    type="primary"
+                    danger
+                    icon={<CloseCircleOutlined />}
+                    onClick={handleHangUp}
+                    loading={sendingCommand}
+                  >
+                    挂断
+                  </Button>
+                </Space>
+              </Form.Item>
+            </>
+          )}
+        </Form>
+      </Modal>
+
+      <style jsx>{`
+        .ringing-row {
+          animation: blink 1s infinite;
+          background-color: #fff7e6 !important;
+        }
+        
+        .connected-row {
+          background-color: #e6f7ff !important;
+        }
+        
+        @keyframes blink {
+          0% { opacity: 1; }
+          50% { opacity: 0.7; }
+          100% { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -73,11 +73,22 @@ const processWebhookData = async (requestInfo) => {
         console.log('📱 检测到新短信，开始处理...');
         await processSmsMessage(requestInfo.body);
         break;
-        
       case 601:
-        // 来电记录
-        console.log('📞 检测到来电，开始处理...');
-        await processIncomingCall(requestInfo.body);
+        // 来电振铃
+        console.log('📞 检测到来电振铃...');
+        await processCallRinging(requestInfo.body);
+        break;
+        
+      case 602:
+        // 来电接通
+        console.log('📞 来电已接通...');
+        await processCallConnected(requestInfo.body);
+        break;
+        
+      case 603:
+        // 来电挂断
+        console.log('📞 来电已挂断...');
+        await processCallEnded(requestInfo.body);
         break;
         
       case 998:
@@ -555,6 +566,239 @@ const processSmsMessage = async (data) => {
   } catch (error) {
     await t.rollback();
     console.error('❌ 处理短信消息失败:', error);
+    throw error;
+  }
+};
+
+
+/**
+ * 处理来电振铃（type=601）
+ * @param {Object} data - 来电振铃数据
+ */
+const processCallRinging = async (data) => {
+  const t = await SmsMessage.sequelize.transaction();
+  
+  try {
+    // 1. 查找设备
+    const device = await Device.findOne({
+      where: { devId: data.devId },
+      transaction: t
+    });
+    
+    if (!device) {
+      console.log('⚠️ 设备不存在:', data.devId);
+      await t.rollback();
+      return;
+    }
+    
+    // 更新设备状态
+    await device.update({
+      status: 'active',
+      lastActiveTime: new Date()
+    }, { transaction: t });
+    
+    // 2. 查找或创建SIM卡
+    let simCard = await SimCard.findOne({
+      where: {
+        deviceId: device.id,
+        slot: data.slot
+      },
+      transaction: t
+    });
+    
+    if (!simCard) {
+      console.log('🆕 创建新SIM卡记录（来电）');
+      
+      simCard = await SimCard.create({
+        deviceId: device.id,
+        slot: data.slot,
+        msIsdn: data.msIsdn,
+        imsi: data.imsi,
+        iccId: data.iccId,
+        scName: data.scName || `卡槽${data.slot}`,
+        status: '204',
+        callStatus: 'ringing', // 设置为响铃中
+        lastCallNumber: data.phNum,
+        lastCallTime: new Date(),
+        lastActiveTime: new Date()
+      }, { transaction: t });
+      
+      console.log('✅ SIM卡创建成功');
+    } else {
+      // 更新SIM卡信息和通话状态
+      const updateData = {
+        lastActiveTime: new Date(),
+        status: '204',
+        callStatus: 'ringing', // 设置为响铃中
+        lastCallNumber: data.phNum,
+        lastCallTime: new Date()
+      };
+      
+      // 更新其他信息
+      if (data.msIsdn && data.msIsdn !== simCard.msIsdn) updateData.msIsdn = data.msIsdn;
+      if (data.imsi && data.imsi !== simCard.imsi) updateData.imsi = data.imsi;
+      if (data.iccId && data.iccId !== simCard.iccId) updateData.iccId = data.iccId;
+      if (data.scName && data.scName !== simCard.scName) updateData.scName = data.scName;
+      
+      await simCard.update(updateData, { transaction: t });
+    }
+    
+    // 3. 保存来电记录
+    const callDescription = `📞 来电振铃：${data.phNum || '未知号码'}`;
+    
+    const callRecord = await SmsMessage.create({
+      simCardId: simCard.id,
+      deviceId: device.id,
+      msgType: 'call',
+      netCh: data.netCh,
+      msgTs: data.msgTs,
+      phNum: data.phNum || '未知号码',
+      smsBd: callDescription,
+      smsTs: data.callTs || data.msgTs,
+      callStatus: 'ringing',
+      rawData: data
+    }, { transaction: t });
+    
+    await t.commit();
+    
+    console.log('✅ 来电振铃记录保存成功！');
+    console.log(`   设备: ${device.name} (${device.devId})`);
+    console.log(`   SIM卡: ${simCard.scName} (卡槽${simCard.slot})`);
+    console.log(`   来电号码: ${data.phNum || '未知号码'}`);
+    console.log(`   记录ID: ${callRecord.id}`);
+    
+    // 4. 异步转发来电通知
+    setImmediate(async () => {
+      try {
+        await forwardService.forwardMessage(callRecord, device, simCard);
+      } catch (error) {
+        console.error('转发来电通知失败:', error);
+      }
+    });
+    
+  } catch (error) {
+    await t.rollback();
+    console.error('❌ 处理来电振铃失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 处理来电接通（type=602）
+ * @param {Object} data - 来电接通数据
+ */
+const processCallConnected = async (data) => {
+  const t = await SmsMessage.sequelize.transaction();
+  
+  try {
+    const device = await Device.findOne({
+      where: { devId: data.devId },
+      transaction: t
+    });
+    
+    if (!device) {
+      console.log('⚠️ 设备不存在:', data.devId);
+      await t.rollback();
+      return;
+    }
+    
+    // 查找SIM卡
+    const simCard = await SimCard.findOne({
+      where: {
+        deviceId: device.id,
+        slot: data.slot
+      },
+      transaction: t
+    });
+    
+    if (simCard) {
+      // 更新为通话中状态
+      await simCard.update({
+        callStatus: 'connected',
+        lastActiveTime: new Date()
+      }, { transaction: t });
+      
+      console.log('✅ SIM卡状态更新为通话中');
+      console.log(`   设备: ${device.name}`);
+      console.log(`   SIM卡: ${simCard.scName} (卡槽${simCard.slot})`);
+    }
+    
+    await t.commit();
+    
+  } catch (error) {
+    await t.rollback();
+    console.error('❌ 处理来电接通失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 处理来电挂断（type=603）
+ * @param {Object} data - 来电挂断数据
+ */
+const processCallEnded = async (data) => {
+  const t = await SmsMessage.sequelize.transaction();
+  
+  try {
+    const device = await Device.findOne({
+      where: { devId: data.devId },
+      transaction: t
+    });
+    
+    if (!device) {
+      console.log('⚠️ 设备不存在:', data.devId);
+      await t.rollback();
+      return;
+    }
+    
+    // 查找SIM卡
+    const simCard = await SimCard.findOne({
+      where: {
+        deviceId: device.id,
+        slot: data.slot
+      },
+      transaction: t
+    });
+    
+    if (simCard) {
+      // 更新为空闲状态
+      await simCard.update({
+        callStatus: 'idle',
+        lastActiveTime: new Date()
+      }, { transaction: t });
+      
+      // 如果有通话时长，记录一条通话记录
+      if (data.duration) {
+        const callDescription = `📞 通话结束：${simCard.lastCallNumber || '未知号码'}，时长：${data.duration}秒`;
+        
+        await SmsMessage.create({
+          simCardId: simCard.id,
+          deviceId: device.id,
+          msgType: 'call',
+          netCh: data.netCh,
+          msgTs: data.msgTs,
+          phNum: simCard.lastCallNumber || '未知号码',
+          smsBd: callDescription,
+          smsTs: data.callTs || data.msgTs,
+          callDuration: data.duration,
+          callStatus: 'ended',
+          rawData: data
+        }, { transaction: t });
+      }
+      
+      console.log('✅ 通话已结束');
+      console.log(`   设备: ${device.name}`);
+      console.log(`   SIM卡: ${simCard.scName} (卡槽${simCard.slot})`);
+      if (data.duration) {
+        console.log(`   通话时长: ${data.duration}秒`);
+      }
+    }
+    
+    await t.commit();
+    
+  } catch (error) {
+    await t.rollback();
+    console.error('❌ 处理来电挂断失败:', error);
     throw error;
   }
 };

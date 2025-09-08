@@ -65,7 +65,7 @@ class DeviceControlService {
       });
 
       // 记录成功日志
-      logger.log(`设备控制成功: ${device.name} - ${command}`);
+      console.log(`设备控制成功: ${device.name} - ${command}`);
 
       return {
         success: true,
@@ -97,11 +97,11 @@ class DeviceControlService {
    * @param {number} deviceId - 设备ID
    * @param {object} options - 接听选项
    * @param {number} options.slot - 卡槽 (1或2)
-   * @param {number} options.duration - 拨通后等待时长(秒)
-   * @param {string} options.ttsContent - 拨通后播放的TTS语音内容
-   * @param {number} options.ttsRepeat - TTS播放次数
-   * @param {boolean} options.recording - 是否录音 (1=录音, 0=不录音)
-   * @param {boolean} options.speaker - 是否开启扬声器 (1=开启, 0=关闭)
+   * @param {number} options.duration - 通话总时长(秒)，到达后主动挂断
+   * @param {string} options.ttsContent - 电话接通后播放的TTS语音内容
+   * @param {number} options.ttsRepeat - TTS语音播放次数
+   * @param {number} options.pauseTime - 一轮TTS播放完成后暂停秒数
+   * @param {number} options.afterTtsAction - TTS播放完成后的动作 (0=无操作, 1=挂断)
    */
   async answerCall(deviceId, options = {}) {
     const {
@@ -109,8 +109,8 @@ class DeviceControlService {
       duration = 55,
       ttsContent = '',
       ttsRepeat = 2,
-      recording = true,
-      speaker = true
+      pauseTime = 1,
+      afterTtsAction = 1
     } = options;
 
     const params = {
@@ -118,8 +118,8 @@ class DeviceControlService {
       p2: duration,
       p3: ttsContent,
       p4: ttsRepeat,
-      p5: recording ? 1 : 0,
-      p6: speaker ? 1 : 0
+      p5: pauseTime,
+      p6: afterTtsAction
     };
 
     const result = await this.sendCommand(deviceId, 'telanswer', params);

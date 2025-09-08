@@ -26,7 +26,15 @@ const getSimCards = async (ctx) => {
         {
           model: Device,
           as: 'device',
-          attributes: ['id', 'name', 'devId', 'status']
+          attributes: [
+            'id', 
+            'devId', 
+            'name', 
+            'status',
+            // 'apiUrl',        // 包含API URL
+            // 'apiToken',      // 包含API Token  
+            'apiEnabled'  
+          ]
         }
       ],
       limit: parseInt(pageSize),
@@ -306,10 +314,163 @@ const deleteSimCard = async (ctx) => {
   }
 };
 
+/**
+ * 接听电话
+ */
+const answerCall = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const { 
+      duration = 55,
+      ttsContent = '',
+      ttsRepeat = 2,
+      pauseTime = 1,
+      afterTtsAction = 1
+    } = ctx.request.body;
+    
+    // 查找SIM卡信息
+    const simCard = await SimCard.findByPk(id, {
+      include: [{
+        model: Device,
+        as: 'device'
+      }]
+    });
+    
+    if (!simCard) {
+      ctx.status = 404;
+      ctx.body = {
+        success: false,
+        message: 'SIM卡不存在'
+      };
+      return;
+    }
+    
+    // 检查SIM卡状态
+    if (simCard.callStatus !== 'ringing') {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '当前没有来电振铃'
+      };
+      return;
+    }
+    
+    // 检查设备API是否启用
+    if (!simCard.device.apiEnabled) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '设备未启用API控制'
+      };
+      return;
+    }
+    
+    // 调用设备控制服务接听电话
+    const deviceControlService = require('../services/deviceControlService');
+    const result = await deviceControlService.answerCall(simCard.deviceId, {
+      slot: simCard.slot,  // 直接使用SIM卡的slot
+      duration,
+      ttsContent,
+      ttsRepeat,
+      pauseTime,
+      afterTtsAction
+    });
+    
+    // 更新SIM卡状态为通话中
+    await simCard.update({
+      callStatus: 'connected'
+    });
+    
+    ctx.body = {
+      success: true,
+      data: result,
+      message: '接听命令已发送'
+    };
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '接听命令发送失败',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * 挂断电话
+ */
+const hangUp = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    
+    // 查找SIM卡信息
+    const simCard = await SimCard.findByPk(id, {
+      include: [{
+        model: Device,
+        as: 'device'
+      }]
+    });
+    
+    if (!simCard) {
+      ctx.status = 404;
+      ctx.body = {
+        success: false,
+        message: 'SIM卡不存在'
+      };
+      return;
+    }
+    
+    // 检查SIM卡状态
+    if (simCard.callStatus !== 'ringing' && simCard.callStatus !== 'connected') {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '当前没有进行中的通话'
+      };
+      return;
+    }
+    
+    // 检查设备API是否启用
+    if (!simCard.device.apiEnabled) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '设备未启用API控制'
+      };
+      return;
+    }
+    
+    // 调用设备控制服务挂断电话
+    const deviceControlService = require('../services/deviceControlService');
+    const result = await deviceControlService.hangUp(simCard.deviceId, simCard.slot);
+    
+    // 更新SIM卡状态为空闲
+    await simCard.update({
+      callStatus: 'idle'
+    });
+    
+    ctx.body = {
+      success: true,
+      data: result,
+      message: '挂断命令已发送'
+    };
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '挂断命令发送失败',
+      error: error.message
+    };
+  }
+};
+
 module.exports = {
   getSimCards,
   getSimCard,
   createSimCard,
   updateSimCard,
-  deleteSimCard
+  deleteSimCard,
+  // 新增的电话控制
+  answerCall,
+  hangUp
 };

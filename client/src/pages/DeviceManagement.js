@@ -1,55 +1,36 @@
-// client/src/pages/DeviceManagement.js
 import React, { useState, useEffect } from 'react';
 import { 
-  Table, Button, Space, Modal, Form, Input, Select, 
-  Tag, message, Typography, Row, Col, Switch, Tabs,
-  Alert, Dropdown, Menu, Card, InputNumber, Checkbox
+  Table, Button, Modal, Form, Input, Select, message, 
+  Space, Tag, Dropdown, Menu, Row, Col, Switch, Descriptions 
 } from 'antd';
-import { 
-  PlusOutlined, EditOutlined, SearchOutlined, ReloadOutlined,
-  MobileOutlined, CheckCircleOutlined, ExclamationCircleOutlined,
-  ClockCircleOutlined, ApiOutlined, PhoneOutlined, 
-  PoweroffOutlined, DownOutlined, CloseCircleOutlined, 
-  LockOutlined, AudioOutlined
+import {
+  PlusOutlined, EditOutlined, DeleteOutlined, ApiOutlined,
+  SearchOutlined, ReloadOutlined, MobileOutlined, MoreOutlined,
+  CheckCircleOutlined, SyncOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
+import { Typography } from 'antd';
 
 const { Title } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
-const { TextArea } = Input;
-
-// SIM卡状态映射
-const SIM_STATUS_MAP = {
-  '202': { text: '基站注册中', color: 'processing' },
-  '203': { text: 'ID已读取', color: 'warning' },
-  '204': { text: '已就绪', color: 'success' },
-  '205': { text: '已弹出', color: 'default' },
-  '209': { text: '卡异常', color: 'error' }
-};
 
 function DeviceManagement() {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [apiConfigModalVisible, setApiConfigModalVisible] = useState(false);
-  const [callControlModalVisible, setCallControlModalVisible] = useState(false);
+  const [apiModalVisible, setApiModalVisible] = useState(false);
   const [editingDevice, setEditingDevice] = useState(null);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const [testingConnection, setTestingConnection] = useState(false);
-  const [sendingCommand, setSendingCommand] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [form] = Form.useForm();
+  const [apiForm] = Form.useForm();
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0
   });
-  
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  
-  const [form] = Form.useForm();
-  const [apiForm] = Form.useForm();
-  const [callForm] = Form.useForm();
 
   const api = axios.create({
     baseURL: '/api',
@@ -58,18 +39,15 @@ function DeviceManagement() {
     }
   });
 
-  // 获取设备列表
   const fetchDevices = async (page = 1, pageSize = 10) => {
     setLoading(true);
     try {
       const params = {
         page,
-        pageSize
+        pageSize,
+        search: searchText,
+        status: statusFilter
       };
-      
-      if (searchText) params.search = searchText;
-      if (statusFilter) params.status = statusFilter;
-      
       const response = await api.get('/devices', { params });
       setDevices(response.data.data);
       setPagination({
@@ -88,14 +66,12 @@ function DeviceManagement() {
     fetchDevices();
   }, [searchText, statusFilter]);
 
-  // 新增设备
   const handleAdd = () => {
     setEditingDevice(null);
     form.resetFields();
     setModalVisible(true);
   };
 
-  // 编辑设备
   const handleEdit = (record) => {
     setEditingDevice(record);
     form.setFieldsValue({
@@ -107,29 +83,43 @@ function DeviceManagement() {
     setModalVisible(true);
   };
 
-  // 保存设备
-  const handleSave = async () => {
+  const handleDelete = async (id) => {
+    Modal.confirm({
+      title: '确认删除',
+      content: '确定要删除这个设备吗？删除后相关的SIM卡和短信记录将保留。',
+      okText: '确定',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await api.delete(`/devices/${id}`);
+          message.success('删除成功');
+          fetchDevices(pagination.current, pagination.pageSize);
+        } catch (error) {
+          message.error('删除失败');
+        }
+      }
+    });
+  };
+
+  const handleSubmit = async (values) => {
     try {
-      const values = await form.validateFields();
-      
       if (editingDevice) {
-        // 更新
         await api.put(`/devices/${editingDevice.id}`, values);
-        message.success('设备更新成功');
+        message.success('更新成功');
       } else {
-        // 创建
         await api.post('/devices', values);
-        message.success('设备创建成功');
+        message.success('创建成功');
       }
       
       setModalVisible(false);
+      form.resetFields();
       fetchDevices(pagination.current, pagination.pageSize);
     } catch (error) {
-      message.error(editingDevice ? '更新设备失败' : '创建设备失败');
+      message.error(error.response?.data?.message || '操作失败');
     }
   };
 
-  // 打开API配置弹窗
+  // API配置
   const handleApiConfig = (device) => {
     setSelectedDevice(device);
     apiForm.setFieldsValue({
@@ -137,93 +127,145 @@ function DeviceManagement() {
       apiToken: device.apiToken || '',
       apiEnabled: device.apiEnabled || false
     });
-    setApiConfigModalVisible(true);
+    setApiModalVisible(true);
   };
 
-  // 保存API配置
-  const handleSaveApiConfig = async () => {
+  const handleApiSubmit = async (values) => {
     try {
-      const values = await apiForm.validateFields();
       const response = await api.put(`/devices/${selectedDevice.id}/api`, values);
-      
-      if (response.data.success) {
-        message.success('API配置更新成功');
-        setApiConfigModalVisible(false);
-        fetchDevices(pagination.current, pagination.pageSize);
-      }
+      message.success('API配置更新成功');
+      setApiModalVisible(false);
+      apiForm.resetFields();
+      fetchDevices(pagination.current, pagination.pageSize);
     } catch (error) {
-      message.error('更新API配置失败');
+      message.error('更新失败');
     }
   };
 
-  // 测试设备连接
-  const handleTestConnection = async () => {
-    setTestingConnection(true);
+  // 测试连接
+  const handleTestConnection = async (device) => {
+    setTesting(true);
     try {
-      const response = await api.post(`/devices/${selectedDevice.id}/test`);
+      const response = await api.post(`/devices/${device.id}/test`);
+      
       if (response.data.success) {
-        message.success('设备连接正常');
+        // 显示详细的设备状态信息
+        Modal.success({
+          title: '设备连接成功',
+          width: 600,
+          content: (
+            <div>
+              <Descriptions column={2} size="small" bordered>
+                <Descriptions.Item label="设备ID" span={2}>
+                  {response.data.data?.deviceId || device.devId}
+                </Descriptions.Item>
+                <Descriptions.Item label="硬件版本" span={2}>
+                  {response.data.data?.hardware || 'N/A'}
+                </Descriptions.Item>
+                
+                {/* 网络信息 */}
+                <Descriptions.Item label="网络类型" span={2}>
+                  {response.data.data?.network?.type || 'N/A'}
+                </Descriptions.Item>
+                {response.data.data?.network?.wifi && (
+                  <>
+                    <Descriptions.Item label="WiFi SSID">
+                      {response.data.data.network.wifi.ssid || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="IP地址">
+                      {response.data.data.network.wifi.ip || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="信号强度" span={2}>
+                      {response.data.data.network.wifi.signal ? `${response.data.data.network.wifi.signal} dBm` : 'N/A'}
+                    </Descriptions.Item>
+                  </>
+                )}
+                
+                {/* SIM卡槽1信息 */}
+                <Descriptions.Item label="卡槽1状态" span={2}>
+                  <Tag color={
+                    response.data.data?.simCards?.slot1?.status === 'OK' ? 'green' : 
+                    response.data.data?.simCards?.slot1?.status === 'ERR' ? 'red' : 
+                    'default'
+                  }>
+                    {response.data.data?.simCards?.slot1?.status || 'N/A'}
+                  </Tag>
+                </Descriptions.Item>
+                {response.data.data?.simCards?.slot1?.iccId && (
+                  <>
+                    <Descriptions.Item label="卡槽1 ICCID" span={2}>
+                      {response.data.data.simCards.slot1.iccId}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="卡槽1号码" span={2}>
+                      {response.data.data.simCards.slot1.number || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="卡槽1信号">
+                      {response.data.data.simCards.slot1.signal ? `${response.data.data.simCards.slot1.signal} dBm` : 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="卡槽1运营商">
+                      {response.data.data.simCards.slot1.operator || 'N/A'}
+                    </Descriptions.Item>
+                  </>
+                )}
+                
+                {/* SIM卡槽2信息 */}
+                <Descriptions.Item label="卡槽2状态" span={2}>
+                  <Tag color={
+                    response.data.data?.simCards?.slot2?.status === 'OK' ? 'green' : 
+                    response.data.data?.simCards?.slot2?.status === 'POWON' ? 'blue' :
+                    response.data.data?.simCards?.slot2?.status === 'ERR' ? 'red' : 
+                    'default'
+                  }>
+                    {response.data.data?.simCards?.slot2?.status || 'N/A'}
+                  </Tag>
+                </Descriptions.Item>
+                {response.data.data?.simCards?.slot2?.iccId && (
+                  <>
+                    <Descriptions.Item label="卡槽2 ICCID" span={2}>
+                      {response.data.data.simCards.slot2.iccId}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="卡槽2号码" span={2}>
+                      {response.data.data.simCards.slot2.number || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="卡槽2信号">
+                      {response.data.data.simCards.slot2.signal ? `${response.data.data.simCards.slot2.signal} dBm` : 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="卡槽2运营商">
+                      {response.data.data.simCards.slot2.operator || 'N/A'}
+                    </Descriptions.Item>
+                  </>
+                )}
+                
+                {/* 其他信息 */}
+                <Descriptions.Item label="设备时间" span={2}>
+                  {response.data.data?.deviceTime || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="每日重启次数">
+                  {response.data.data?.dailyRestart || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="心跳间隔">
+                  {response.data.data?.pingInterval ? `${response.data.data.pingInterval}秒` : 'N/A'}
+                </Descriptions.Item>
+              </Descriptions>
+            </div>
+          ),
+        });
+        
+        // 刷新设备列表
+        fetchDevices();
       } else {
-        message.error(response.data.message || '设备连接失败');
+        Modal.error({
+          title: '设备连接失败',
+          content: response.data.error || '设备无响应，请检查配置',
+        });
       }
     } catch (error) {
-      message.error('设备连接失败');
-    } finally {
-      setTestingConnection(false);
-    }
-  };
-
-  // 打开电话控制弹窗
-  const handleCallControl = (device) => {
-    if (!device.apiEnabled) {
-      message.warning('请先配置并启用设备API');
-      return;
-    }
-    setSelectedDevice(device);
-    callForm.resetFields();
-    setCallControlModalVisible(true);
-  };
-
-  // 接听电话
-  const handleAnswerCall = async () => {
-    setSendingCommand(true);
-    try {
-      const values = await callForm.validateFields();
-      const response = await api.post(`/devices/${selectedDevice.id}/answer`, {
-        slot: values.slot,
-        duration: values.duration,
-        ttsContent: values.ttsContent || '',
-        ttsRepeat: values.ttsRepeat,
-        recording: values.recording,
-        speaker: values.speaker
+      Modal.error({
+        title: '测试失败',
+        content: error.response?.data?.error || error.message || '网络错误',
       });
-      
-      if (response.data.success) {
-        message.success('接听命令已发送');
-      }
-    } catch (error) {
-      message.error('接听命令发送失败');
     } finally {
-      setSendingCommand(false);
-    }
-  };
-
-  // 挂断电话
-  const handleHangUp = async () => {
-    setSendingCommand(true);
-    try {
-      const values = await callForm.getFieldsValue(['slot']);
-      const response = await api.post(`/devices/${selectedDevice.id}/hangup`, {
-        slot: values.slot || 1
-      });
-      
-      if (response.data.success) {
-        message.success('挂断命令已发送');
-      }
-    } catch (error) {
-      message.error('挂断命令发送失败');
-    } finally {
-      setSendingCommand(false);
+      setTesting(false);
     }
   };
 
@@ -287,62 +329,22 @@ function DeviceManagement() {
       key: 'apiStatus',
       width: 100,
       render: (_, record) => (
-        record.apiEnabled ? (
-          <Tag color="green" icon={<CheckCircleOutlined />}>
-            已启用
-          </Tag>
-        ) : (
-          <Tag color="default" icon={<CloseCircleOutlined />}>
-            未启用
-          </Tag>
-        )
+        record.apiEnabled ? 
+          <Tag color="green" icon={<CheckCircleOutlined />}>已启用</Tag> : 
+          <Tag color="default">未启用</Tag>
       ),
-    },
-    {
-      title: 'SIM卡状态',
-      key: 'simCards',
-      width: 200,
-      render: (_, record) => (
-        <Space direction="vertical" size={0}>
-          {record.simCards?.map(sim => {
-            const statusConfig = SIM_STATUS_MAP[sim.status] || { text: '未知', color: 'default' };
-            return (
-              <div key={sim.id}>
-                <Tag 
-                  color={
-                    statusConfig.color === 'success' ? 'green' : 
-                    statusConfig.color === 'error' ? 'red' : 
-                    statusConfig.color === 'warning' ? 'orange' : 
-                    statusConfig.color === 'processing' ? 'blue' : 
-                    'default'
-                  }
-                >
-                  卡槽{sim.slot}: {statusConfig.text}
-                </Tag>
-              </div>
-            );
-          })}
-        </Space>
-      ),
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-      key: 'description',
-      ellipsis: true,
-      width: 200,
     },
     {
       title: '最后活跃',
       dataIndex: 'lastActiveTime',
       key: 'lastActiveTime',
-      width: 180,
+      width: 160,
       render: (date) => date ? new Date(date).toLocaleString('zh-CN') : '-',
     },
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 100,
       fixed: 'right',
       render: (_, record) => {
         const menu = (
@@ -352,7 +354,7 @@ function DeviceManagement() {
               icon={<EditOutlined />}
               onClick={() => handleEdit(record)}
             >
-              编辑信息
+              编辑
             </Menu.Item>
             <Menu.Item 
               key="api" 
@@ -361,30 +363,40 @@ function DeviceManagement() {
             >
               API配置
             </Menu.Item>
+            {record.apiEnabled && (
+              <>
+                <Menu.Item 
+                  key="test" 
+                  icon={<SyncOutlined />}
+                  onClick={() => handleTestConnection(record)}
+                >
+                  测试连接
+                </Menu.Item>
+                <Menu.Item 
+                  key="reboot" 
+                  icon={<ReloadOutlined />}
+                  onClick={() => handleRebootDevice(record)}
+                >
+                  重启设备
+                </Menu.Item>
+              </>
+            )}
+            <Menu.Divider />
             <Menu.Item 
-              key="call" 
-              icon={<PhoneOutlined />}
-              onClick={() => handleCallControl(record)}
-              disabled={!record.apiEnabled}
-            >
-              电话控制
-            </Menu.Item>
-            <Menu.Item 
-              key="reboot" 
-              icon={<PoweroffOutlined />}
-              onClick={() => handleRebootDevice(record)}
-              disabled={!record.apiEnabled}
+              key="delete" 
+              icon={<DeleteOutlined />}
               danger
+              onClick={() => handleDelete(record.id)}
             >
-              重启设备
+              删除
             </Menu.Item>
           </Menu>
         );
 
         return (
           <Dropdown overlay={menu} trigger={['click']}>
-            <Button type="link">
-              操作 <DownOutlined />
+            <Button type="link" icon={<MoreOutlined />}>
+              操作
             </Button>
           </Dropdown>
         );
@@ -478,7 +490,7 @@ function DeviceManagement() {
           }}
           size="small"
           scroll={{ 
-            x: 1200,
+            x: 1000,
             y: 'calc(100vh - 280px)'
           }}
         />
@@ -487,288 +499,136 @@ function DeviceManagement() {
       {/* 编辑/新增设备弹窗 */}
       <Modal
         title={editingDevice ? '编辑设备' : '新增设备'}
-        visible={modalVisible}
-        onOk={handleSave}
-        onCancel={() => setModalVisible(false)}
-        width={600}
+        open={modalVisible}
+        onCancel={() => {
+          setModalVisible(false);
+          form.resetFields();
+        }}
+        footer={null}
+        width={500}
       >
-        <Form form={form} layout="vertical">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+        >
           <Form.Item
             name="devId"
             label="设备ID"
             rules={[
               { required: true, message: '请输入设备ID' },
-              { max: 50, message: '设备ID不能超过50个字符' }
+              { pattern: /^[a-zA-Z0-9_-]+$/, message: '只能包含字母、数字、下划线和连字符' }
             ]}
           >
-            <Input placeholder="输入设备唯一标识" disabled={editingDevice} />
+            <Input 
+              placeholder="请输入设备唯一标识" 
+              disabled={!!editingDevice}
+            />
           </Form.Item>
-          
+
           <Form.Item
             name="name"
             label="设备名称"
-            rules={[
-              { required: true, message: '请输入设备名称' },
-              { max: 100, message: '设备名称不能超过100个字符' }
-            ]}
+            rules={[{ required: true, message: '请输入设备名称' }]}
           >
-            <Input placeholder="输入设备名称" />
+            <Input placeholder="请输入设备名称" />
           </Form.Item>
-          
+
           <Form.Item
             name="status"
-            label="设备状态"
-            rules={[{ required: true, message: '请选择设备状态' }]}
+            label="状态"
+            initialValue="active"
           >
-            <Select placeholder="选择设备状态">
+            <Select>
               <Option value="active">在线</Option>
               <Option value="inactive">未激活</Option>
               <Option value="offline">离线</Option>
             </Select>
           </Form.Item>
-          
+
           <Form.Item
             name="description"
-            label="设备描述"
+            label="描述"
           >
-            <TextArea rows={3} placeholder="输入设备描述（可选）" />
+            <Input.TextArea 
+              rows={3} 
+              placeholder="设备描述信息（可选）" 
+            />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            <Space>
+              <Button onClick={() => {
+                setModalVisible(false);
+                form.resetFields();
+              }}>
+                取消
+              </Button>
+              <Button type="primary" htmlType="submit">
+                {editingDevice ? '更新' : '创建'}
+              </Button>
+            </Space>
           </Form.Item>
         </Form>
       </Modal>
 
       {/* API配置弹窗 */}
       <Modal
-        title={
-          <Space>
-            <ApiOutlined />
-            设备API配置 - {selectedDevice?.name}
-          </Space>
-        }
-        visible={apiConfigModalVisible}
-        onCancel={() => setApiConfigModalVisible(false)}
+        title={`API配置 - ${selectedDevice?.name}`}
+        open={apiModalVisible}
+        onCancel={() => {
+          setApiModalVisible(false);
+          apiForm.resetFields();
+        }}
+        footer={null}
         width={600}
-        footer={[
-          <Button key="test" 
-            onClick={handleTestConnection} 
-            loading={testingConnection}
-            disabled={!apiForm.getFieldValue('apiEnabled')}
-          >
-            测试连接
-          </Button>,
-          <Button key="cancel" onClick={() => setApiConfigModalVisible(false)}>
-            取消
-          </Button>,
-          <Button key="save" type="primary" onClick={handleSaveApiConfig}>
-            保存
-          </Button>
-        ]}
       >
-        <Form form={apiForm} layout="vertical">
+        <Form
+          form={apiForm}
+          layout="vertical"
+          onFinish={handleApiSubmit}
+        >
+          <Form.Item
+            name="apiUrl"
+            label="API地址"
+            rules={[
+              { type: 'url', message: '请输入有效的URL地址' }
+            ]}
+            extra="例如：http://192.168.1.100"
+          >
+            <Input placeholder="请输入设备API接口地址" />
+          </Form.Item>
+
+          <Form.Item
+            name="apiToken"
+            label="API Token"
+            extra="用于API访问认证的令牌"
+          >
+            <Input.Password placeholder="请输入API访问令牌" />
+          </Form.Item>
+
           <Form.Item
             name="apiEnabled"
+            label="启用API控制"
             valuePropName="checked"
           >
             <Switch checkedChildren="启用" unCheckedChildren="禁用" />
           </Form.Item>
-          
-          <Form.Item
-            name="apiUrl"
-            label="API接口地址"
-            rules={[
-              { required: true, message: '请输入API地址' },
-              { type: 'url', message: '请输入有效的URL' }
-            ]}
-            extra="例如：http://192.168.7.170（不包含/ctrl）"
-          >
-            <Input 
-              placeholder="http://192.168.7.170" 
-              prefix={<ApiOutlined />}
-            />
-          </Form.Item>
-          
-          <Form.Item
-            name="apiToken"
-            label="访问令牌"
-            rules={[{ required: true, message: '请输入访问令牌' }]}
-            extra="设备的API Token，用于身份验证"
-          >
-            <Input.Password 
-              placeholder="输入设备的API Token" 
-              prefix={<LockOutlined />}
-            />
-          </Form.Item>
-          
-          <Alert
-            message="配置说明"
-            description={
-              <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
-                <li>API地址：设备的HTTP接口地址，不包含路径</li>
-                <li>访问令牌：用于验证API请求的安全令牌</li>
-                <li>启用后可以远程控制设备接听/挂断电话、重启等操作</li>
-              </ul>
-            }
-            type="info"
-            showIcon
-          />
-        </Form>
-      </Modal>
 
-      {/* 电话控制弹窗 */}
-      <Modal
-        title={
-          <Space>
-            <PhoneOutlined />
-            电话控制 - {selectedDevice?.name}
-          </Space>
-        }
-        visible={callControlModalVisible}
-        onCancel={() => setCallControlModalVisible(false)}
-        width={700}
-        footer={null}
-      >
-        <Tabs defaultActiveKey="answer">
-          <TabPane 
-            tab={
-              <Space>
-                <PhoneOutlined />
-                接听设置
-              </Space>
-            } 
-            key="answer"
-          >
-            <Form form={callForm} layout="vertical">
-              <Form.Item
-                name="slot"
-                label="SIM卡槽"
-                initialValue={1}
-                rules={[{ required: true, message: '请选择SIM卡槽' }]}
-              >
-                <Select>
-                  <Option value={1}>卡槽 1</Option>
-                  <Option value={2}>卡槽 2</Option>
-                </Select>
-              </Form.Item>
-              
-              <Form.Item
-                name="duration"
-                label="接通后等待时长（秒）"
-                initialValue={55}
-                rules={[
-                  { required: true, message: '请输入等待时长' },
-                  { type: 'number', min: 1, max: 300, message: '时长应在1-300秒之间' }
-                ]}
-              >
-                <InputNumber 
-                  min={1} 
-                  max={300} 
-                  style={{ width: '100%' }}
-                  placeholder="输入接通后等待时长"
-                />
-              </Form.Item>
-              
-              <Form.Item
-                name="ttsContent"
-                label="TTS语音内容"
-                extra="接通后播放的语音内容，留空则不播放"
-              >
-                <TextArea 
-                  rows={3} 
-                  placeholder="输入要播放的语音内容，例如：您好，请稍等"
-                  maxLength={200}
-                  showCount
-                />
-              </Form.Item>
-              
-              <Form.Item
-                name="ttsRepeat"
-                label="TTS播放次数"
-                initialValue={2}
-              >
-                <InputNumber 
-                  min={1} 
-                  max={10} 
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-              
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="recording"
-                    valuePropName="checked"
-                    initialValue={true}
-                  >
-                    <Checkbox>录音</Checkbox>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="speaker"
-                    valuePropName="checked"
-                    initialValue={true}
-                  >
-                    <Checkbox>开启扬声器</Checkbox>
-                  </Form.Item>
-                </Col>
-              </Row>
-              
-              <Form.Item>
-                <Space style={{ width: '100%' }}>
-                  <Button 
-                    type="primary" 
-                    icon={<PhoneOutlined />}
-                    onClick={handleAnswerCall}
-                    loading={sendingCommand}
-                    block
-                  >
-                    接听电话
-                  </Button>
-                  <Button 
-                    danger
-                    icon={<CloseCircleOutlined />}
-                    onClick={handleHangUp}
-                    loading={sendingCommand}
-                    block
-                  >
-                    挂断电话
-                  </Button>
-                </Space>
-              </Form.Item>
-            </Form>
-          </TabPane>
-          
-          <TabPane 
-            tab={
-              <Space>
-                <PoweroffOutlined />
-                设备操作
-              </Space>
-            } 
-            key="device"
-          >
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              <Alert
-                message="危险操作"
-                description="重启设备会中断当前所有通话和操作，请谨慎使用"
-                type="warning"
-                showIcon
-              />
-              
-              <Button 
-                danger
-                icon={<PoweroffOutlined />}
-                onClick={() => {
-                  setCallControlModalVisible(false);
-                  handleRebootDevice(selectedDevice);
-                }}
-                block
-                size="large"
-              >
-                重启设备
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            <Space>
+              <Button onClick={() => {
+                setApiModalVisible(false);
+                apiForm.resetFields();
+              }}>
+                取消
+              </Button>
+              <Button type="primary" htmlType="submit">
+                保存配置
               </Button>
             </Space>
-          </TabPane>
-        </Tabs>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

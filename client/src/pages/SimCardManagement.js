@@ -49,7 +49,6 @@ function SimCardManagement() {
   });
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [deviceFilter, setDeviceFilter] = useState('');
   const [callControlModalVisible, setCallControlModalVisible] = useState(false);
   const [selectedSimCard, setSelectedSimCard] = useState(null);
   const [sendingCommand, setSendingCommand] = useState(false);
@@ -77,8 +76,7 @@ function SimCardManagement() {
         page,
         pageSize,
         search: searchText,
-        status: statusFilter,
-        deviceId: deviceFilter
+        status: statusFilter
       };
       const response = await api.get('/simcards', { params });
       setSimCards(response.data.data);
@@ -121,7 +119,7 @@ function SimCardManagement() {
     fetchSimCards();
     fetchDevices();
     fetchTtsTemplates();
-  }, [searchText, statusFilter, deviceFilter]);
+  }, [searchText, statusFilter]);
 
   // 自动刷新
   useEffect(() => {
@@ -323,28 +321,23 @@ function SimCardManagement() {
       width: 60,
     },
     {
-      title: '设备',
-      key: 'device',
-      width: 150,
+      title: 'SIM卡信息',
+      key: 'simInfo',
+      width: 250,
       render: (_, record) => (
         <div>
-          <div style={{ fontWeight: 500 }}>{record.device?.name}</div>
-          <div style={{ fontSize: 12, color: '#999' }}>{record.device?.devId}</div>
+          <div style={{ fontWeight: 500 }}>
+            {record.scName}
+            <Tag color="blue" style={{ marginLeft: 8 }}>卡槽{record.slot}</Tag>
+          </div>
+          <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+            设备：{record.device?.name || '-'}
+          </div>
+          <div style={{ fontSize: 11, color: '#999' }}>
+            ID：{record.device?.devId || '-'}
+          </div>
         </div>
       ),
-    },
-    {
-      title: '卡槽',
-      dataIndex: 'slot',
-      key: 'slot',
-      width: 80,
-      render: (slot) => `卡槽${slot}`,
-    },
-    {
-      title: 'SIM卡名称',
-      dataIndex: 'scName',
-      key: 'scName',
-      ellipsis: true,
     },
     {
       title: '手机号',
@@ -491,9 +484,9 @@ function SimCardManagement() {
             borderRadius: 6 
           }}>
             <Row gutter={[12, 12]} align="middle">
-              <Col xs={24} sm={12} md={6}>
+              <Col xs={24} sm={12} md={8}>
                 <Input
-                  placeholder="搜索名称/号码/IMSI/ICCID"
+                  placeholder="搜索：设备/SIM卡/手机号/IMSI/ICCID"
                   prefix={<SearchOutlined />}
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
@@ -502,29 +495,13 @@ function SimCardManagement() {
               </Col>
               <Col xs={12} sm={6} md={4}>
                 <Select
-                  placeholder="设备"
-                  style={{ width: '100%' }}
-                  value={deviceFilter}
-                  onChange={setDeviceFilter}
-                  allowClear
-                >
-                  <Option value="">全部设备</Option>
-                  {devices.map(device => (
-                    <Option key={device.id} value={device.id}>
-                      {device.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-              <Col xs={12} sm={6} md={3}>
-                <Select
-                  placeholder="状态"
+                  placeholder="SIM卡状态"
                   style={{ width: '100%' }}
                   value={statusFilter}
                   onChange={setStatusFilter}
                   allowClear
                 >
-                  <Option value="">全部</Option>
+                  <Option value="">全部状态</Option>
                   {Object.entries(SIM_STATUS_MAP).map(([value, config]) => (
                     <Option key={value} value={value}>
                       {config.text}
@@ -541,7 +518,7 @@ function SimCardManagement() {
                   刷新
                 </Button>
               </Col>
-              <Col xs={12} sm={6} md={4}>
+              <Col xs={24} sm={12} md={4}>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
@@ -583,7 +560,7 @@ function SimCardManagement() {
               }}
               size="small"
               scroll={{ 
-                x: 1700,
+                x: 1500,
                 y: 'calc(100vh - 380px)'
               }}
               rowClassName={(record) => {

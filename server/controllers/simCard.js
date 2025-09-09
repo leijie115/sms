@@ -13,30 +13,46 @@ const getSimCards = async (ctx) => {
       page = 1, 
       pageSize = 10, 
       search = '', 
-      status = '', 
-      deviceId = '' 
+      status = ''
     } = ctx.query;
     
     const offset = (page - 1) * pageSize;
     
     // 构建查询条件
     const where = {};
+    const deviceWhere = {};
     
+    // 搜索条件更新：同时搜索SIM卡信息和设备信息
     if (search) {
+      // 先查找匹配的设备
+      const matchedDevices = await Device.findAll({
+        where: {
+          [Op.or]: [
+            { name: { [Op.like]: `%${search}%` } },
+            { devId: { [Op.like]: `%${search}%` } }
+          ]
+        },
+        attributes: ['id']
+      });
+      
+      const deviceIds = matchedDevices.map(d => d.id);
+      
+      // 构建综合搜索条件
       where[Op.or] = [
         { scName: { [Op.like]: `%${search}%` } },
         { msIsdn: { [Op.like]: `%${search}%` } },
         { imsi: { [Op.like]: `%${search}%` } },
         { iccId: { [Op.like]: `%${search}%` } }
       ];
+      
+      // 如果有匹配的设备，添加设备ID条件
+      if (deviceIds.length > 0) {
+        where[Op.or].push({ deviceId: { [Op.in]: deviceIds } });
+      }
     }
     
     if (status) {
       where.status = status;
-    }
-    
-    if (deviceId) {
-      where.deviceId = deviceId;
     }
     
     // 查询数据 - 包含设备和TTS模板

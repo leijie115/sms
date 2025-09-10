@@ -31,6 +31,10 @@ function DeviceManagement() {
   });
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [apiModalLoading, setApiModalLoading] = useState(false);
+
+
 
   const api = axios.create({
     baseURL: '/api',
@@ -69,18 +73,40 @@ function DeviceManagement() {
   const handleAdd = () => {
     setEditingDevice(null);
     form.resetFields();
+    setModalLoading(false);  // 确保新增时没有加载状态
     setModalVisible(true);
   };
 
-  const handleEdit = (record) => {
-    setEditingDevice(record);
-    form.setFieldsValue({
-      devId: record.devId,
-      name: record.name,
-      status: record.status,
-      description: record.description
-    });
-    setModalVisible(true);
+  const handleEdit = async (record) => {
+    try {
+      // 先打开 Modal 并显示加载状态
+      setModalVisible(true);
+      setModalLoading(true);
+      
+      // 清空表单，避免显示旧数据
+      form.resetFields();
+      
+      // 获取最新的设备数据
+      const response = await api.get(`/devices/${record.id}`);
+      const latestData = response.data.data || response.data;
+      
+      setEditingDevice(latestData);
+      form.setFieldsValue({
+        devId: latestData.devId,
+        name: latestData.name,
+        status: latestData.status,
+        description: latestData.description
+      });
+      
+    } catch (error) {
+      message.error('获取设备信息失败：' + (error.response?.data?.message || error.message));
+      console.error('Failed to fetch device:', error);
+      // 获取失败时关闭 Modal
+      setModalVisible(false);
+    } finally {
+      // 无论成功还是失败，都要关闭加载状态
+      setModalLoading(false);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -103,6 +129,8 @@ function DeviceManagement() {
 
   const handleSubmit = async (values) => {
     try {
+      setModalLoading(true);
+      
       if (editingDevice) {
         await api.put(`/devices/${editingDevice.id}`, values);
         message.success('更新成功');
@@ -113,32 +141,53 @@ function DeviceManagement() {
       
       setModalVisible(false);
       form.resetFields();
+      setEditingDevice(null);
       fetchDevices(pagination.current, pagination.pageSize);
     } catch (error) {
       message.error(error.response?.data?.message || '操作失败');
+    } finally {
+      setModalLoading(false);
     }
   };
 
   // API配置
-  const handleApiConfig = (device) => {
-    setSelectedDevice(device);
-    apiForm.setFieldsValue({
-      apiUrl: device.apiUrl || '',
-      apiToken: device.apiToken || '',
-      apiEnabled: device.apiEnabled || false
-    });
-    setApiModalVisible(true);
+  const handleApiConfig = async (device) => {
+    try {
+      setApiModalVisible(true);
+      setApiModalLoading(true);
+      
+      // 获取最新的设备数据
+      const response = await api.get(`/devices/${device.id}`);
+      const latestData = response.data.data || response.data;
+      
+      setSelectedDevice(latestData);
+      apiForm.setFieldsValue({
+        apiUrl: latestData.apiUrl || '',
+        apiToken: latestData.apiToken || '',
+        apiEnabled: latestData.apiEnabled || false
+      });
+    } catch (error) {
+      message.error('获取设备信息失败');
+      setApiModalVisible(false);
+    } finally {
+      setApiModalLoading(false);
+    }
   };
 
   const handleApiSubmit = async (values) => {
     try {
-      const response = await api.put(`/devices/${selectedDevice.id}/api`, values);
+      setApiModalLoading(true);
+      
+      await api.put(`/devices/${selectedDevice.id}/api`, values);
       message.success('API配置更新成功');
+      
       setApiModalVisible(false);
       apiForm.resetFields();
       fetchDevices(pagination.current, pagination.pageSize);
     } catch (error) {
-      message.error('更新失败');
+      message.error('更新失败：' + (error.response?.data?.message || error.message));
+    } finally {
+      setApiModalLoading(false);
     }
   };
 
@@ -500,29 +549,37 @@ function DeviceManagement() {
       <Modal
         title={editingDevice ? '编辑设备' : '新增设备'}
         open={modalVisible}
+        confirmLoading={modalLoading}
         onCancel={() => {
-          setModalVisible(false);
-          form.resetFields();
+          // 如果正在加载，不允许关闭
+          if (!modalLoading) {
+            setModalVisible(false);
+            form.resetFields();
+            setEditingDevice(null);
+          }
         }}
         footer={null}
-        width={500}
+        width={600}
+        maskClosable={!modalLoading}  // 加载时禁止点击遮罩关闭
+        closable={!modalLoading}  // 加载时禁止点击关闭按钮
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
+          initialValues={{ status: 'active' }}
         >
           <Form.Item
             name="devId"
             label="设备ID"
             rules={[
               { required: true, message: '请输入设备ID' },
-              { pattern: /^[a-zA-Z0-9_-]+$/, message: '只能包含字母、数字、下划线和连字符' }
+              { pattern: /^[a-zA-Z0-9]+$/, message: '设备ID只能包含字母和数字' }
             ]}
           >
             <Input 
-              placeholder="请输入设备唯一标识" 
-              disabled={!!editingDevice}
+              placeholder="请输入设备ID" 
+              disabled={editingDevice !== null}
             />
           </Form.Item>
 
@@ -537,9 +594,9 @@ function DeviceManagement() {
           <Form.Item
             name="status"
             label="状态"
-            initialValue="active"
+            rules={[{ required: true, message: '请选择状态' }]}
           >
-            <Select>
+            <Select placeholder="请选择状态">
               <Option value="active">在线</Option>
               <Option value="inactive">未激活</Option>
               <Option value="offline">离线</Option>
@@ -552,19 +609,27 @@ function DeviceManagement() {
           >
             <Input.TextArea 
               rows={3} 
-              placeholder="设备描述信息（可选）" 
+              placeholder="请输入设备描述（可选）" 
             />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => {
-                setModalVisible(false);
-                form.resetFields();
-              }}>
+              <Button 
+                onClick={() => {
+                  setModalVisible(false);
+                  form.resetFields();
+                  setEditingDevice(null);
+                }}
+                disabled={modalLoading}
+              >
                 取消
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                loading={modalLoading}
+              >
                 {editingDevice ? '更新' : '创建'}
               </Button>
             </Space>
@@ -576,12 +641,17 @@ function DeviceManagement() {
       <Modal
         title={`API配置 - ${selectedDevice?.name}`}
         open={apiModalVisible}
+        confirmLoading={apiModalLoading}
         onCancel={() => {
-          setApiModalVisible(false);
-          apiForm.resetFields();
+          if (!apiModalLoading) {
+            setApiModalVisible(false);
+            apiForm.resetFields();
+          }
         }}
         footer={null}
         width={600}
+        maskClosable={!apiModalLoading}
+        closable={!apiModalLoading}
       >
         <Form
           form={apiForm}
@@ -616,18 +686,25 @@ function DeviceManagement() {
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
-            <Space>
-              <Button onClick={() => {
+          <Space>
+            <Button 
+              onClick={() => {
                 setApiModalVisible(false);
                 apiForm.resetFields();
-              }}>
-                取消
-              </Button>
-              <Button type="primary" htmlType="submit">
-                保存配置
-              </Button>
-            </Space>
-          </Form.Item>
+              }}
+              disabled={apiModalLoading}
+            >
+              取消
+            </Button>
+            <Button 
+              type="primary" 
+              htmlType="submit"
+              loading={apiModalLoading}
+            >
+              保存配置
+            </Button>
+          </Space>
+        </Form.Item>
         </Form>
       </Modal>
     </div>

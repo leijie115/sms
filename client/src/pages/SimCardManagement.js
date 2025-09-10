@@ -61,6 +61,8 @@ function SimCardManagement() {
   const [ttsInputMode, setTtsInputMode] = useState('template');
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [customTtsContent, setCustomTtsContent] = useState('');
+  const [modalLoading, setModalLoading] = useState(false);
+
 
   const api = axios.create({
     baseURL: '/api',
@@ -143,29 +145,52 @@ function SimCardManagement() {
   }, [simCards]);
 
   const handleEdit = async (record) => {
-    setEditingSimCard(record);
-    form.setFieldsValue({
-      deviceId: record.deviceId,
-      slot: record.slot,
-      msIsdn: record.msIsdn,
-      imsi: record.imsi,
-      iccId: record.iccId,
-      scName: record.scName,
-      status: record.status,
-      // 自动接听配置
-      autoAnswer: record.autoAnswer || false,
-      autoAnswerDelay: record.autoAnswerDelay || 5,
-      autoAnswerTtsTemplateId: record.autoAnswerTtsTemplateId,
-      autoAnswerDuration: record.autoAnswerDuration || 55,
-      autoAnswerTtsRepeat: record.autoAnswerTtsRepeat || 2,
-      autoAnswerPauseTime: record.autoAnswerPauseTime || 1,
-      autoAnswerAfterAction: record.autoAnswerAfterAction || 1
-    });
-    setModalVisible(true);
+    try {
+      // 先打开 Modal 并显示加载状态
+      setModalVisible(true);
+      setModalLoading(true);
+      
+      // 清空表单，避免显示旧数据
+      form.resetFields();
+      
+      // 获取最新的SIM卡数据
+      const response = await api.get(`/simcards/${record.id}`);
+      const latestData = response.data.data || response.data;
+      
+      setEditingSimCard(latestData);
+      form.setFieldsValue({
+        deviceId: latestData.deviceId,
+        slot: latestData.slot,
+        msIsdn: latestData.msIsdn,
+        imsi: latestData.imsi,
+        iccId: latestData.iccId,
+        scName: latestData.scName,
+        status: latestData.status,
+        // 自动接听配置
+        autoAnswer: latestData.autoAnswer || false,
+        autoAnswerDelay: latestData.autoAnswerDelay || 5,
+        autoAnswerTtsTemplateId: latestData.autoAnswerTtsTemplateId,
+        autoAnswerDuration: latestData.autoAnswerDuration || 55,
+        autoAnswerTtsRepeat: latestData.autoAnswerTtsRepeat || 2,
+        autoAnswerPauseTime: latestData.autoAnswerPauseTime || 1,
+        autoAnswerAfterAction: latestData.autoAnswerAfterAction || 1
+      });
+      
+    } catch (error) {
+      message.error('获取SIM卡信息失败：' + (error.response?.data?.message || error.message));
+      console.error('Failed to fetch SIM card:', error);
+      // 获取失败时关闭 Modal
+      setModalVisible(false);
+    } finally {
+      // 无论成功还是失败，都要关闭加载状态
+      setModalLoading(false);
+    }
   };
 
   const handleSubmit = async (values) => {
     try {
+      setModalLoading(true);
+      
       if (editingSimCard) {
         await api.put(`/simcards/${editingSimCard.id}`, values);
         message.success('更新成功');
@@ -180,6 +205,8 @@ function SimCardManagement() {
       fetchSimCards(pagination.current, pagination.pageSize);
     } catch (error) {
       message.error(error.response?.data?.message || '操作失败');
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -646,13 +673,19 @@ function SimCardManagement() {
       <Modal
         title={editingSimCard ? '编辑SIM卡' : '新建SIM卡'}
         open={modalVisible}
+        confirmLoading={modalLoading}
         onCancel={() => {
-          setModalVisible(false);
-          form.resetFields();
-          setEditingSimCard(null);
+          // 如果正在加载，不允许关闭
+          if (!modalLoading) {
+            setModalVisible(false);
+            form.resetFields();
+            setEditingSimCard(null);
+          }
         }}
         footer={null}
         width={700}
+        maskClosable={!modalLoading}  // 加载时禁止点击遮罩关闭
+        closable={!modalLoading}  // 加载时禁止点击关闭按钮
       >
         <Form
           form={form}
@@ -879,21 +912,28 @@ function SimCardManagement() {
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
-            <Space>
-              <Button onClick={() => {
+          <Space>
+            <Button 
+              onClick={() => {
                 setModalVisible(false);
                 form.resetFields();
                 setEditingSimCard(null);
-              }}>
-                取消
-              </Button>
-              <Button type="primary" htmlType="submit">
-                {editingSimCard ? '更新' : '创建'}
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
+              }}
+              disabled={modalLoading}
+            >
+              取消
+            </Button>
+            <Button 
+              type="primary" 
+              htmlType="submit"
+              loading={modalLoading}
+            >
+              {editingSimCard ? '更新' : '创建'}
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </Modal>
 
       {/* TTS模板编辑弹窗 */}
       <Modal

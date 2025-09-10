@@ -371,8 +371,8 @@ function SimCardManagement() {
         phoneNumber: values.phoneNumber,
         content: values.content
       });
-      
-      if (response.success) {
+
+      if (response.data.success) {
         message.success('短信发送成功');
         setSmsModalVisible(false);
         smsForm.resetFields();

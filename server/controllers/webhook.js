@@ -74,6 +74,11 @@ const processWebhookData = async (requestInfo) => {
         console.log('📱 检测到新短信，开始处理...');
         await processSmsMessage(requestInfo.body);
         break;
+      case 502:
+        // 短信消息（发送成功）
+        console.log('📤 检测到短信发送成功，开始记录...');
+        await processSentSmsMessage(requestInfo.body);
+        break;
       case 601:
         // 来电振铃
         console.log('📞 检测到来电振铃...');
@@ -873,6 +878,134 @@ const processCallEnded = async (data) => {
     throw error;
   }
 };
+
+/**
+ * 处理发送的短信消息（type=502）
+ * @param {Object} data - 发送短信数据
+ */
+const processSentSmsMessage = async (data) => {
+  const t = await SmsMessage.sequelize.transaction();
+  
+  try {
+    // 1. 查找设备
+    const device = await Device.findOne({
+      where: { devId: data.devId },
+      transaction: t
+    });
+    
+    if (!device) {
+      console.log('⚠️ 设备不存在:', data.devId);
+      await t.rollback();
+      return;
+    }
+    
+    // 更新设备状态
+    await device.update({
+      status: 'active',
+      lastActiveTime: new Date()
+    }, { transaction: t });
+    
+    // 2. 查找或创建SIM卡
+    let simCard = await SimCard.findOne({
+      where: {
+        deviceId: device.id,
+        slot: data.slot
+      },
+      transaction: t
+    });
+    
+    if (!simCard) {
+      console.log('🆕 创建新SIM卡记录（发送短信）');
+      simCard = await SimCard.create({
+        deviceId: device.id,
+        slot: data.slot,
+        imsi: data.imsi,
+        iccId: data.iccId,
+        msIsdn: data.msIsdn,
+        scName: data.scName || `卡槽${data.slot}`,
+        status: '204',
+        lastActiveTime: new Date()
+      }, { transaction: t });
+    } else {
+      // 更新SIM卡信息
+      const updateData = {
+        lastActiveTime: new Date()
+      };
+      
+      if (data.imsi) updateData.imsi = data.imsi;
+      if (data.iccId) updateData.iccId = data.iccId;
+      if (data.msIsdn) updateData.msIsdn = data.msIsdn;
+      if (data.scName) updateData.scName = data.scName;
+      
+      await simCard.update(updateData, { transaction: t });
+    }
+    
+    // 3. 保存发送的短信到数据库
+    const sentMessage = await SmsMessage.create({
+      simCardId: simCard.id,
+      deviceId: device.id,
+      msgType: 'sms',
+      netCh: data.netCh,
+      msgTs: data.msgTs || data.devSmsTs,
+      phNum: data.phNum,  // 接收方号码
+      smsBd: `[发送] ${data.smsBd}`,  // 在内容前加上[发送]标记
+      smsTs: data.devSmsTs || data.msgTs,
+      rawData: {
+        ...data,
+        type: 'sent',  // 标记为发送类型
+        sender: data.msIsdn || simCard.msIsdn,  // 发送方号码
+        receiver: data.phNum,  // 接收方号码
+        tid: data.tid  // 事务ID
+      }
+    }, { transaction: t });
+    
+    await t.commit();
+    
+    // 输出日志
+    console.log('✅ 短信发送记录已保存！');
+    console.log(`   发送方: ${simCard.scName} (${data.msIsdn || simCard.msIsdn})`);
+    console.log(`   接收方: ${data.phNum}`);
+    console.log(`   内容: ${data.smsBd.length > 50 ? data.smsBd.substring(0, 50) + '...' : data.smsBd}`);
+    console.log(`   消息ID: ${sentMessage.id}`);
+    console.log(`   事务ID: ${data.tid}`);
+    
+    // 4. 检测验证码（如果有）
+    const codeMatch = data.smsBd?.match(/(\d{4,8})/);
+    if (codeMatch) {
+      console.log('🔢 发送的短信包含数字:', codeMatch[1]);
+    }
+    
+    // 5. 统计发送给该号码的短信数量
+    const sentCount = await SmsMessage.count({
+      where: { 
+        phNum: data.phNum,
+        rawData: {
+          type: 'sent'
+        }
+      }
+    });
+    console.log(`📊 已向该号码(${data.phNum})发送了 ${sentCount} 条短信`);
+    
+    // 6. 异步转发发送记录（可选，根据需要决定是否转发）
+    // 注意：一般发送的短信不需要转发，但如果需要记录所有短信活动，可以启用
+    /*
+    setImmediate(async () => {
+      try {
+        // 可以根据转发设置决定是否转发发送的短信
+        await forwardService.forwardMessage(sentMessage, device, simCard);
+      } catch (error) {
+        console.error('转发发送短信记录失败:', error);
+      }
+    });
+    */
+    
+  } catch (error) {
+    await t.rollback();
+    console.error('❌ 处理发送短信记录失败:', error);
+    throw error;
+  }
+};
+
 
 /**
  * 获取 Webhook 日志

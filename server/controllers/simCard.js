@@ -502,6 +502,124 @@ const hangUp = async (ctx) => {
   }
 };
 
+/**
+ * 发送短信
+ */
+const sendSms = async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const { phoneNumber, content } = ctx.request.body;
+    
+    // 验证参数
+    if (!phoneNumber || !content) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '手机号码和短信内容不能为空'
+      };
+      return;
+    }
+    
+    // 查找SIM卡信息
+    const simCard = await SimCard.findByPk(id, {
+      include: [{
+        model: Device,
+        as: 'device'
+      }]
+    });
+    
+    if (!simCard) {
+      ctx.status = 404;
+      ctx.body = {
+        success: false,
+        message: 'SIM卡不存在'
+      };
+      return;
+    }
+    
+    // 检查设备API是否启用
+    if (!simCard.device.apiEnabled) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '设备未启用API控制'
+      };
+      return;
+    }
+    
+    // 检查设备API配置
+    if (!simCard.device.apiUrl || !simCard.device.apiToken) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '设备API配置不完整'
+      };
+      return;
+    }
+    
+    // 调用设备API发送短信
+    const axios = require('axios');
+    const tid = Date.now().toString(); // 使用时间戳作为tid
+    
+    const apiUrl = `${simCard.device.apiUrl}/ctrl`;
+    const params = {
+      token: simCard.device.apiToken,
+      cmd: 'sendsms',
+      tid: tid,
+      p1: simCard.slot,
+      p2: phoneNumber,
+      p3: content
+    };
+    
+    try {
+      const response = await axios.get(apiUrl, { 
+        params,
+        timeout: 10000 
+      });
+      
+      if (response.data.code === 0) {
+        // 记录发送的短信（可选，需要创建新表或使用SmsMessage表）
+        // await SmsMessage.create({
+        //   deviceId: simCard.deviceId,
+        //   simCardId: simCard.id,
+        //   phNum: phoneNumber,
+        //   smsBd: content,
+        //   msgType: 'sent', // 标记为发送的短信
+        //   smsTs: Math.floor(Date.now() / 1000)
+        // });
+        
+        ctx.body = {
+          success: true,
+          message: '短信发送成功',
+          data: {
+            tid: tid
+          }
+        };
+      } else {
+        ctx.status = 400;
+        ctx.body = {
+          success: false,
+          message: response.data.msg || '短信发送失败'
+        };
+      }
+    } catch (apiError) {
+      ctx.status = 500;
+      ctx.body = {
+        success: false,
+        message: '调用设备API失败：' + apiError.message
+      };
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = {
+      success: false,
+      message: '发送短信失败',
+      error: error.message
+    };
+  }
+};
+
+
 module.exports = {
   getSimCards,
   getSimCard,
@@ -510,5 +628,6 @@ module.exports = {
   deleteSimCard,
   // 新增的电话控制
   answerCall,
-  hangUp
+  hangUp,
+  sendSms
 };

@@ -7,7 +7,7 @@ import {
 import { 
   PlusOutlined, EditOutlined, PhoneOutlined, PhoneFilled,
   SearchOutlined, ReloadOutlined, CreditCardOutlined, CloseCircleOutlined,
-  DeleteOutlined, CheckOutlined, SoundOutlined
+  DeleteOutlined, CheckOutlined, SoundOutlined, SendOutlined, MessageOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -42,6 +42,7 @@ function SimCardManagement() {
   const [form] = Form.useForm();
   const [callForm] = Form.useForm();
   const [ttsForm] = Form.useForm();
+  const [smsForm] = Form.useForm();
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -62,6 +63,11 @@ function SimCardManagement() {
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [customTtsContent, setCustomTtsContent] = useState('');
   const [modalLoading, setModalLoading] = useState(false);
+
+
+  // 新增：短信发送相关状态
+  const [smsModalVisible, setSmsModalVisible] = useState(false);
+  const [sendingSms, setSendingSms] = useState(false);
 
 
   const api = axios.create({
@@ -340,6 +346,47 @@ function SimCardManagement() {
     }
   };
 
+  // 新增：打开发送短信弹窗
+  const handleSendSms = (simCard) => {
+    if (!simCard.device?.apiEnabled) {
+      message.warning('请先配置并启用设备API');
+      return;
+    }
+    
+    if (simCard.status !== '204') {
+      message.warning('SIM卡状态未就绪，无法发送短信');
+      return;
+    }
+    
+    setSelectedSimCard(simCard);
+    smsForm.resetFields();
+    setSmsModalVisible(true);
+  };
+
+  // 新增：发送短信
+  const handleSmsSubmit = async (values) => {
+    setSendingSms(true);
+    try {
+      const response = await api.post(`/simcards/${selectedSimCard.id}/send-sms`, {
+        phoneNumber: values.phoneNumber,
+        content: values.content
+      });
+      
+      if (response.success) {
+        message.success('短信发送成功');
+        setSmsModalVisible(false);
+        smsForm.resetFields();
+      } else {
+        message.error(response.message || '短信发送失败');
+      }
+    } catch (error) {
+      message.error('短信发送失败：' + (error.response?.data?.message || error.message));
+    } finally {
+      setSendingSms(false);
+    }
+  };
+
+
   const columns = [
     {
       title: 'ID',
@@ -455,7 +502,7 @@ function SimCardManagement() {
     {
       title: '操作',
       key: 'action',
-      width: 80,
+      width: 200,
       fixed: 'right',
       render: (_, record) => {
         const isRinging = record.callStatus === 'ringing';
@@ -475,6 +522,15 @@ function SimCardManagement() {
                 {isRinging ? '接听' : '挂断'}
               </Button>
             )}
+            <Button
+              type="link"
+              size="small"
+              icon={<MessageOutlined />}
+              onClick={() => handleSendSms(record)}
+              disabled={!record.device?.apiEnabled || record.status !== '204'}
+            >
+              发短信
+            </Button>
             <Button
               type="link"
               size="small"
@@ -587,7 +643,7 @@ function SimCardManagement() {
               }}
               size="small"
               scroll={{ 
-                x: 1000,
+                x: 1100,
                 y: 'calc(100vh - 380px)'
               }}
               rowClassName={(record) => {
@@ -668,6 +724,108 @@ function SimCardManagement() {
           />
         </TabPane>
       </Tabs>
+
+      {/* 新增：发送短信弹窗 */}
+      <Modal
+        title={
+          <Space>
+            <SendOutlined />
+            发送短信
+          </Space>
+        }
+        open={smsModalVisible}
+        onCancel={() => {
+          if (!sendingSms) {
+            setSmsModalVisible(false);
+            smsForm.resetFields();
+            setSelectedSimCard(null);
+          }
+        }}
+        footer={null}
+        width={500}
+        maskClosable={!sendingSms}
+        closable={!sendingSms}
+      >
+        <Form
+          form={smsForm}
+          layout="vertical"
+          onFinish={handleSmsSubmit}
+        >
+          <div style={{ 
+            marginBottom: 16, 
+            padding: 12, 
+            background: '#f0f9ff', 
+            borderRadius: 6,
+            border: '1px solid #bae7ff'
+          }}>
+            <Space direction="vertical" style={{ width: '100%' }} size={4}>
+              <div>
+                <strong>设备：</strong>{selectedSimCard?.device?.name}
+              </div>
+              <div>
+                <strong>SIM卡：</strong>{selectedSimCard?.scName}（卡槽{selectedSimCard?.slot}）
+              </div>
+              <div>
+                <strong>手机号：</strong>{selectedSimCard?.msIsdn || '未知'}
+              </div>
+            </Space>
+          </div>
+
+          <Form.Item
+            name="phoneNumber"
+            label="接收号码"
+            rules={[
+              { required: true, message: '请输入接收号码' },
+              { pattern: /^[\d+]+$/, message: '请输入有效的手机号码' }
+            ]}
+          >
+            <Input 
+              placeholder="请输入接收方手机号码" 
+              prefix={<PhoneOutlined />}
+              maxLength={20}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="content"
+            label="短信内容"
+            rules={[
+              { required: true, message: '请输入短信内容' },
+              { max: 500, message: '短信内容不能超过500个字符' }
+            ]}
+          >
+            <TextArea 
+              rows={4} 
+              placeholder="请输入短信内容"
+              showCount
+              maxLength={500}
+            />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            <Space>
+              <Button 
+                onClick={() => {
+                  setSmsModalVisible(false);
+                  smsForm.resetFields();
+                  setSelectedSimCard(null);
+                }}
+                disabled={sendingSms}
+              >
+                取消
+              </Button>
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                loading={sendingSms}
+                icon={<SendOutlined />}
+              >
+                发送
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
 
       {/* 编辑/新建SIM卡弹窗 */}
       <Modal

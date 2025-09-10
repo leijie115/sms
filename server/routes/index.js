@@ -44,6 +44,7 @@ router.get('/simcards', authMiddleware, simCardController.getSimCards);
 router.get('/simcards/:id', authMiddleware, simCardController.getSimCard);
 router.post('/simcards', authMiddleware, simCardController.createSimCard);
 router.put('/simcards/:id', authMiddleware, simCardController.updateSimCard);
+router.post('/simcards/:id/send-sms', authMiddleware, simCardController.sendSms);
 // router.delete('/simcards/:id', authMiddleware, simCardController.deleteSimCard); // 移除删除功能
 
 // 新增电话控制路由

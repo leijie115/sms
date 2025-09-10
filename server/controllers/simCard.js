@@ -501,7 +501,6 @@ const hangUp = async (ctx) => {
     };
   }
 };
-
 /**
  * 发送短信
  */
@@ -578,21 +577,38 @@ const sendSms = async (ctx) => {
       });
       
       if (response.data.code === 0) {
-        // 记录发送的短信（可选，需要创建新表或使用SmsMessage表）
-        // await SmsMessage.create({
-        //   deviceId: simCard.deviceId,
-        //   simCardId: simCard.id,
-        //   phNum: phoneNumber,
-        //   smsBd: content,
-        //   msgType: 'sent', // 标记为发送的短信
-        //   smsTs: Math.floor(Date.now() / 1000)
-        // });
+        // 保存发送的短信到数据库
+        const sentMessage = await SmsMessage.create({
+          deviceId: simCard.deviceId,
+          simCardId: simCard.id,
+          msgType: 'sms',  // 使用已有的枚举值 'sms'
+          netCh: simCard.slot,  // 使用卡槽号作为网络通道
+          msgTs: Math.floor(Date.now() / 1000),  // 消息时间戳
+          phNum: phoneNumber,  // 接收方号码
+          smsBd: `[发送] ${content}`,  // 在内容前加上[发送]标记以区分
+          smsTs: Math.floor(Date.now() / 1000),  // 短信时间戳
+          rawData: {
+            type: 'sent',  // 在原始数据中标记为发送类型
+            tid: tid,
+            sender: simCard.msIsdn || simCard.scName,  // 发送方号码或名称
+            receiver: phoneNumber,
+            content: content,
+            timestamp: new Date().toISOString()
+          }
+        });
+        
+        console.log(`✅ 短信发送成功并已保存到数据库`);
+        console.log(`   发送方: ${simCard.scName} (${simCard.msIsdn})`);
+        console.log(`   接收方: ${phoneNumber}`);
+        console.log(`   内容: ${content}`);
+        console.log(`   记录ID: ${sentMessage.id}`);
         
         ctx.body = {
           success: true,
           message: '短信发送成功',
           data: {
-            tid: tid
+            tid: tid,
+            messageId: sentMessage.id  // 返回保存的消息ID
           }
         };
       } else {
@@ -610,6 +626,7 @@ const sendSms = async (ctx) => {
       };
     }
   } catch (error) {
+    console.error('❌ 发送短信失败:', error);
     ctx.status = 500;
     ctx.body = {
       success: false,

@@ -318,12 +318,12 @@ function SimCardManagement() {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 60,
+      width: 20,
     },
     {
       title: 'SIM卡信息',
       key: 'simInfo',
-      width: 250,
+      width: 100,
       render: (_, record) => (
         <div>
           <div style={{ fontWeight: 500 }}>
@@ -343,14 +343,14 @@ function SimCardManagement() {
       title: '手机号',
       dataIndex: 'msIsdn',
       key: 'msIsdn',
-      width: 150,
+      width: 80,
       render: (text) => text || '-',
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      width: 120,
+      width: 60,
       render: (status) => {
         const config = SIM_STATUS_MAP[status] || { text: status, color: 'default' };
         return (
@@ -363,7 +363,7 @@ function SimCardManagement() {
     {
       title: '通话状态',
       key: 'callStatus',
-      width: 140,
+      width: 60,
       render: (_, record) => {
         const callStatus = record.callStatus || 'idle';
         const config = CALL_STATUS_MAP[callStatus];
@@ -388,7 +388,7 @@ function SimCardManagement() {
     {
       title: '自动接听',
       key: 'autoAnswer',
-      width: 100,
+      width: 50,
       render: (_, record) => {
         if (record.autoAnswer) {
           return (
@@ -403,7 +403,7 @@ function SimCardManagement() {
     {
       title: '最后来电',
       key: 'lastCall',
-      width: 180,
+      width: 110,
       render: (_, record) => {
         if (record.lastCallNumber) {
           return (
@@ -422,13 +422,13 @@ function SimCardManagement() {
       title: '最后活跃',
       dataIndex: 'lastActiveTime',
       key: 'lastActiveTime',
-      width: 160,
+      width: 140,
       render: (date) => date ? new Date(date).toLocaleString('zh-CN') : '-',
     },
     {
       title: '操作',
       key: 'action',
-      width: 160,
+      width: 80,
       fixed: 'right',
       render: (_, record) => {
         const isRinging = record.callStatus === 'ringing';
@@ -560,7 +560,7 @@ function SimCardManagement() {
               }}
               size="small"
               scroll={{ 
-                x: 1500,
+                x: 1000,
                 y: 'calc(100vh - 380px)'
               }}
               rowClassName={(record) => {

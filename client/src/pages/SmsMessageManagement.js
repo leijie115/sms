@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Table, Button, Space, Modal, Input, Select, DatePicker,
-  Tag, message, Row, Col, Typography, Card, Statistic, Descriptions 
+  Tag, message, Row, Col, Typography, Card, Statistic, Descriptions, Tooltip
 } from 'antd';
 import { 
   SearchOutlined, ReloadOutlined, MessageOutlined, 
@@ -152,7 +152,7 @@ function SmsMessageManagement() {
       title: '时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 160,
+      width: 170,
       render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
@@ -166,6 +166,9 @@ function SmsMessageManagement() {
           <div style={{ fontSize: 11, color: '#999' }}>
             {record.simCard?.scName} (卡槽{record.simCard?.slot})
           </div>
+          <div style={{ fontSize: 11, color: '#1890ff', marginTop: 2 }}>
+          📱 {record.simCard?.msIsdn || '未知号码'}
+         </div>
         </div>
       ),
     },
@@ -185,25 +188,44 @@ function SmsMessageManagement() {
       dataIndex: 'smsBd',
       key: 'smsBd',
       ellipsis: true,
-      render: (text) => {
+      render: (text, record) => {
+        // 检查是否是发送的短信
+        const isSent = text && text.startsWith('[发送]');
+        
+        // 如果是发送的短信，去掉[发送]标记显示
+        const displayText = isSent ? text.substring(5).trim() : text;
+        
         // 检测验证码
-        const codeMatch = text?.match(/(\d{4,6})/);
-        const hasCode = codeMatch && text.includes('验证');
+        const codeMatch = record.msgType !== 'call' ? displayText?.match(/(\d{4,8})/) : null;
         
         return (
-          <div>
-            {hasCode && (
-              <Tag color="blue" style={{ marginBottom: 4 }}>
-                验证码: {codeMatch[1]}
+          <div style={{ position: 'relative' }}>
+            {isSent && (
+              <Tag color="blue" style={{ 
+                position: 'absolute', 
+                top: -5, 
+                left: -5,
+                fontSize: 10,
+                padding: '0 4px',
+                height: 16,
+                lineHeight: '16px'
+              }}>
+                发送
               </Tag>
             )}
-            <div style={{ 
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>
-              {text}
-            </div>
+            <Tooltip title={displayText}>
+              <span style={{ 
+                display: 'block',
+                paddingTop: isSent ? 12 : 0
+              }}>
+                {displayText?.length > 50 ? `${displayText.substring(0, 50)}...` : displayText}
+                {codeMatch && (
+                  <Tag color="orange" style={{ marginLeft: 8 }}>
+                    验证码: {codeMatch[1]}
+                  </Tag>
+                )}
+              </span>
+            </Tooltip>
           </div>
         );
       },
@@ -391,6 +413,16 @@ function SmsMessageManagement() {
             <Descriptions.Item label="消息ID">
               {selectedMessage.id}
             </Descriptions.Item>
+            <Descriptions.Item label="消息类型">
+            {selectedMessage.msgType === 'sms' ? (
+              <Tag color="green">短信</Tag>
+            ) : (
+              <Tag color="blue">来电</Tag>
+            )}
+            {selectedMessage.smsBd?.startsWith('[发送]') && (
+              <Tag color="blue" style={{ marginLeft: 8 }}>发送</Tag>
+            )}
+          </Descriptions.Item>
             <Descriptions.Item label="接收时间">
               {dayjs(selectedMessage.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </Descriptions.Item>
@@ -402,17 +434,42 @@ function SmsMessageManagement() {
               <br />
               号码: {selectedMessage.simCard?.msIsdn}
             </Descriptions.Item>
-            <Descriptions.Item label="发送方号码">
+            <Descriptions.Item label={selectedMessage.smsBd?.startsWith('[发送]') ? '接收方号码' : '发送方号码'}>
+            <span style={{ fontFamily: 'monospace', fontSize: 14 }}>
               {selectedMessage.phNum}
-            </Descriptions.Item>
-            <Descriptions.Item label="短信内容">
-              <TextArea 
-                value={selectedMessage.smsBd} 
-                readOnly 
-                autoSize={{ minRows: 3, maxRows: 10 }}
-                style={{ resize: 'none', background: '#f5f5f5' }}
-              />
-            </Descriptions.Item>
+            </span>
+          </Descriptions.Item>
+          <Descriptions.Item label="短信内容">
+        <TextArea 
+          value={
+            selectedMessage.smsBd?.startsWith('[发送]') 
+              ? selectedMessage.smsBd.substring(5).trim()
+              : selectedMessage.smsBd
+          } 
+          readOnly 
+          autoSize={{ minRows: 3, maxRows: 10 }}
+          style={{ resize: 'none', background: '#f5f5f5' }}
+        />
+      </Descriptions.Item>
+
+      {(() => {
+        // 如果是来电类型，不显示验证码
+        if (selectedMessage.msgType === 'call') {
+          return null;
+        }
+        
+        const content = selectedMessage.smsBd?.startsWith('[发送]') 
+          ? selectedMessage.smsBd.substring(5).trim()
+          : selectedMessage.smsBd;
+        const codeMatch = content?.match(/(\d{4,8})/);
+        return codeMatch ? (
+          <Descriptions.Item label="验证码">
+            <Tag color="orange" style={{ fontSize: 16, padding: '4px 12px' }}>
+              {codeMatch[1]}
+            </Tag>
+          </Descriptions.Item>
+        ) : null;
+      })()}
             <Descriptions.Item label="消息时间戳">
               {selectedMessage.msgTs}
             </Descriptions.Item>

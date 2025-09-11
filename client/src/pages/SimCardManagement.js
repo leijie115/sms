@@ -392,7 +392,7 @@ function SimCardManagement() {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 20,
+      width: 40,
     },
     {
       title: 'SIM卡信息',
@@ -417,7 +417,7 @@ function SimCardManagement() {
       title: '手机号',
       dataIndex: 'msIsdn',
       key: 'msIsdn',
-      width: 80,
+      width: 110,
       render: (text) => text || '-',
     },
     {
@@ -462,7 +462,7 @@ function SimCardManagement() {
     {
       title: '自动接听',
       key: 'autoAnswer',
-      width: 50,
+      width: 80,
       render: (_, record) => {
         if (record.autoAnswer) {
           return (

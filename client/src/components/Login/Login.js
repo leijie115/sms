@@ -1,10 +1,17 @@
+// client/src/components/Login/Login.js
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../../services/api';
 
 function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // 获取来源页面，如果没有则默认跳转到首页
+  const from = location.state?.from || '/';
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -12,7 +19,12 @@ function Login({ onLogin }) {
       const response = await login(values.username, values.password);
       localStorage.setItem('token', response.token);
       message.success('登录成功');
+      
+      // 调用父组件的 onLogin 回调
       onLogin();
+      
+      // 跳转到原来尝试访问的页面
+      navigate(from, { replace: true });
     } catch (error) {
       message.error('用户名或密码错误');
     } finally {
@@ -69,6 +81,18 @@ function Login({ onLogin }) {
             </Button>
           </Form.Item>
         </Form>
+        
+        {/* 如果用户是从其他页面跳转过来的，显示提示 */}
+        {from !== '/' && (
+          <div style={{ 
+            textAlign: 'center', 
+            color: '#888', 
+            fontSize: '12px',
+            marginTop: '10px'
+          }}>
+            登录后将返回到之前的页面
+          </div>
+        )}
       </Card>
     </div>
   );

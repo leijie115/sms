@@ -1,6 +1,6 @@
 // client/src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './components/Login/Login';
 import AdminLayout from './components/Layout/AdminLayout';
 import Dashboard from './pages/Dashboard';
@@ -16,8 +16,34 @@ import zhCN from 'antd/locale/zh_CN';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 
-
 dayjs.locale('zh-cn');
+
+// 受保护的路由组件
+function ProtectedRoute({ isAuthenticated, loading, children }) {
+  const location = useLocation();
+  
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '16px',
+        color: '#1890ff'
+      }}>
+        加载中...
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
+    // 保存当前尝试访问的路径
+    return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
+  }
+  
+  return children;
+}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -57,7 +83,7 @@ function App() {
     setIsAuthenticated(false);
   };
 
-  if (loading) {
+  if (loading && !window.location.pathname.includes('/login')) {
     return (
       <div style={{
         display: 'flex',
@@ -87,18 +113,18 @@ function App() {
           <Route
             path="/*"
             element={
-              isAuthenticated ? 
-              <AdminLayout onLogout={handleLogout}>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/devices" element={<DeviceManagement />} />
-                  <Route path="/simcards" element={<SimCardManagement />} />
-                  <Route path="/sms-messages" element={<SmsMessageManagement />} />
-                  <Route path="/forward-settings" element={<ForwardSetting />} />
-                  <Route path="/logs" element={<LogViewer />} />
-                </Routes>
-              </AdminLayout> : 
-              <Navigate to="/login" replace />
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <AdminLayout onLogout={handleLogout}>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/devices" element={<DeviceManagement />} />
+                    <Route path="/simcards" element={<SimCardManagement />} />
+                    <Route path="/sms-messages" element={<SmsMessageManagement />} />
+                    <Route path="/forward-settings" element={<ForwardSetting />} />
+                    <Route path="/logs" element={<LogViewer />} />
+                  </Routes>
+                </AdminLayout>
+              </ProtectedRoute>
             }
           />
         </Routes>

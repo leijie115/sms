@@ -11,7 +11,7 @@ import {
 import axios from 'axios';
 import dayjs from 'dayjs';
 
-const { Title } = Typography;
+const { Title, Paragraph } = Typography;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -26,7 +26,7 @@ function SmsMessageManagement() {
   const [statistics, setStatistics] = useState(null);
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 10,  // 默认改为10条
     total: 0
   });
   
@@ -43,7 +43,7 @@ function SmsMessageManagement() {
   });
 
   // 获取短信列表
-  const fetchMessages = async (page = 1, pageSize = 20) => {
+  const fetchMessages = async (page = 1, pageSize = 10) => {
     setLoading(true);
     try {
       const params = {
@@ -147,43 +147,7 @@ function SmsMessageManagement() {
       dataIndex: 'id',
       key: 'id',
       width: 60,
-    },
-    {
-      title: '时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 170,
-      render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
-    },
-    {
-      title: '设备',
-      key: 'device',
-      width: 150,
-      ellipsis: true,
-      render: (_, record) => (
-        <div>
-          <div style={{ fontSize: 12 }}>{record.device?.name}</div>
-          <div style={{ fontSize: 11, color: '#999' }}>
-            {record.simCard?.scName} (卡槽{record.simCard?.slot})
-          </div>
-          <div style={{ fontSize: 11, color: '#1890ff', marginTop: 2 }}>
-          📱 {record.simCard?.msIsdn || '未知号码'}
-         </div>
-        </div>
-      ),
-    },
-    {
-      title: '发送方',
-      dataIndex: 'phNum',
-      key: 'phNum',
-      width: 140,
-      render: (text) => (
-        <span style={{ fontFamily: 'monospace' }}>
-          <PhoneOutlined /> {text}
-        </span>
-      ),
-    },
-    {
+    },{
       title: '短信内容',
       dataIndex: 'smsBd',
       key: 'smsBd',
@@ -195,40 +159,72 @@ function SmsMessageManagement() {
         // 如果是发送的短信，去掉[发送]标记显示
         const displayText = isSent ? text.substring(5).trim() : text;
         
-        // 检测验证码
+        // 检测验证码（只在短信类型时检测，不在来电类型时检测）
         const codeMatch = record.msgType !== 'call' ? displayText?.match(/(\d{4,8})/) : null;
         
         return (
           <div style={{ position: 'relative' }}>
             {isSent && (
-              <Tag color="blue" style={{ 
-                position: 'absolute', 
-                top: -5, 
-                left: -5,
-                fontSize: 10,
-                padding: '0 4px',
-                height: 16,
-                lineHeight: '16px'
-              }}>
+              <Tag color="blue" style={{ }}>
                 发送
               </Tag>
             )}
-            <Tooltip title={displayText}>
-              <span style={{ 
-                display: 'block',
-                paddingTop: isSent ? 12 : 0
-              }}>
-                {displayText?.length > 50 ? `${displayText.substring(0, 50)}...` : displayText}
+
+          <Paragraph
+            style={{ marginBottom: 0, paddingTop: isSent ? 12 : 0 }}
+            ellipsis={{ rows: 1, tooltip: displayText }}
+          >
+            {displayText}
+          </Paragraph>
+           
                 {codeMatch && (
-                  <Tag color="orange" style={{ marginLeft: 8 }}>
+                  <Tag color="orange" style={{ marginTop: 12}}>
                     验证码: {codeMatch[1]}
                   </Tag>
                 )}
-              </span>
-            </Tooltip>
           </div>
         );
       },
+    },
+    {
+      title: '设备/SIM卡',
+      key: 'device',
+      width: 180,
+      ellipsis: true,
+      render: (_, record) => (
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 500 }}>
+            {record.device?.name}
+          </div>
+          <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
+            {record.simCard?.scName} (卡槽{record.simCard?.slot})
+          </div>
+          <div style={{ fontSize: 11, color: '#1890ff', marginTop: 2 }}>
+            📱 {record.simCard?.msIsdn || '未知号码'}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: '发送方',
+      dataIndex: 'phNum',
+      key: 'phNum',
+      width: 140,
+      render: (text) => (
+        <span style={{ 
+          fontFamily: 'monospace',
+          fontSize: 12
+        }}>
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: '时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 170,
+      render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '操作',
@@ -239,7 +235,6 @@ function SmsMessageManagement() {
         <Button
           type="link"
           size="small"
-          icon={<EyeOutlined />}
           onClick={() => handleViewDetail(record)}
         >
           详情
@@ -249,7 +244,7 @@ function SmsMessageManagement() {
   ];
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div>
       <div style={{ marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}>
           <MessageOutlined /> 短信管理
@@ -365,13 +360,12 @@ function SmsMessageManagement() {
         </Row>
       </div>
 
-      {/* 表格区域 */}
+      {/* 表格区域 - 移除了滚动和flex布局 */}
       <div style={{ 
-        flex: 1, 
-        overflow: 'hidden',
         background: '#fff',
         borderRadius: 6,
-        border: '1px solid #f0f0f0'
+        border: '1px solid #f0f0f0',
+        padding: '12px'
       }}>
         <Table
           columns={columns}
@@ -384,16 +378,13 @@ function SmsMessageManagement() {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total) => `共 ${total} 条记录`,
-            pageSizeOptions: ['20', '50', '100'],
+            pageSizeOptions: ['10', '20', '50', '100'],
             onChange: (page, pageSize) => {
               fetchMessages(page, pageSize);
             },
           }}
           size="small"
-          scroll={{ 
-            x: 900,
-            y: 'calc(100vh - 420px)'
-          }}
+          // 移除了 scroll 属性
         />
       </div>
 
@@ -409,76 +400,132 @@ function SmsMessageManagement() {
         width={700}
       >
         {selectedMessage && (
-          <Descriptions bordered column={1} size="small">
+          <Descriptions bordered column={1} size="small" labelStyle={{ width: 120 }}>
             <Descriptions.Item label="消息ID">
               {selectedMessage.id}
             </Descriptions.Item>
+            
             <Descriptions.Item label="消息类型">
-            {selectedMessage.msgType === 'sms' ? (
-              <Tag color="green">短信</Tag>
-            ) : (
-              <Tag color="blue">来电</Tag>
-            )}
-            {selectedMessage.smsBd?.startsWith('[发送]') && (
-              <Tag color="blue" style={{ marginLeft: 8 }}>发送</Tag>
-            )}
-          </Descriptions.Item>
-            <Descriptions.Item label="接收时间">
+              {selectedMessage.msgType === 'sms' ? (
+                <Tag color="green">短信</Tag>
+              ) : (
+                <Tag color="blue">来电</Tag>
+              )}
+              {selectedMessage.smsBd?.startsWith('[发送]') && (
+                <Tag color="blue" style={{ marginLeft: 8 }}>发送</Tag>
+              )}
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="时间">
               {dayjs(selectedMessage.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </Descriptions.Item>
+            
             <Descriptions.Item label="设备信息">
-              {selectedMessage.device?.name} ({selectedMessage.device?.devId})
+              <div>
+                <div><strong>设备名称：</strong>{selectedMessage.device?.name}</div>
+                <div><strong>设备ID：</strong>{selectedMessage.device?.devId}</div>
+              </div>
             </Descriptions.Item>
+            
             <Descriptions.Item label="SIM卡信息">
-              {selectedMessage.simCard?.scName} - 卡槽{selectedMessage.simCard?.slot}
-              <br />
-              号码: {selectedMessage.simCard?.msIsdn}
+              <div>
+                <div><strong>SIM卡名称：</strong>{selectedMessage.simCard?.scName}</div>
+                <div><strong>卡槽位置：</strong>卡槽{selectedMessage.simCard?.slot}</div>
+                <div><strong>手机号码：</strong>
+                  <span style={{ color: '#1890ff', fontFamily: 'monospace' }}>
+                    {selectedMessage.simCard?.msIsdn || '未知号码'}
+                  </span>
+                </div>
+                {selectedMessage.simCard?.imsi && (
+                  <div><strong>IMSI：</strong>{selectedMessage.simCard?.imsi}</div>
+                )}
+              </div>
             </Descriptions.Item>
+            
             <Descriptions.Item label={selectedMessage.smsBd?.startsWith('[发送]') ? '接收方号码' : '发送方号码'}>
-            <span style={{ fontFamily: 'monospace', fontSize: 14 }}>
-              {selectedMessage.phNum}
-            </span>
-          </Descriptions.Item>
-          <Descriptions.Item label="短信内容">
-        <TextArea 
-          value={
-            selectedMessage.smsBd?.startsWith('[发送]') 
-              ? selectedMessage.smsBd.substring(5).trim()
-              : selectedMessage.smsBd
-          } 
-          readOnly 
-          autoSize={{ minRows: 3, maxRows: 10 }}
-          style={{ resize: 'none', background: '#f5f5f5' }}
-        />
-      </Descriptions.Item>
-
-      {(() => {
-        // 如果是来电类型，不显示验证码
-        if (selectedMessage.msgType === 'call') {
-          return null;
-        }
-        
-        const content = selectedMessage.smsBd?.startsWith('[发送]') 
-          ? selectedMessage.smsBd.substring(5).trim()
-          : selectedMessage.smsBd;
-        const codeMatch = content?.match(/(\d{4,8})/);
-        return codeMatch ? (
-          <Descriptions.Item label="验证码">
-            <Tag color="orange" style={{ fontSize: 16, padding: '4px 12px' }}>
-              {codeMatch[1]}
-            </Tag>
-          </Descriptions.Item>
-        ) : null;
-      })()}
+              <span style={{ fontFamily: 'monospace', fontSize: 14 }}>
+                {selectedMessage.phNum}
+              </span>
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="短信内容">
+              <div style={{ maxWidth: '100%', overflow: 'hidden' }}>
+                <TextArea 
+                  value={
+                    selectedMessage.smsBd?.startsWith('[发送]') 
+                      ? selectedMessage.smsBd.substring(5).trim()
+                      : selectedMessage.smsBd
+                  } 
+                  readOnly 
+                  autoSize={{ minRows: 3, maxRows: 10 }}
+                  style={{ 
+                    resize: 'none', 
+                    background: '#f5f5f5',
+                    wordBreak: 'break-all',
+                    whiteSpace: 'pre-wrap',
+                    maxWidth: '100%'
+                  }}
+                />
+              </div>
+            </Descriptions.Item>
+            
+            {/* 检测并显示验证码（只在短信类型时显示） */}
+            {(() => {
+              // 如果是来电类型，不显示验证码
+              if (selectedMessage.msgType === 'call') {
+                return null;
+              }
+              
+              const content = selectedMessage.smsBd?.startsWith('[发送]') 
+                ? selectedMessage.smsBd.substring(5).trim()
+                : selectedMessage.smsBd;
+              const codeMatch = content?.match(/(\d{4,8})/);
+              return codeMatch ? (
+                <Descriptions.Item label="验证码">
+                  <Tag color="orange" style={{ fontSize: 16, padding: '4px 12px' }}>
+                    {codeMatch[1]}
+                  </Tag>
+                </Descriptions.Item>
+              ) : null;
+            })()}
+            
             <Descriptions.Item label="消息时间戳">
               {selectedMessage.msgTs}
             </Descriptions.Item>
+            
             <Descriptions.Item label="短信时间戳">
               {selectedMessage.smsTs}
             </Descriptions.Item>
+            
             <Descriptions.Item label="网络通道">
               {selectedMessage.netCh === 0 ? 'WiFi' : `卡槽${selectedMessage.netCh}`}
             </Descriptions.Item>
+            
+            {/* 如果有原始数据，显示更多信息 */}
+            {selectedMessage.rawData && (
+              <Descriptions.Item label="原始数据">
+
+                <details style={{ cursor: 'pointer', maxWidth: '100%', overflow: 'hidden' }}>
+                  <summary>点击查看原始数据</summary>
+                  <pre style={{ 
+                    background: '#f5f5f5', 
+                    padding: 8, 
+                    borderRadius: 4,
+                    fontSize: 11,
+                    marginTop: 8,
+                    maxHeight: 200,
+                    overflow: 'auto',
+                    resize: 'none', 
+                    background: '#f5f5f5',
+                    wordBreak: 'break-all',
+                    whiteSpace: 'pre-wrap',
+                    maxWidth: '100%'
+                  }}>
+                    {JSON.stringify(selectedMessage.rawData, null, 2)}
+                  </pre>
+                </details>
+              </Descriptions.Item>
+            )}
           </Descriptions>
         )}
       </Modal>

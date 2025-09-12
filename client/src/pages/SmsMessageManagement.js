@@ -1,12 +1,12 @@
 // client/src/pages/SmsMessageManagement.js
 import React, { useState, useEffect } from 'react';
 import { 
-  Table, Button, Space, Modal, Input, Select, DatePicker,
-  Tag, message, Row, Col, Typography, Card, Statistic, Descriptions, Tooltip
+  Table, Button, Modal, Input, Select, DatePicker,
+  Tag, message, Row, Col, Typography, Card, Statistic, Descriptions, Tooltip, Grid
 } from 'antd';
 import { 
   SearchOutlined, ReloadOutlined, MessageOutlined, 
-  EyeOutlined, PhoneOutlined, MobileOutlined 
+  MobileOutlined 
 } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -15,8 +15,14 @@ const { Title, Paragraph } = Typography;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
+const { useBreakpoint } = Grid;
 
 function SmsMessageManagement() {
+  const screens = useBreakpoint();
+  const isMdUp = !!screens.md;   // >= md 视为桌面
+  const isSmUp = !!screens.sm;   // >= sm 视为平板
+  const isXs    = !screens.sm;   // < sm 视为手机
+
   const [messages, setMessages] = useState([]);
   const [devices, setDevices] = useState([]);
   const [simCards, setSimCards] = useState([]);
@@ -107,7 +113,6 @@ function SmsMessageManagement() {
 
   // 组件挂载时，获取所有初始数据
   useEffect(() => {
-    // 初始化加载所有数据
     fetchMessages();
     fetchStatistics();
     fetchDevices();
@@ -116,11 +121,9 @@ function SmsMessageManagement() {
 
   // 监听筛选条件变化，只重新获取短信列表
   useEffect(() => {
-    // 跳过初始渲染
     if (searchText === '' && deviceFilter === '' && simCardFilter === '' && dateRange === null) {
       return;
     }
-    // 筛选条件变化时，只重新获取短信列表，不再请求设备和SIM卡
     fetchMessages();
   }, [searchText, deviceFilter, simCardFilter, dateRange]);
 
@@ -147,41 +150,36 @@ function SmsMessageManagement() {
       dataIndex: 'id',
       key: 'id',
       width: 60,
-    },{
+      responsive: ['sm'], // 手机上隐藏
+    },
+    {
       title: '短信内容',
       dataIndex: 'smsBd',
       key: 'smsBd',
-      ellipsis: true,
+      // 不使用列 ellipsis，改用 Paragraph 自带省略，手机 2 行，桌面 1 行
       render: (text, record) => {
-        // 检查是否是发送的短信
         const isSent = text && text.startsWith('[发送]');
-        
-        // 如果是发送的短信，去掉[发送]标记显示
         const displayText = isSent ? text.substring(5).trim() : text;
-        
-        // 检测验证码（只在短信类型时检测，不在来电类型时检测）
         const codeMatch = record.msgType !== 'call' ? displayText?.match(/(\d{4,8})/) : null;
-        
+
         return (
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', minWidth: 0 }}>
             {isSent && (
-              <Tag color="blue" style={{ }}>
+              <Tag color="blue" style={{ marginRight: 4, marginBottom: 2 }}>
                 发送
               </Tag>
             )}
-
-          <Paragraph
-            style={{ marginBottom: 0, paddingTop: isSent ? 12 : 0 }}
-            ellipsis={{ rows: 1, tooltip: displayText }}
-          >
-            {displayText}
-          </Paragraph>
-           
-                {codeMatch && (
-                  <Tag color="orange" style={{ marginTop: 12}}>
-                    验证码: {codeMatch[1]}
-                  </Tag>
-                )}
+            <Paragraph
+              style={{ marginBottom: 0, display: 'block' }}
+              ellipsis={{ rows: isMdUp ? 1 : 2, tooltip: displayText }}
+            >
+              {displayText}
+            </Paragraph>
+            {codeMatch && (
+              <Tag color="orange" style={{ marginTop: 6 }}>
+                验证码: {codeMatch[1]}
+              </Tag>
+            )}
           </div>
         );
       },
@@ -191,15 +189,16 @@ function SmsMessageManagement() {
       key: 'device',
       width: 180,
       ellipsis: true,
+      responsive: ['md'], // 仅 >= md 显示
       render: (_, record) => (
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 12, fontWeight: 500 }}>
             {record.device?.name}
           </div>
           <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
             {record.simCard?.scName} (卡槽{record.simCard?.slot})
           </div>
-          <div style={{ fontSize: 11, color: '#1890ff', marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: '#1890ff', marginTop: 2, minWidth: 0 }}>
             📱 {record.simCard?.msIsdn || '未知号码'}
           </div>
         </div>
@@ -210,6 +209,7 @@ function SmsMessageManagement() {
       dataIndex: 'phNum',
       key: 'phNum',
       width: 140,
+      responsive: ['sm'], // 手机隐藏
       render: (text) => (
         <span style={{ 
           fontFamily: 'monospace',
@@ -224,13 +224,15 @@ function SmsMessageManagement() {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 170,
-      render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
+      render: (date) => isMdUp
+        ? dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+        : dayjs(date).format('MM-DD HH:mm'),
     },
     {
       title: '操作',
       key: 'action',
       width: 80,
-      fixed: 'right',
+      // 注意：未开启 scroll.x 时 fixed 不生效，这里保留写法不影响
       render: (_, record) => (
         <Button
           type="link"
@@ -307,6 +309,7 @@ function SmsMessageManagement() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               allowClear
+              size={isXs ? 'middle' : 'large'}
             />
           </Col>
           <Col xs={12} sm={6} md={4}>
@@ -316,6 +319,7 @@ function SmsMessageManagement() {
               value={deviceFilter}
               onChange={setDeviceFilter}
               allowClear
+              size={isXs ? 'middle' : 'large'}
             >
               <Option value="">全部设备</Option>
               {devices.map(device => (
@@ -332,6 +336,7 @@ function SmsMessageManagement() {
               value={simCardFilter}
               onChange={setSimCardFilter}
               allowClear
+              size={isXs ? 'middle' : 'large'}
             >
               <Option value="">全部SIM卡</Option>
               {simCards.map(sim => (
@@ -346,6 +351,7 @@ function SmsMessageManagement() {
               style={{ width: '100%' }}
               placeholder={['开始日期', '结束日期']}
               onChange={setDateRange}
+              size={isXs ? 'middle' : 'large'}
             />
           </Col>
           <Col xs={24} sm={6} md={2}>
@@ -353,6 +359,7 @@ function SmsMessageManagement() {
               icon={<ReloadOutlined />}
               onClick={handleRefresh}
               style={{ width: '100%' }}
+              size={isXs ? 'middle' : 'large'}
             >
               刷新
             </Button>
@@ -360,7 +367,7 @@ function SmsMessageManagement() {
         </Row>
       </div>
 
-      {/* 表格区域 - 移除了滚动和flex布局 */}
+      {/* 表格区域 - 不使用 tableLayout="fixed"、不设置 scroll */}
       <div style={{ 
         background: '#fff',
         borderRadius: 6,
@@ -384,7 +391,6 @@ function SmsMessageManagement() {
             },
           }}
           size="small"
-          // 移除了 scroll 属性
         />
       </div>
 
@@ -397,10 +403,12 @@ function SmsMessageManagement() {
           setSelectedMessage(null);
         }}
         footer={null}
-        width={700}
+        width={isXs ? '100%' : 700}
+        bodyStyle={isXs ? { padding: 12 } : {}}
+        style={isXs ? { top: 0, padding: 0 } : {}}
       >
         {selectedMessage && (
-          <Descriptions bordered column={1} size="small" labelStyle={{ width: 120 }}>
+          <Descriptions bordered column={1} size="small" labelStyle={{ width: isXs ? 96 : 120 }}>
             <Descriptions.Item label="消息ID">
               {selectedMessage.id}
             </Descriptions.Item>
@@ -471,11 +479,7 @@ function SmsMessageManagement() {
             
             {/* 检测并显示验证码（只在短信类型时显示） */}
             {(() => {
-              // 如果是来电类型，不显示验证码
-              if (selectedMessage.msgType === 'call') {
-                return null;
-              }
-              
+              if (selectedMessage.msgType === 'call') return null;
               const content = selectedMessage.smsBd?.startsWith('[发送]') 
                 ? selectedMessage.smsBd.substring(5).trim()
                 : selectedMessage.smsBd;
@@ -504,7 +508,6 @@ function SmsMessageManagement() {
             {/* 如果有原始数据，显示更多信息 */}
             {selectedMessage.rawData && (
               <Descriptions.Item label="原始数据">
-
                 <details style={{ cursor: 'pointer', maxWidth: '100%', overflow: 'hidden' }}>
                   <summary>点击查看原始数据</summary>
                   <pre style={{ 
@@ -515,8 +518,6 @@ function SmsMessageManagement() {
                     marginTop: 8,
                     maxHeight: 200,
                     overflow: 'auto',
-                    resize: 'none', 
-                    background: '#f5f5f5',
                     wordBreak: 'break-all',
                     whiteSpace: 'pre-wrap',
                     maxWidth: '100%'

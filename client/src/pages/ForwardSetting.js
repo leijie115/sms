@@ -17,7 +17,8 @@ import {
   Divider,
   InputNumber,
   Typography,
-  Statistic
+  Statistic,
+  Grid,            // ✅ 新增
 } from 'antd';
 import { 
   ApiOutlined, 
@@ -41,6 +42,7 @@ const { Title } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
 const { Option } = Select;
+const { useBreakpoint } = Grid;      // ✅ 新增
 
 const ForwardSetting = () => {
   const [activeTab, setActiveTab] = useState('telegram');
@@ -49,6 +51,9 @@ const ForwardSetting = () => {
   const [testing, setTesting] = useState(false);
   const [filters, setFilters] = useState({ devices: [], simCards: [] });
   const [statistics, setStatistics] = useState(null);
+
+  const screens = useBreakpoint();           // ✅ 新增
+  const isXs = !screens.sm;                  // ✅ 新增：< sm 视为手机
 
   // 加载平台配置
   const loadPlatformSetting = async (platform) => {
@@ -164,6 +169,28 @@ const ForwardSetting = () => {
     if (!statistics || !statistics.platforms) return null;
     return statistics.platforms.find(p => p.platform === activeTab);
   };
+
+  // ✅ 极简统计 Chip（新增，仅用于顶部统计的手机端样式）
+  const StatChip = ({ icon, value, label, valueStyle }) => (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '6px 10px',
+        border: '1px solid #f0f0f0',
+        borderRadius: 999,
+        background: '#fff',
+        whiteSpace: 'nowrap',
+        lineHeight: 1.1,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+      }}
+    >
+      {icon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{icon}</span>}
+      <span style={{ fontWeight: 600, fontSize: 18, ...(valueStyle || {}) }}>{value}</span>
+      <span style={{ fontSize: 12, color: '#999' }}>{label}</span>
+    </div>
+  );
 
   // Telegram 配置表单
   const renderTelegramForm = () => (
@@ -768,77 +795,138 @@ const ForwardSetting = () => {
 
   return (
     <div>
+      {/* ✅ 手机端隐藏横向滚动条 & 渐隐边缘提示，仅作用于 chip 条 */}
+      <style>{`
+        @media (max-width: 767.98px) {
+          .chip-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;           /* Firefox */
+            overscroll-behavior-x: contain;
+            mask-image: linear-gradient(to right, 
+              transparent 0, black 16px, 
+              black calc(100% - 16px), transparent 100%);
+          }
+          .chip-bar::-webkit-scrollbar { display: none; } /* WebKit */
+        }
+      `}</style>
+
       <Title level={4} style={{ marginBottom: 20 }}>
         <ApiOutlined /> 转发设置
       </Title>
 
-      {/* 统计卡片 - 4个 */}
+      {/* ✅ 统计区域：手机端 Chip 条；桌面端保持原四卡片 */}
       {statistics && (
-        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-          {/* 卡片1: 已启用平台 */}
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="已启用平台"
-                value={statistics.summary.enabledCount}
-                suffix={`/ ${statistics.summary.totalPlatforms}`}
-                prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-              />
-            </Card>
-          </Col>
-          
-          {/* 卡片2: 总转发次数 */}
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="总转发次数"
-                value={statistics.summary.totalForwarded}
-                prefix={<SendOutlined style={{ color: '#1890ff' }} />}
-                suffix={
-                  <span style={{ fontSize: 14, fontWeight: 'normal', color: '#999' }}>
-                    / {statistics.summary.totalFailed} 失败
-                  </span>
-                }
-              />
-            </Card>
-          </Col>
-          
-          {/* 卡片3: 总体成功率 */}
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="总体成功率"
-                value={`${statistics.summary.successRate}%`}
-                prefix={
-                  parseFloat(statistics.summary.successRate) > 90 ?
-                    <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
-                  parseFloat(statistics.summary.successRate) > 70 ?
-                    <CheckCircleOutlined style={{ color: '#1890ff' }} /> :
-                  parseFloat(statistics.summary.successRate) > 50 ?
-                    <WarningOutlined style={{ color: '#faad14' }} /> :
-                    <CloseCircleOutlined style={{ color: '#f5222d' }} />
-                }
-                valueStyle={{
-                  color: parseFloat(statistics.summary.successRate) > 90 ? '#52c41a' :
-                         parseFloat(statistics.summary.successRate) > 70 ? '#1890ff' :
-                         parseFloat(statistics.summary.successRate) > 50 ? '#faad14' : '#f5222d'
-                }}
-              />
-            </Card>
-          </Col>
-          
-          {/* 卡片4: 今日短信数（新增） */}
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="今日短信"
-                value={statistics.summary.todayMessages}
-                prefix={<MessageOutlined style={{ color: '#722ed1' }} />}
-                valueStyle={{ color: '#722ed1' }}
-              />
-            </Card>
-          </Col>
-        </Row>
+        isXs ? (
+          <div className="chip-bar" style={{ marginBottom: 16, padding: '2px 2px' }}>
+            {/* 启用平台 */}
+            <StatChip
+              icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+              value={`${statistics.summary.enabledCount}/${statistics.summary.totalPlatforms}`}
+              label="启用/平台"
+            />
+            {/* 总转发 */}
+            <StatChip
+              icon={<SendOutlined style={{ color: '#1890ff' }} />}
+              value={statistics.summary.totalForwarded}
+              label="总转发"
+            />
+            {/* 成功率 */}
+            {(() => {
+              const rate = parseFloat(statistics.summary.successRate || 0);
+              const color =
+                rate > 90 ? '#52c41a' :
+                rate > 70 ? '#1890ff' :
+                rate > 50 ? '#faad14' : '#f5222d';
+              const Icon =
+                rate > 70 ? CheckCircleOutlined :
+                rate > 50 ? WarningOutlined : CloseCircleOutlined;
+              return (
+                <StatChip
+                  icon={<Icon style={{ color }} />}
+                  value={`${statistics.summary.successRate}%`}
+                  label="成功率"
+                  valueStyle={{ color }}
+                />
+              );
+            })()}
+            {/* 今日短信 */}
+            <StatChip
+              icon={<MessageOutlined style={{ color: '#722ed1' }} />}
+              value={statistics.summary.todayMessages}
+              label="今日短信"
+              valueStyle={{ color: '#722ed1' }}
+            />
+          </div>
+        ) : (
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            {/* 卡片1: 已启用平台 */}
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Statistic
+                  title="已启用平台"
+                  value={statistics.summary.enabledCount}
+                  suffix={`/ ${statistics.summary.totalPlatforms}`}
+                  prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+                />
+              </Card>
+            </Col>
+            
+            {/* 卡片2: 总转发次数 */}
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Statistic
+                  title="总转发次数"
+                  value={statistics.summary.totalForwarded}
+                  prefix={<SendOutlined style={{ color: '#1890ff' }} />}
+                  suffix={
+                    <span style={{ fontSize: 14, fontWeight: 'normal', color: '#999' }}>
+                      / {statistics.summary.totalFailed} 失败
+                    </span>
+                  }
+                />
+              </Card>
+            </Col>
+            
+            {/* 卡片3: 总体成功率 */}
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Statistic
+                  title="总体成功率"
+                  value={`${statistics.summary.successRate}%`}
+                  prefix={
+                    parseFloat(statistics.summary.successRate) > 90 ?
+                      <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
+                    parseFloat(statistics.summary.successRate) > 70 ?
+                      <CheckCircleOutlined style={{ color: '#1890ff' }} /> :
+                    parseFloat(statistics.summary.successRate) > 50 ?
+                      <WarningOutlined style={{ color: '#faad14' }} /> :
+                      <CloseCircleOutlined style={{ color: '#f5222d' }} />
+                  }
+                  valueStyle={{
+                    color: parseFloat(statistics.summary.successRate) > 90 ? '#52c41a' :
+                           parseFloat(statistics.summary.successRate) > 70 ? '#1890ff' :
+                           parseFloat(statistics.summary.successRate) > 50 ? '#faad14' : '#f5222d'
+                  }}
+                />
+              </Card>
+            </Col>
+            
+            {/* 卡片4: 今日短信数（新增） */}
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Statistic
+                  title="今日短信"
+                  value={statistics.summary.todayMessages}
+                  prefix={<MessageOutlined style={{ color: '#722ed1' }} />}
+                  valueStyle={{ color: '#722ed1' }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        )
       )}
 
       <Card>
@@ -919,6 +1007,7 @@ const ForwardSetting = () => {
                 onClick={handleSave}
                 loading={loading}
                 block
+                style={{ marginBottom: isXs ? 12 : 0 }}
               >
                 保存配置
               </Button>
@@ -929,6 +1018,7 @@ const ForwardSetting = () => {
                 onClick={handleTest}
                 loading={testing}
                 block
+                style={{ marginBottom: isXs ? 12 : 0 }}
               >
                 发送测试消息
               </Button>

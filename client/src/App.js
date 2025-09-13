@@ -1,22 +1,37 @@
 // client/src/App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Login from './components/Login/Login';
-import AdminLayout from './components/Layout/AdminLayout';
-import Dashboard from './pages/Dashboard';
-import DeviceManagement from './pages/DeviceManagement';
-import SimCardManagement from './pages/SimCardManagement';
-import SmsMessageManagement from './pages/SmsMessageManagement';
-import ForwardSetting from './pages/ForwardSetting';
-import LogViewer from './pages/LogViewer';
-import { checkAuth } from './services/api';
-
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
+import { checkAuth } from './services/api';
+
+// 直接导入登录和布局组件（因为它们是必需的）
+import Login from './components/Login/Login';
+import AdminLayout from './components/Layout/AdminLayout';
+
+// 懒加载页面组件
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const DeviceManagement = lazy(() => import('./pages/DeviceManagement'));
+const SimCardManagement = lazy(() => import('./pages/SimCardManagement'));
+const SmsMessageManagement = lazy(() => import('./pages/SmsMessageManagement'));
+const ForwardSetting = lazy(() => import('./pages/ForwardSetting'));
+const LogViewer = lazy(() => import('./pages/LogViewer'));
 
 dayjs.locale('zh-cn');
+
+// 加载中组件
+const PageLoading = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '400px',
+  }}>
+    <Spin size="large" tip="加载中..." />
+  </div>
+);
 
 // 受保护的路由组件
 function ProtectedRoute({ isAuthenticated, loading, children }) {
@@ -38,7 +53,6 @@ function ProtectedRoute({ isAuthenticated, loading, children }) {
   }
   
   if (!isAuthenticated) {
-    // 保存当前尝试访问的路径
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
   
@@ -115,14 +129,16 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
                 <AdminLayout onLogout={handleLogout}>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/devices" element={<DeviceManagement />} />
-                    <Route path="/simcards" element={<SimCardManagement />} />
-                    <Route path="/sms-messages" element={<SmsMessageManagement />} />
-                    <Route path="/forward-settings" element={<ForwardSetting />} />
-                    <Route path="/logs" element={<LogViewer />} />
-                  </Routes>
+                  <Suspense fallback={<PageLoading />}>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/devices" element={<DeviceManagement />} />
+                      <Route path="/simcards" element={<SimCardManagement />} />
+                      <Route path="/sms-messages" element={<SmsMessageManagement />} />
+                      <Route path="/forward-settings" element={<ForwardSetting />} />
+                      <Route path="/logs" element={<LogViewer />} />
+                    </Routes>
+                  </Suspense>
                 </AdminLayout>
               </ProtectedRoute>
             }

@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Table, Button, Modal, Input, Select, DatePicker,
-  Tag, message, Row, Col, Typography, Card, Statistic, Descriptions, Tooltip, Grid
+  Tag, message, Row, Col, Typography, Descriptions, Grid, Collapse
 } from 'antd';
 import { 
   SearchOutlined, ReloadOutlined, MessageOutlined, 
-  MobileOutlined 
+  MobileOutlined, FilterOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -16,12 +16,12 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const { useBreakpoint } = Grid;
+const { Panel } = Collapse;
 
 function SmsMessageManagement() {
   const screens = useBreakpoint();
-  const isMdUp = !!screens.md;   // >= md 视为桌面
-  const isSmUp = !!screens.sm;   // >= sm 视为平板
-  const isXs    = !screens.sm;   // < sm 视为手机
+  const isMdUp = !!screens.md;      // >= md 视为桌面
+  const isXs = !screens.sm;         // < sm 视为手机
 
   const [messages, setMessages] = useState([]);
   const [devices, setDevices] = useState([]);
@@ -40,6 +40,7 @@ function SmsMessageManagement() {
   const [deviceFilter, setDeviceFilter] = useState('');
   const [simCardFilter, setSimCardFilter] = useState('');
   const [dateRange, setDateRange] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false); // 手机端筛选折叠
 
   const api = axios.create({
     baseURL: '/api',
@@ -144,6 +145,28 @@ function SmsMessageManagement() {
     }
   };
 
+  // 极简统计 Chip
+  const StatChip = ({ icon, value, label }) => (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '6px 10px',
+        border: '1px solid #f0f0f0',
+        borderRadius: 999,
+        background: '#fff',
+        whiteSpace: 'nowrap',
+        lineHeight: 1.1,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+      }}
+    >
+      {icon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{icon}</span>}
+      <span style={{ fontWeight: 600, fontSize: isMdUp ? 20 : 18 }}>{value ?? 0}</span>
+      <span style={{ fontSize: 12, color: '#999' }}>{label}</span>
+    </div>
+  );
+
   const columns = [
     {
       title: 'ID',
@@ -151,17 +174,16 @@ function SmsMessageManagement() {
       key: 'id',
       width: 60,
       responsive: ['sm'], // 手机上隐藏
-    },
-    {
+    },{
       title: '短信内容',
       dataIndex: 'smsBd',
       key: 'smsBd',
-      // 不使用列 ellipsis，改用 Paragraph 自带省略，手机 2 行，桌面 1 行
+      // 省略用 Paragraph（桌面1行、手机2行）
       render: (text, record) => {
         const isSent = text && text.startsWith('[发送]');
         const displayText = isSent ? text.substring(5).trim() : text;
         const codeMatch = record.msgType !== 'call' ? displayText?.match(/(\d{4,8})/) : null;
-
+        
         return (
           <div style={{ position: 'relative', minWidth: 0 }}>
             {isSent && (
@@ -170,7 +192,7 @@ function SmsMessageManagement() {
               </Tag>
             )}
             <Paragraph
-              style={{ marginBottom: 0, display: 'block' }}
+              style={{ marginBottom: 0, paddingTop: isSent ? 2 : 0, display: 'block' }}
               ellipsis={{ rows: isMdUp ? 1 : 2, tooltip: displayText }}
             >
               {displayText}
@@ -198,7 +220,7 @@ function SmsMessageManagement() {
           <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
             {record.simCard?.scName} (卡槽{record.simCard?.slot})
           </div>
-          <div style={{ fontSize: 11, color: '#1890ff', marginTop: 2, minWidth: 0 }}>
+          <div style={{ fontSize: 11, color: '#1890ff', marginTop: 2 }}>
             📱 {record.simCard?.msIsdn || '未知号码'}
           </div>
         </div>
@@ -211,10 +233,7 @@ function SmsMessageManagement() {
       width: 140,
       responsive: ['sm'], // 手机隐藏
       render: (text) => (
-        <span style={{ 
-          fontFamily: 'monospace',
-          fontSize: 12
-        }}>
+        <span style={{ fontFamily: 'monospace', fontSize: 12 }}>
           {text}
         </span>
       ),
@@ -232,7 +251,6 @@ function SmsMessageManagement() {
       title: '操作',
       key: 'action',
       width: 80,
-      // 注意：未开启 scroll.x 时 fixed 不生效，这里保留写法不影响
       render: (_, record) => (
         <Button
           type="link"
@@ -247,127 +265,209 @@ function SmsMessageManagement() {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
+      {/* 隐藏手机端滚动条 & 渐隐边缘提示 */}
+      <style>{`
+        /* Chip 条通用布局 */
+        .stat-chip-bar {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          padding: 2px 2px;
+          margin-bottom: 12px;
+        }
+        /* 手机端：横向滚动但隐藏滚动条，并加左右渐隐提示 */
+        @media (max-width: 767.98px) {
+          .stat-chip-bar {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;           /* Firefox 隐藏滚动条 */
+            overscroll-behavior-x: contain;  /* 防止父级跟随滚动 */
+            mask-image: linear-gradient(to right, 
+              transparent 0, black 16px, 
+              black calc(100% - 16px), transparent 100%);
+          }
+          .stat-chip-bar::-webkit-scrollbar { display: none; } /* WebKit 隐藏滚动条 */
+        }
+      `}</style>
+
+      <div style={{ marginBottom: 12 }}>
         <Title level={4} style={{ margin: 0 }}>
           <MessageOutlined /> 短信管理
         </Title>
       </div>
 
-      {/* 统计卡片 */}
+      {/* 统计 Chip 条（统一风格） */}
       {statistics && (
-        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-          <Col xs={12} sm={6}>
-            <Card size="small">
-              <Statistic
-                title="今日短信"
-                value={statistics.todayCount || 0}
-                prefix={<MessageOutlined />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card size="small">
-              <Statistic
-                title="本周短信"
-                value={statistics.weekCount || 0}
-                prefix={<MessageOutlined />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card size="small">
-              <Statistic
-                title="总短信数"
-                value={statistics.totalCount || 0}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card size="small">
-              <Statistic
-                title="活跃设备"
-                value={statistics.activeDevices || 0}
-                prefix={<MobileOutlined />}
-              />
-            </Card>
-          </Col>
-        </Row>
+        <div className="stat-chip-bar">
+          <StatChip icon={<MessageOutlined style={{ fontSize: 14 }} />} value={statistics.todayCount} label="今日" />
+          <StatChip icon={<MessageOutlined style={{ fontSize: 14 }} />} value={statistics.weekCount} label="本周" />
+          <StatChip icon={null} value={statistics.totalCount} label="总数" />
+          <StatChip icon={<MobileOutlined style={{ fontSize: 14 }} />} value={statistics.activeDevices} label="活跃设备" />
+        </div>
       )}
 
-      {/* 筛选区域 */}
-      <div style={{ 
-        marginBottom: 16, 
-        background: '#fafafa', 
-        padding: 12, 
-        borderRadius: 6 
-      }}>
-        <Row gutter={[12, 12]} align="middle">
-          <Col xs={24} sm={12} md={6}>
-            <Input
-              placeholder="搜索短信内容或手机号"
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              allowClear
-              size={isXs ? 'middle' : 'large'}
-            />
-          </Col>
-          <Col xs={12} sm={6} md={4}>
-            <Select
-              placeholder="设备"
-              style={{ width: '100%' }}
-              value={deviceFilter}
-              onChange={setDeviceFilter}
-              allowClear
-              size={isXs ? 'middle' : 'large'}
-            >
-              <Option value="">全部设备</Option>
-              {devices.map(device => (
-                <Option key={device.id} value={device.id}>
-                  {device.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={4}>
-            <Select
-              placeholder="SIM卡"
-              style={{ width: '100%' }}
-              value={simCardFilter}
-              onChange={setSimCardFilter}
-              allowClear
-              size={isXs ? 'middle' : 'large'}
-            >
-              <Option value="">全部SIM卡</Option>
-              {simCards.map(sim => (
-                <Option key={sim.id} value={sim.id}>
-                  {sim.scName}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <RangePicker
-              style={{ width: '100%' }}
-              placeholder={['开始日期', '结束日期']}
-              onChange={setDateRange}
-              size={isXs ? 'middle' : 'large'}
-            />
-          </Col>
-          <Col xs={24} sm={6} md={2}>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={handleRefresh}
-              style={{ width: '100%' }}
-              size={isXs ? 'middle' : 'large'}
-            >
-              刷新
-            </Button>
-          </Col>
-        </Row>
-      </div>
+      {/* 筛选区域：手机端压缩为“搜索+刷新+筛选”，其他条件进折叠；桌面端保持完整 */}
+      {isXs ? (
+        <div style={{ 
+          marginBottom: 12, 
+          background: '#fafafa', 
+          padding: 10, 
+          borderRadius: 6 
+        }}>
+          <Row gutter={[8, 8]} align="middle">
+            <Col span={24}>
+              <Input
+                placeholder="搜索短信内容或手机号"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                allowClear
+                size="middle"
+              />
+            </Col>
+            <Col span={12}>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+                block
+                size="middle"
+              >
+                刷新
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Button
+                icon={<FilterOutlined />}
+                onClick={() => setFilterOpen((v) => !v)}
+                block
+                type={filterOpen ? 'primary' : 'default'}
+                size="middle"
+              >
+                筛选
+              </Button>
+            </Col>
+          </Row>
 
-      {/* 表格区域 - 不使用 tableLayout="fixed"、不设置 scroll */}
+          <Collapse ghost activeKey={filterOpen ? ['1'] : []} style={{ marginTop: 6 }}>
+            <Panel header={null} key="1" showArrow={false}>
+              <Row gutter={[8, 8]} align="middle">
+                <Col span={12}>
+                  <Select
+                    placeholder="设备"
+                    style={{ width: '100%' }}
+                    value={deviceFilter}
+                    onChange={setDeviceFilter}
+                    allowClear
+                    size="middle"
+                  >
+                    <Option value="">全部设备</Option>
+                    {devices.map(device => (
+                      <Option key={device.id} value={device.id}>
+                        {device.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+                <Col span={12}>
+                  <Select
+                    placeholder="SIM卡"
+                    style={{ width: '100%' }}
+                    value={simCardFilter}
+                    onChange={setSimCardFilter}
+                    allowClear
+                    size="middle"
+                  >
+                    <Option value="">全部SIM卡</Option>
+                    {simCards.map(sim => (
+                      <Option key={sim.id} value={sim.id}>
+                        {sim.scName}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+                <Col span={24}>
+                  <RangePicker
+                    style={{ width: '100%' }}
+                    placeholder={['开始日期', '结束日期']}
+                    onChange={setDateRange}
+                    size="middle"
+                  />
+                </Col>
+              </Row>
+            </Panel>
+          </Collapse>
+        </div>
+      ) : (
+        <div style={{ 
+          marginBottom: 16, 
+          background: '#fafafa', 
+          padding: 12, 
+          borderRadius: 6 
+        }}>
+          <Row gutter={[12, 12]} align="middle">
+            <Col xs={24} sm={12} md={6}>
+              <Input
+                placeholder="搜索短信内容或手机号"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                allowClear
+              />
+            </Col>
+            <Col xs={12} sm={6} md={4}>
+              <Select
+                placeholder="设备"
+                style={{ width: '100%' }}
+                value={deviceFilter}
+                onChange={setDeviceFilter}
+                allowClear
+              >
+                <Option value="">全部设备</Option>
+                {devices.map(device => (
+                  <Option key={device.id} value={device.id}>
+                    {device.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col xs={12} sm={6} md={4}>
+              <Select
+                placeholder="SIM卡"
+                style={{ width: '100%' }}
+                value={simCardFilter}
+                onChange={setSimCardFilter}
+                allowClear
+              >
+                <Option value="">全部SIM卡</Option>
+                {simCards.map(sim => (
+                  <Option key={sim.id} value={sim.id}>
+                    {sim.scName}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <RangePicker
+                style={{ width: '100%' }}
+                placeholder={['开始日期', '结束日期']}
+                onChange={setDateRange}
+              />
+            </Col>
+            <Col xs={24} sm={6} md={2}>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+                style={{ width: '100%' }}
+              >
+                刷新
+              </Button>
+            </Col>
+          </Row>
+        </div>
+      )}
+
+      {/* 表格区域 - 不使用 fixed 布局、无 scroll */}
       <div style={{ 
         background: '#fff',
         borderRadius: 6,

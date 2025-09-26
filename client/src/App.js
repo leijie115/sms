@@ -21,6 +21,17 @@ const LogViewer = lazy(() => import('./pages/LogViewer'));
 
 dayjs.locale('zh-cn');
 
+// 🔧 新增：获取 token 的辅助函数 - 同时检查 localStorage 和 sessionStorage
+const getToken = () => {
+  return localStorage.getItem('token') || sessionStorage.getItem('token');
+};
+
+// 🔧 新增：清除所有 token 的辅助函数
+const clearAllTokens = () => {
+  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
+};
+
 // 加载中组件
 const PageLoading = () => (
   <div style={{
@@ -60,14 +71,16 @@ function ProtectedRoute({ isAuthenticated, loading, children }) {
 }
 
 function App() {
+  // 🔧 修改：初始化时同时检查 localStorage 和 sessionStorage
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!localStorage.getItem('token');
+    return !!getToken();
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const validateToken = async () => {
-      const token = localStorage.getItem('token');
+      // 🔧 修改：使用 getToken() 函数
+      const token = getToken();
       
       if (token) {
         try {
@@ -75,7 +88,8 @@ function App() {
           setIsAuthenticated(true);
         } catch (error) {
           console.log('Token 验证失败:', error);
-          localStorage.removeItem('token');
+          // 🔧 修改：清除所有存储的 token
+          clearAllTokens();
           setIsAuthenticated(false);
         }
       } else {
@@ -93,7 +107,8 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    // 🔧 修改：清除所有存储的 token
+    clearAllTokens();
     setIsAuthenticated(false);
   };
 

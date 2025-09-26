@@ -11,13 +11,18 @@ module.exports = {
         exec_mode: 'cluster',  // cluster模式，支持负载均衡
         
         // 环境变量
-        env: {
-          NODE_ENV: 'development',
-          PORT: 3000
-        },
-        env_production: {
+        // env: {
+        //   NODE_ENV: 'development',
+        //   PORT: 3000
+        // },
+        
+        // 环境特定配置
+        // env_production: {
+          env: {
           NODE_ENV: 'production',
-          PORT: 3000
+          PORT: 3000,
+          instances: 'max',
+          exec_mode: 'cluster'
         },
         
         // 日志配置
@@ -43,15 +48,8 @@ module.exports = {
         
         // 其他配置
         cwd: './',
-        node_args: '--max-old-space-size=2048',
+        node_args: '--max-old-space-size=2048'
         
-        // 环境特定配置
-        env_production: {
-          NODE_ENV: 'production',
-          PORT: 3000,
-          instances: 'max',
-          exec_mode: 'cluster'
-        }
       }
     ],
     

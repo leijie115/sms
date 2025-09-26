@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 import { Typography } from 'antd';
+import api from '../services/api';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -35,13 +36,6 @@ function DeviceManagement() {
   const [apiModalLoading, setApiModalLoading] = useState(false);
 
 
-
-  const api = axios.create({
-    baseURL: '/api',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  });
 
   const fetchDevices = async (page = 1, pageSize = 10) => {
     setLoading(true);

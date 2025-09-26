@@ -41,15 +41,53 @@ app.use(async (ctx, next) => {
   }
 });
 
-// 静态文件服务
-if (process.env.NODE_ENV === 'production') {
-  app.use(serve(path.join(__dirname, '../dist')));
+// 🔧 关键修改：先处理 API 路由
+app.use(routes.routes()).use(routes.allowedMethods());
+
+// 🔧 静态文件服务 - 移到 API 路由之后
+// 添加 USE_DIST 环境变量支持，即使在开发环境也能使用 dist
+if (process.env.NODE_ENV === 'production' || process.env.USE_DIST === 'true') {
+  const distPath = path.join(__dirname, '../dist');
+  
+  // 检查 dist 目录
+  if (!fs.existsSync(distPath)) {
+    console.error('⚠️  警告: dist 目录不存在，请运行 npm run build');
+    console.error('   当前 NODE_ENV:', process.env.NODE_ENV);
+    console.error('   期望目录:', distPath);
+  } else {
+    console.log('📁 使用静态文件目录: dist/');
+    // 静态文件服务
+    app.use(serve(distPath));
+    
+    // 🔧 关键添加：SPA fallback - 处理前端路由
+    app.use(async (ctx, next) => {
+      // 跳过 API 路由（已经在上面处理了）
+      if (ctx.path.startsWith('/api')) {
+        return next();
+      }
+      
+      // 如果是静态资源请求（有文件扩展名），且文件不存在，返回 404
+      const ext = path.extname(ctx.path);
+      if (ext && ext !== '.html') {
+        // 静态资源不存在，让它 404
+        return next();
+      }
+      
+      // 🔧 所有其他非 API 路由都返回 index.html（支持前端路由）
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        ctx.type = 'html';
+        ctx.body = fs.createReadStream(indexPath);
+      } else {
+        return next();
+      }
+    });
+  }
 } else {
+  // 开发环境
+  console.log('📁 使用静态文件目录: client/ (开发模式)');
   app.use(serve(path.join(__dirname, '../client')));
 }
-
-// API 路由
-app.use(routes.routes()).use(routes.allowedMethods());
 
 // 404 处理 - 必须放在所有路由之后
 app.use(async (ctx) => {
@@ -61,8 +99,65 @@ app.use(async (ctx) => {
       message: 'API endpoint not found',
       path: ctx.path
     };
+  } else if (process.env.NODE_ENV === 'production') {
+    // 🔧 生产环境：最后尝试返回 index.html
+    const indexPath = path.join(__dirname, '../dist/index.html');
+    if (fs.existsSync(indexPath)) {
+      ctx.type = 'html';
+      ctx.body = fs.createReadStream(indexPath);
+    } else {
+      // 真的找不到，返回 404 页面
+      ctx.status = 404;
+      ctx.type = 'html';
+      ctx.body = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>404 - 页面未找到</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .container {
+      text-align: center;
+      color: white;
+    }
+    h1 { font-size: 120px; margin: 0; }
+    p { font-size: 24px; margin: 20px 0; }
+    a { 
+      color: white; 
+      text-decoration: none;
+      padding: 10px 20px;
+      border: 2px solid white;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+    a:hover {
+      background: white;
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>404</h1>
+    <p>页面未找到</p>
+    <a href="/">返回首页</a>
+  </div>
+</body>
+</html>`;
+    }
   } else {
-    // 否则返回 HTML 404 页面
+    // 开发环境返回 404 页面
     ctx.status = 404;
     ctx.type = 'html';
     ctx.body = `
@@ -183,6 +278,27 @@ async function start() {
     console.log('   - logs/request-YYYY-MM-DD.log (请求日志)');
     console.log('   - logs/webhook-YYYY-MM-DD.log (Webhook日志)');
     console.log('   - logs/forward-YYYY-MM-DD.log (转发日志)');
+    
+    // 🔧 添加提示信息
+    if (process.env.NODE_ENV === 'production') {
+      const distPath = path.join(__dirname, '../dist');
+      if (!fs.existsSync(distPath)) {
+        console.log('');
+        console.log('⚠️  警告: dist 目录不存在！');
+        console.log('   请运行以下命令构建前端：');
+        console.log('   npm run build');
+        console.log('');
+      } else {
+        const indexPath = path.join(distPath, 'index.html');
+        if (!fs.existsSync(indexPath)) {
+          console.log('');
+          console.log('⚠️  警告: dist/index.html 不存在！');
+          console.log('   请运行以下命令构建前端：');
+          console.log('   npm run build');
+          console.log('');
+        }
+      }
+    }
     
     app.listen(port, () => {
       console.log(`\n🚀 服务器运行在 http://localhost:${port}`);

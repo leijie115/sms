@@ -10,6 +10,7 @@ import {
   ArrowUpOutlined, ArrowDownOutlined, SyncOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
+import api from '../services/api';
 
 const { Title, Text } = Typography;
 
@@ -37,12 +38,6 @@ function Dashboard() {
   const [deviceStatus, setDeviceStatus] = useState([]);
   const [simCardStatus, setSimCardStatus] = useState([]);
 
-  const api = axios.create({
-    baseURL: '/api',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  });
 
   useEffect(() => {
     fetchDashboardData();

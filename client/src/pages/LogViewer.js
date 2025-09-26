@@ -9,6 +9,7 @@ import {
   DeleteOutlined, EyeOutlined, SearchOutlined 
 } from '@ant-design/icons';
 import axios from 'axios';
+import api from '../services/api';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -25,12 +26,6 @@ function LogViewer() {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const intervalRef = useRef(null);
 
-  const api = axios.create({
-    baseURL: '/api',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  });
 
   useEffect(() => {
     fetchLogFiles();

@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import api from '../services/api';
 
 const { Title, Paragraph } = Typography;
 const { Option } = Select;
@@ -42,12 +43,6 @@ function SmsMessageManagement() {
   const [dateRange, setDateRange] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false); // 手机端筛选折叠
 
-  const api = axios.create({
-    baseURL: '/api',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  });
 
   // 获取短信列表
   const fetchMessages = async (page = 1, pageSize = 10) => {

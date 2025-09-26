@@ -18,7 +18,7 @@ import {
   InputNumber,
   Typography,
   Statistic,
-  Grid,            // ✅ 新增
+  Grid,
 } from 'antd';
 import { 
   ApiOutlined, 
@@ -42,7 +42,7 @@ const { Title } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
 const { Option } = Select;
-const { useBreakpoint } = Grid;      // ✅ 新增
+const { useBreakpoint } = Grid;
 
 const ForwardSetting = () => {
   const [activeTab, setActiveTab] = useState('telegram');
@@ -52,16 +52,17 @@ const ForwardSetting = () => {
   const [filters, setFilters] = useState({ devices: [], simCards: [] });
   const [statistics, setStatistics] = useState(null);
 
-  const screens = useBreakpoint();           // ✅ 新增
-  const isXs = !screens.sm;                  // ✅ 新增：< sm 视为手机
+  const screens = useBreakpoint();
+  const isXs = !screens.sm;
 
-  // 加载平台配置
+  // 🔧 修复：加载平台配置
   const loadPlatformSetting = async (platform) => {
     setLoading(true);
     try {
       const res = await getForwardSetting(platform);
-      if (res.success) {
-        form.setFieldsValue(res.data);
+      // 🔧 关键修改：res 现在是完整的 response，需要用 res.data
+      if (res.data && res.data.success) {
+        form.setFieldsValue(res.data.data);
       }
     } catch (error) {
       message.error('加载配置失败');
@@ -70,24 +71,26 @@ const ForwardSetting = () => {
     }
   };
 
-  // 加载过滤选项
+  // 🔧 修复：加载过滤选项
   const loadFilters = async () => {
     try {
       const res = await getAvailableFilters();
-      if (res.success) {
-        setFilters(res.data);
+      // 🔧 关键修改：res.data 才是实际数据
+      if (res.data && res.data.success) {
+        setFilters(res.data.data);
       }
     } catch (error) {
       console.error('加载过滤选项失败:', error);
     }
   };
 
-  // 加载统计数据
+  // 🔧 修复：加载统计数据
   const loadStatistics = async () => {
     try {
       const res = await getForwardStatistics();
-      if (res.success) {
-        setStatistics(res.data);
+      // 🔧 关键修改：res.data 才是实际数据
+      if (res.data && res.data.success) {
+        setStatistics(res.data.data);
       }
     } catch (error) {
       console.error('加载统计数据失败:', error);
@@ -100,7 +103,7 @@ const ForwardSetting = () => {
     loadStatistics();
   }, [activeTab]);
 
-  // 保存配置
+  // 🔧 修复：保存配置
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
@@ -108,14 +111,12 @@ const ForwardSetting = () => {
       
       // 特殊处理 WxPusher 的 uids 和 topicIds
       if (activeTab === 'wxpusher') {
-        // 处理 uids - 保持字符串格式，后端会处理
         if (values.config && values.config.uids) {
           if (typeof values.config.uids === 'string') {
             values.config.uids = values.config.uids.trim();
           }
         }
         
-        // 处理 topicIds - 保持字符串格式，后端会处理
         if (values.config && values.config.topicIds) {
           if (typeof values.config.topicIds === 'string') {
             values.config.topicIds = values.config.topicIds.trim();
@@ -124,7 +125,8 @@ const ForwardSetting = () => {
       }
       
       const res = await updateForwardSetting(activeTab, values);
-      if (res.success) {
+      // 🔧 关键修改：res.data 才是实际数据
+      if (res.data && res.data.success) {
         message.success('保存成功');
         // 重新加载统计数据
         loadStatistics();
@@ -136,29 +138,44 @@ const ForwardSetting = () => {
     }
   };
 
-  // 测试配置
+  // 🔧 修复：测试配置
   const handleTest = async () => {
     try {
       const values = await form.validateFields();
       setTesting(true);
       
+      // 🔧 关键修改：发送完整的配置对象，而不是只发送 config 部分
+      const testData = {
+        enabled: values.enabled || false,
+        config: values.config || {},
+        filterRules: values.filterRules || {},
+        messageTemplate: values.messageTemplate || '📱 新短信\n设备: {device}\nSIM卡: {simcard}\n发送方: {sender}\n内容: {content}\n时间: {time}'
+      };
+      
       // 特殊处理 WxPusher 的测试配置
-      const testConfig = { ...values.config };
       if (activeTab === 'wxpusher') {
-        if (testConfig.uids && typeof testConfig.uids === 'string') {
-          testConfig.uids = testConfig.uids.trim();
+        if (testData.config.uids && typeof testData.config.uids === 'string') {
+          testData.config.uids = testData.config.uids.trim();
         }
-        if (testConfig.topicIds && typeof testConfig.topicIds === 'string') {
-          testConfig.topicIds = testConfig.topicIds.trim();
+        if (testData.config.topicIds && typeof testData.config.topicIds === 'string') {
+          testData.config.topicIds = testData.config.topicIds.trim();
         }
       }
       
-      const res = await testForwardSetting(activeTab, testConfig);
-      if (res.success) {
+      // 🔧 发送完整的测试数据对象
+      const res = await testForwardSetting(activeTab, testData);
+      // 🔧 关键修改：res.data 才是实际数据
+      if (res.data && res.data.success) {
         message.success('测试消息发送成功，请检查接收端');
+      } else {
+        // 如果返回了错误消息，显示它
+        message.error(res.data?.message || '测试失败');
       }
     } catch (error) {
-      message.error(error.response?.data?.message || '测试失败');
+      // 🔧 改进错误处理
+      const errorMsg = error.response?.data?.message || error.message || '测试失败';
+      console.error('测试失败详情:', error.response?.data || error);
+      message.error(errorMsg);
     } finally {
       setTesting(false);
     }
@@ -170,7 +187,7 @@ const ForwardSetting = () => {
     return statistics.platforms.find(p => p.platform === activeTab);
   };
 
-  // ✅ 极简统计 Chip（新增，仅用于顶部统计的手机端样式）
+  // 极简统计 Chip（仅用于顶部统计的手机端样式）
   const StatChip = ({ icon, value, label, valueStyle }) => (
     <div
       style={{
@@ -546,7 +563,7 @@ const ForwardSetting = () => {
     </>
   );
 
-  // WxPusher 配置表单 - 修复版
+  // WxPusher 配置表单
   const renderWxPusherForm = () => (
     <>
       {/* 显示该平台的独立成功率 */}
@@ -795,7 +812,7 @@ const ForwardSetting = () => {
 
   return (
     <div>
-      {/* ✅ 手机端隐藏横向滚动条 & 渐隐边缘提示，仅作用于 chip 条 */}
+      {/* 手机端隐藏横向滚动条 & 渐隐边缘提示，仅作用于 chip 条 */}
       <style>{`
         @media (max-width: 767.98px) {
           .chip-bar {
@@ -803,13 +820,13 @@ const ForwardSetting = () => {
             gap: 8px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;           /* Firefox */
+            scrollbar-width: none;
             overscroll-behavior-x: contain;
             mask-image: linear-gradient(to right, 
               transparent 0, black 16px, 
               black calc(100% - 16px), transparent 100%);
           }
-          .chip-bar::-webkit-scrollbar { display: none; } /* WebKit */
+          .chip-bar::-webkit-scrollbar { display: none; }
         }
       `}</style>
 
@@ -817,7 +834,7 @@ const ForwardSetting = () => {
         <ApiOutlined /> 转发设置
       </Title>
 
-      {/* ✅ 统计区域：手机端 Chip 条；桌面端保持原四卡片 */}
+      {/* 统计区域：手机端 Chip 条；桌面端保持原四卡片 */}
       {statistics && (
         isXs ? (
           <div className="chip-bar" style={{ marginBottom: 16, padding: '2px 2px' }}>
@@ -914,7 +931,7 @@ const ForwardSetting = () => {
               </Card>
             </Col>
             
-            {/* 卡片4: 今日短信数（新增） */}
+            {/* 卡片4: 今日短信数 */}
             <Col xs={24} sm={12} md={6}>
               <Card>
                 <Statistic

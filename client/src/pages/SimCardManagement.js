@@ -10,6 +10,7 @@ import {
   DeleteOutlined, CheckOutlined, SoundOutlined, SendOutlined, MessageOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
+import api from '../services/api';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -69,13 +70,6 @@ function SimCardManagement() {
   const [smsModalVisible, setSmsModalVisible] = useState(false);
   const [sendingSms, setSendingSms] = useState(false);
 
-
-  const api = axios.create({
-    baseURL: '/api',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  });
 
   const fetchSimCards = async (page = 1, pageSize = 10) => {
     setLoading(true);

@@ -41,11 +41,10 @@ app.use(async (ctx, next) => {
   }
 });
 
-// 🔧 关键修改：先处理 API 路由
+// API 路由 - 必须在静态文件服务之前
 app.use(routes.routes()).use(routes.allowedMethods());
 
-// 🔧 静态文件服务 - 移到 API 路由之后
-// 添加 USE_DIST 环境变量支持，即使在开发环境也能使用 dist
+// 静态文件服务和 SPA 支持
 if (process.env.NODE_ENV === 'production' || process.env.USE_DIST === 'true') {
   const distPath = path.join(__dirname, '../dist');
   
@@ -56,32 +55,48 @@ if (process.env.NODE_ENV === 'production' || process.env.USE_DIST === 'true') {
     console.error('   期望目录:', distPath);
   } else {
     console.log('📁 使用静态文件目录: dist/');
-    // 静态文件服务
-    app.use(serve(distPath));
     
-    // 🔧 关键添加：SPA fallback - 处理前端路由
+    // SPA 路由处理 - 必须在 koa-static 之前
     app.use(async (ctx, next) => {
-      // 跳过 API 路由（已经在上面处理了）
+      // API 路由已经在上面处理了，这里跳过
       if (ctx.path.startsWith('/api')) {
         return next();
       }
       
-      // 如果是静态资源请求（有文件扩展名），且文件不存在，返回 404
+      // 获取文件扩展名
       const ext = path.extname(ctx.path);
+      
+      // 如果是静态资源请求（有扩展名且不是 .html）
       if (ext && ext !== '.html') {
-        // 静态资源不存在，让它 404
-        return next();
+        // 检查文件是否存在
+        const filePath = path.join(distPath, ctx.path);
+        if (fs.existsSync(filePath)) {
+          // 文件存在，让 koa-static 处理
+          return next();
+        } else {
+          // 文件不存在，返回 404
+          ctx.status = 404;
+          return;
+        }
       }
       
-      // 🔧 所有其他非 API 路由都返回 index.html（支持前端路由）
+      // 所有页面路由（包括 /, /login, /devices 等）都返回 index.html
       const indexPath = path.join(distPath, 'index.html');
       if (fs.existsSync(indexPath)) {
+        ctx.status = 200;
         ctx.type = 'html';
         ctx.body = fs.createReadStream(indexPath);
+        return;  // 重要：直接返回，不调用 next()
       } else {
-        return next();
+        // index.html 不存在
+        ctx.status = 500;
+        ctx.body = 'index.html not found. Please run: npm run build';
+        return;
       }
     });
+    
+    // 静态文件服务（处理 JS、CSS、图片等）
+    app.use(serve(distPath));
   }
 } else {
   // 开发环境
@@ -99,22 +114,35 @@ app.use(async (ctx) => {
       message: 'API endpoint not found',
       path: ctx.path
     };
-  } else if (process.env.NODE_ENV === 'production') {
-    // 🔧 生产环境：最后尝试返回 index.html
-    const indexPath = path.join(__dirname, '../dist/index.html');
+  } else if (process.env.NODE_ENV === 'production' || process.env.USE_DIST === 'true') {
+    // 生产环境：对于所有非 API 路由，返回 index.html（让前端路由处理）
+    const distPath = path.join(__dirname, '../dist');
+    const indexPath = path.join(distPath, 'index.html');
+    
+    // 检查是否是静态资源请求（有扩展名的）
+    const ext = path.extname(ctx.path);
+    if (ext && ext !== '.html') {
+      // 静态资源真的不存在，返回 404
+      ctx.status = 404;
+      ctx.body = 'Not Found';
+      return;
+    }
+    
+    // 所有页面路由都返回 index.html
     if (fs.existsSync(indexPath)) {
+      ctx.status = 200;
       ctx.type = 'html';
       ctx.body = fs.createReadStream(indexPath);
     } else {
-      // 真的找不到，返回 404 页面
-      ctx.status = 404;
+      // index.html 不存在，显示错误提示
+      ctx.status = 500;
       ctx.type = 'html';
       ctx.body = `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>404 - 页面未找到</title>
+  <title>错误 - 系统未正确部署</title>
   <style>
     body { 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -123,35 +151,30 @@ app.use(async (ctx) => {
       align-items: center;
       height: 100vh;
       margin: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #f5f5f5;
     }
     .container {
       text-align: center;
-      color: white;
-    }
-    h1 { font-size: 120px; margin: 0; }
-    p { font-size: 24px; margin: 20px 0; }
-    a { 
-      color: white; 
-      text-decoration: none;
-      padding: 10px 20px;
-      border: 2px solid white;
-      border-radius: 5px;
-      display: inline-block;
-      margin-top: 20px;
-      transition: all 0.3s;
-    }
-    a:hover {
+      padding: 40px;
       background: white;
-      color: #667eea;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 { color: #d32f2f; }
+    pre { 
+      background: #f5f5f5; 
+      padding: 15px; 
+      border-radius: 4px;
+      text-align: left;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>404</h1>
-    <p>页面未找到</p>
-    <a href="/">返回首页</a>
+    <h1>系统未正确部署</h1>
+    <p>dist/index.html 文件不存在</p>
+    <pre>请运行以下命令：
+npm run build</pre>
   </div>
 </body>
 </html>`;
@@ -220,11 +243,11 @@ app.on('error', (err, ctx) => {
   }
 });
 
-// 每天凌晨2点清理365天前的日志（已修改为365天）
+// 每天凌晨2点清理365天前的日志
 setInterval(() => {
   const now = new Date();
   if (now.getHours() === 2 && now.getMinutes() === 0) {
-    logger.cleanOldLogs(365); // 修改为365天
+    logger.cleanOldLogs(365);
   }
 }, 60000); // 每分钟检查一次
 
@@ -235,14 +258,10 @@ async function start() {
     console.log('✅ 数据库连接成功');
     
     // 根据环境变量决定是否同步数据库
-    // 生产环境：不自动同步
-    // 开发环境：只在首次运行时同步，之后不再自动同步
     const shouldSync = process.env.DB_SYNC === 'true' || process.env.NODE_ENV === 'development_first_run';
     
     if (shouldSync) {
       console.log('⚠️  正在同步数据库模型...');
-      // 使用 sync({ force: false }) 而不是 alter: true
-      // force: false 只会创建不存在的表，不会修改已存在的表结构
       await sequelize.sync({ force: false });
       console.log('✅ 数据库模型同步成功');
       console.log('');
@@ -279,8 +298,8 @@ async function start() {
     console.log('   - logs/webhook-YYYY-MM-DD.log (Webhook日志)');
     console.log('   - logs/forward-YYYY-MM-DD.log (转发日志)');
     
-    // 🔧 添加提示信息
-    if (process.env.NODE_ENV === 'production') {
+    // 生产环境检查 dist 目录
+    if (process.env.NODE_ENV === 'production' || process.env.USE_DIST === 'true') {
       const distPath = path.join(__dirname, '../dist');
       if (!fs.existsSync(distPath)) {
         console.log('');
@@ -336,7 +355,23 @@ process.on('SIGINT', async () => {
   }
 });
 
-// 处理启动错误
+// 处理未捕获的 Promise 拒绝
+process.on('unhandledRejection', (reason, promise) => {
+  logger.logError('UnhandledRejection', reason, {
+    promise: promise.toString()
+  });
+});
+
+// 处理未捕获的异常
+process.on('uncaughtException', (error) => {
+  logger.logError('UncaughtException', error);
+  // 给一些时间让日志写入
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
+});
+
+// 启动应用
 start().catch(error => {
   logger.logError('FatalStartupError', error);
   console.error('❌ 致命错误:', error);

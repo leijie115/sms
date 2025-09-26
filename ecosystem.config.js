@@ -18,7 +18,7 @@ module.exports = {
         
         // 环境特定配置
         // env_production: {
-          env: {
+        env: {
           NODE_ENV: 'production',
           PORT: 3000,
           instances: 'max',

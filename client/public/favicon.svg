@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 背景圆形 -->
+  <circle cx="16" cy="16" r="15" fill="#1890ff"/>
+  
+  <!-- 消息气泡主体 -->
+  <path d="M8 10 Q8 8 10 8 L22 8 Q24 8 24 10 L24 18 Q24 20 22 20 L14 20 L10 24 L10 20 L10 20 Q8 20 8 18 Z" 
+        fill="white"/>
+  
+  <!-- 消息点（表示短信） -->
+  <circle cx="12" cy="14" r="1" fill="#1890ff"/>
+  <circle cx="16" cy="14" r="1" fill="#1890ff"/>
+  <circle cx="20" cy="14" r="1" fill="#1890ff"/>
+  
+  <!-- 发送箭头（表示转发） -->
+  <path d="M20 17 L23 14 L20 11" 
+        stroke="#52c41a" 
+        stroke-width="1.5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+</svg>

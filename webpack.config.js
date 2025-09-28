@@ -5,6 +5,8 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CopyPlugin = require('copy-webpack-plugin');
+const fs = require('fs');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const shouldAnalyze = process.env.ANALYZE === 'true';
@@ -36,7 +38,6 @@ module.exports = {
     splitChunks: {
       chunks: 'all',
       cacheGroups: {
-        // 将 node_modules 分成多个包
         react: {
           test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom)[\\/]/,
           name: 'react-vendor',
@@ -88,7 +89,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
         type: 'asset',
         parser: {
           dataUrlCondition: {
@@ -103,7 +104,36 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './client/index.html',
       filename: 'index.html',
-      minify: isProduction,
+      // 只在 favicon.ico 存在时添加
+      favicon: fs.existsSync('./client/public/favicon.ico') 
+        ? './client/public/favicon.ico' 
+        : undefined,
+      minify: isProduction ? {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        keepClosingSlash: true,
+        minifyJS: true,
+        minifyCSS: true,
+        minifyURLs: true,
+      } : false,
+    }),
+    
+    // 复制静态文件
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'client/public',
+          to: '',
+          globOptions: {
+            ignore: ['**/favicon-preview.html', '**/.DS_Store', '**/Thumbs.db'],
+          },
+          noErrorOnMissing: true, // 目录不存在时不报错
+        },
+      ],
     }),
     
     ...(isProduction ? [
@@ -143,6 +173,18 @@ module.exports = {
     hot: true,
     historyApiFallback: true,
     compress: true,
+    // 配置静态文件服务（开发模式）
+    static: [
+      {
+        directory: path.join(__dirname, 'client/public'),
+        publicPath: '/',
+        watch: true, // 监听文件变化
+      },
+      {
+        directory: path.join(__dirname, 'client'),
+        publicPath: '/',
+      }
+    ],
     proxy: [
       {
         context: ['/api'],

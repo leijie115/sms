@@ -9,7 +9,6 @@ import {
   CheckCircleOutlined, ExclamationCircleOutlined,
   ArrowUpOutlined, ArrowDownOutlined, SyncOutlined
 } from '@ant-design/icons';
-import axios from 'axios';
 import api from '../services/api';
 
 const { Title, Text } = Typography;
@@ -31,13 +30,13 @@ function Dashboard() {
     totalSimCards: 0,
     activeSimCards: 0,
     todayMessages: 0,
+    yesterdayMessages: 0,  // 添加昨日短信数
     totalMessages: 0,
     messageGrowth: 0
   });
   const [recentMessages, setRecentMessages] = useState([]);
   const [deviceStatus, setDeviceStatus] = useState([]);
   const [simCardStatus, setSimCardStatus] = useState([]);
-
 
   useEffect(() => {
     fetchDashboardData();
@@ -49,11 +48,52 @@ function Dashboard() {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // 获取统计数据
-      const [devicesRes, simCardsRes, messagesRes, statsRes] = await Promise.all([
+      // 计算时间范围
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayEnd = new Date(today);
+      yesterdayEnd.setSeconds(yesterdayEnd.getSeconds() - 1);
+
+      // 获取统计数据 - 并行请求
+      const [
+        devicesRes, 
+        simCardsRes, 
+        todayMessagesRes,
+        yesterdayMessagesRes,
+        recentMessagesRes,
+        statsRes
+      ] = await Promise.all([
         api.get('/devices', { params: { pageSize: 100 } }),
         api.get('/simcards', { params: { pageSize: 100 } }),
-        api.get('/sms-messages', { params: { pageSize: 10 } }),
+        // 查询今日短信
+        api.get('/sms-messages', { 
+          params: { 
+            startDate: today.toISOString(),
+            endDate: todayEnd.toISOString(),
+            pageSize: 1000  // 足够大的数字获取所有今日短信
+          } 
+        }),
+        // 查询昨日短信
+        api.get('/sms-messages', { 
+          params: { 
+            startDate: yesterday.toISOString(),
+            endDate: yesterdayEnd.toISOString(),
+            pageSize: 1000
+          } 
+        }),
+        // 获取最近的短信用于显示
+        api.get('/sms-messages', { 
+          params: { 
+            pageSize: 5,
+            orderBy: 'createdAt',
+            order: 'desc'
+          } 
+        }),
         api.get('/sms-messages/statistics', { params: { days: 7 } })
       ]);
 
@@ -65,15 +105,20 @@ function Dashboard() {
       const simCards = simCardsRes.data.data || [];
       const activeSimCards = simCards.filter(s => s.status === '204').length;
 
-      // 处理短信数据
-      const messages = messagesRes.data.data || [];
-      const stats = statsRes.data.data || {};
+      // 获取今日和昨日短信数量
+      const todayMessages = todayMessagesRes.data.total || todayMessagesRes.data.data?.length || 0;
+      const yesterdayMessages = yesterdayMessagesRes.data.total || yesterdayMessagesRes.data.data?.length || 0;
+      
+      // 计算增长率
+      let messageGrowth = 0;
+      if (yesterdayMessages > 0) {
+        messageGrowth = Math.round(((todayMessages - yesterdayMessages) / yesterdayMessages) * 100);
+      } else if (todayMessages > 0) {
+        messageGrowth = 100; // 如果昨天没有短信，今天有，则增长100%
+      }
 
-      // 计算今日短信数
-      const today = new Date().toDateString();
-      const todayMessages = messages.filter(m => 
-        new Date(m.createdAt).toDateString() === today
-      ).length;
+      // 获取总短信数统计
+      const stats = statsRes.data.data || {};
 
       // 设置统计数据
       setStatistics({
@@ -82,12 +127,13 @@ function Dashboard() {
         totalSimCards: simCards.length,
         activeSimCards,
         todayMessages,
-        totalMessages: stats.totalCount || messagesRes.data.total || 0,
-        messageGrowth: 15 // 模拟增长率
+        yesterdayMessages,
+        totalMessages: stats.totalCount || statsRes.data.total || 0,
+        messageGrowth
       });
 
       // 设置最近消息
-      setRecentMessages(messages.slice(0, 5));
+      setRecentMessages(recentMessagesRes.data.data || []);
 
       // 设置设备状态分布
       const deviceStatusMap = {};
@@ -172,7 +218,7 @@ function Dashboard() {
               }
             />
             <Progress 
-              percent={statistics.totalDevices ? (statistics.activeDevices / statistics.totalDevices * 100) : 0} 
+              percent={statistics.totalDevices ? Math.round((statistics.activeDevices / statistics.totalDevices * 100)) : 0} 
               strokeColor="#52c41a"
               showInfo={false}
               size="small"
@@ -194,7 +240,7 @@ function Dashboard() {
               }
             />
             <Progress 
-              percent={statistics.totalSimCards ? (statistics.activeSimCards / statistics.totalSimCards * 100) : 0} 
+              percent={statistics.totalSimCards ? Math.round((statistics.activeSimCards / statistics.totalSimCards * 100)) : 0} 
               strokeColor="#722ed1"
               showInfo={false}
               size="small"
@@ -215,10 +261,26 @@ function Dashboard() {
               <Text type="secondary" style={{ fontSize: 12 }}>
                 较昨日 
               </Text>
-              <span style={{ color: '#52c41a', marginLeft: 4 }}>
-                <ArrowUpOutlined style={{ fontSize: 10 }} />
-                {statistics.messageGrowth}%
-              </span>
+              {statistics.messageGrowth !== 0 ? (
+                <span style={{ 
+                  color: statistics.messageGrowth > 0 ? '#52c41a' : '#ff4d4f', 
+                  marginLeft: 4 
+                }}>
+                  {statistics.messageGrowth > 0 ? (
+                    <ArrowUpOutlined style={{ fontSize: 10 }} />
+                  ) : (
+                    <ArrowDownOutlined style={{ fontSize: 10 }} />
+                  )}
+                  {Math.abs(statistics.messageGrowth)}%
+                </span>
+              ) : (
+                <Text type="secondary" style={{ fontSize: 12, marginLeft: 4 }}>
+                  持平
+                </Text>
+              )}
+              <Text type="secondary" style={{ fontSize: 11, marginLeft: 8 }}>
+                (昨日: {statistics.yesterdayMessages})
+              </Text>
             </div>
           </Card>
         </Col>

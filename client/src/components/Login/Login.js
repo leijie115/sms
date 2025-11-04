@@ -39,8 +39,10 @@ function Login({ onLogin }) {
         sessionStorage.removeItem('token');
         localStorage.setItem('remembered_username', username);
       } else {
-        sessionStorage.setItem('token', res.token);
-        localStorage.removeItem('token');
+        localStorage.setItem('token', res.token);
+        sessionStorage.removeItem('token');
+        // sessionStorage.setItem('token', res.token);
+        // localStorage.removeItem('token');
         localStorage.removeItem('remembered_username');
       }
 
@@ -125,9 +127,9 @@ function Login({ onLogin }) {
           </Form.Item>
 
           {/* 记住我（持久登录） */}
-          <Form.Item name="remember" valuePropName="checked" style={{ marginBottom: 8 }}>
+          {/* <Form.Item name="remember" valuePropName="checked" style={{ marginBottom: 8 }}>
             <Checkbox disabled={loading}>记住我</Checkbox>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item style={{ marginBottom: 8 }}>
             <Button
